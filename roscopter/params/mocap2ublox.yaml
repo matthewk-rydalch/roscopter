@@ -17,6 +17,7 @@ noise_on: True,
 
 ref_lla: [40.267320, -111.635629, 1387.0],
 
+#used for low pass filter
 sigma_rover_pos: 5.0, #TODO: tune this
 sigma_rover_vel: 5.0, #TODO: tune this
 sigma_rover_relpos: 0.0, #TODO: tune this

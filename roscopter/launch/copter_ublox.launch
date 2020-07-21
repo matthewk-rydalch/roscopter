@@ -43,7 +43,7 @@
     <remap from="baro" to="/baro"/>
     <remap from="ublox_gnss" to="/PosVelEcef"/>
     <remap from="ublox_relpos" to="/RelPos"/>
-    <remap from="ublox_basevel" to="/basevel"/>
+    <remap from="ublox_basevel" to="/base/PosVelEcef"/>
   </node>
 
   <!-- Waypoint Manager -->
