@@ -88,7 +88,7 @@ baro_pressure_noise_stdev: 2.0 # used in sensor model noise
 range_noise_stdev: 0.1 # used in sensor model noise
 
 # used in sensor model noise if set to true
-manual_gps_noise: True # choose noise params for GPS or use the values reported from the message topic
-gps_horizontal_stdev: 0.02
+manual_gps_noise: true # choose noise params for GPS or use the values reported from the message topic
+gps_horizontal_stdev: 0.021
 gps_vertical_stdev: 0.04
 gps_speed_stdev: 0.02
