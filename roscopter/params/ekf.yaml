@@ -4,16 +4,16 @@
 # bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_walkpath.bag"
 # bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_north_eastfirst.bag"
 # bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_parkinglot_south_eastfirst.bag"
-bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_updown.bag"
-status_topic: "/status"
-imu_topic: "/imu/data"
-baro_topic: "/serial/baro"
-range_topic: "/serial/laser"
-pose_topic: ""
-odom_topic: ""
-gnss_topic: ""
-ublox_gnss_topic: ""
-inertial_sense_gnss_topic: "/ins/gps"
+# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_updown.bag"
+# status_topic: "/status"
+# imu_topic: "/imu/data"
+# baro_topic: "/serial/baro"
+# range_topic: "/serial/laser"
+# pose_topic: ""
+# odom_topic: ""
+# gnss_topic: ""
+# ublox_gnss_topic: ""
+# inertial_sense_gnss_topic: "/ins/gps"
 
 start_time: 0
 duration: 1000
@@ -30,8 +30,8 @@ enable_log: true
 ## Measurement Processing
 enable_partial_update: true
 enable_out_of_order: false # TODO this isnt fully implemented
-use_mocap: false
-use_gnss: true
+use_mocap: true
+use_gnss: false
 use_baro: true
 use_range: false
 use_zero_vel: true

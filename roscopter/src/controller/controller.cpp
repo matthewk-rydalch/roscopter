@@ -60,6 +60,7 @@ Controller::Controller() :
 
 void Controller::stateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
+  
   static double prev_time = 0;
   if(prev_time == 0)
   {
@@ -94,7 +95,7 @@ void Controller::stateCallback(const nav_msgs::OdometryConstPtr &msg)
   xhat_.p = msg->twist.twist.angular.x;
   xhat_.q = msg->twist.twist.angular.y;
   xhat_.r = msg->twist.twist.angular.z;
-
+  
   if(is_flying_ && armed_ && received_cmd_)
   {
     ROS_WARN_ONCE("CONTROLLER ACTIVE");
