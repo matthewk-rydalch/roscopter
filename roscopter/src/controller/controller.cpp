@@ -48,8 +48,8 @@ Controller::Controller() :
   cmd_sub_ =
       nh_.subscribe("high_level_command", 1, &Controller::cmdCallback, this);
   status_sub_ = nh_.subscribe("status", 1, &Controller::statusCallback, this);
-  base_vel_sub_ =
-    nh_.subscribe("base_velocity", 1, &Controller::baseVelCallback, this);
+  base_odom_sub_ =
+    nh_.subscribe("base_odom", 1, &Controller::baseOdomCallback, this);
 
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
   use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Controller::useFeedForwardCallback, this);
@@ -156,7 +156,7 @@ void Controller::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
     received_cmd_ = true;
 }
 
-void Controller::baseVelCallback(const geometry_msgs::TwistStampedConstPtr &msg)
+void Controller::baseOdomCallback(const nav_msgs::OdometryConstPtr &msg)
 {
 
   // // Convert Quaternion to RPY
@@ -168,14 +168,15 @@ void Controller::baseVelCallback(const geometry_msgs::TwistStampedConstPtr &msg)
   // double sinp = sin(base_hat_.psi);
   // double cosp = cos(base_hat_.psi);
 
-  double u = msg->twist.linear.x;
-  double v = msg->twist.linear.y;
-  double w = msg->twist.linear.z;
+  double u = msg->twist.twist.linear.x;
+  double v = msg->twist.twist.linear.y;
+  double w = msg->twist.twist.linear.z;
 
   base_hat_.u = u;
   base_hat_.v = v;
+  base_hat_.w = w;
 
-  base_hat_.r = -msg->twist.angular.z; //have to negate to go from Counter Clockwise positive rotation to Clockwise
+  // base_hat_.r = -msg->twist.angular.z; //have to negate to go from Counter Clockwise positive rotation to Clockwise
 
 }
 
@@ -289,10 +290,9 @@ void Controller::computeControl(double dt)
 
     if(use_feed_forward_)
     {
-      // Only using feed forward on 2d plane right now
       xc_.x_dot = xc_.x_dot + base_hat_.u; //feed forward the base velocity
       xc_.y_dot = xc_.y_dot + base_hat_.v;
-      xc_.r = xc_.r+base_hat_.r;
+      xc_.z_dot = xc_.z_dot + base_hat_.w;
     }
 
     mode_flag = rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE;

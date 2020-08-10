@@ -87,7 +87,7 @@ private:
   ros::Subscriber is_flying_sub_;
   ros::Subscriber cmd_sub_;
   ros::Subscriber status_sub_;
-  ros::Subscriber base_vel_sub_;
+  ros::Subscriber base_odom_sub_;
   ros::Subscriber is_landing_sub_;
   ros::Subscriber use_feed_forward_sub_;
   ros::Subscriber landed_sub_;
@@ -139,7 +139,7 @@ private:
   void isFlyingCallback(const std_msgs::BoolConstPtr &msg);
   void cmdCallback(const rosflight_msgs::CommandConstPtr &msg);
   void statusCallback(const rosflight_msgs::StatusConstPtr &msg);
-  void baseVelCallback(const geometry_msgs::TwistStampedConstPtr &msg);
+  void baseOdomCallback(const nav_msgs::OdometryConstPtr &msg);
   void useFeedForwardCallback(const std_msgs::BoolConstPtr &msg);
   void isLandingCallback(const std_msgs::BoolConstPtr &msg);
   void landedCallback(const std_msgs::BoolConstPtr &msg);
