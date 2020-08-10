@@ -267,12 +267,11 @@ void EKF_ROS::publishGpsCov(Matrix6d sigma_ecef, Vector6d sigma_ned, Vector6d z)
 
 void EKF_ROS::imuCallback(const sensor_msgs::ImuConstPtr &msg)
 {
-  // I do not see why subtracting the start time is necessary.  For some reason it breaks in rosflight_holodeck
   //initializes time on first imu callback
-  // if (start_time_.sec == 0)
-  // {
-  //   start_time_ = msg->header.stamp;
-  // }
+  if (start_time_.sec == 0)
+  {
+    start_time_ = msg->header.stamp;
+  }
 
   //I'd assume Vector 6d is a type defined somewhere, but I couldn't find it
   Vector6d z;
@@ -284,8 +283,7 @@ void EKF_ROS::imuCallback(const sensor_msgs::ImuConstPtr &msg)
        msg->angular_velocity.y,
        msg->angular_velocity.z;
 
-  // double t = (msg->header.stamp - start_time_).toSec();
-  double t = msg->header.stamp.toSec();
+  double t = (msg->header.stamp - start_time_).toSec();
   ekf_.imuCallback(t, z, imu_R_); //time, measurment, and noise
 
   if(ros_initialized_) //flag set true in EKF_ROS::initRos
@@ -354,7 +352,6 @@ void EKF_ROS::poseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
 //calls mocapCallback
 void EKF_ROS::odomCallback(const nav_msgs::OdometryConstPtr &msg)
 {
-  
   xform::Xformd z;
   z.arr_ << msg->pose.pose.position.x,
             msg->pose.pose.position.y,

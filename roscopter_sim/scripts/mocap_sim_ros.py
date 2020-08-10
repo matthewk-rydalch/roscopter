@@ -8,7 +8,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
 from rosflight_msgs.msg import GNSS
-from rosflight_msgs.msg import GNSSRaw
+# from rosflight_msgs.msg import GNSSRaw
 from ublox.msg import RelPos
 from ublox.msg import PosVelEcef
 

@@ -609,6 +609,7 @@ void EKF::mocapUpdate(const meas::Mocap &z)
   H.block<3,3>(0, E::DP) = I_3x3;
   H.block<3,3>(3, E::DQ) = I_3x3;
 
+
   /// TODO: Saturate r
   if (use_mocap_)
   {
