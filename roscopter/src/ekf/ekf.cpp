@@ -102,6 +102,7 @@ void EKF::load(const std::string &filename)
 // gets parameters from ekf.yaml
 void EKF::initLog(const std::string &filename)
 {
+
   get_yaml_node("enable_log", filename, enable_log_);
   get_yaml_node("log_prefix", filename, log_prefix_);
 
@@ -117,6 +118,7 @@ void EKF::initLog(const std::string &filename)
 //called by EKF::propagate
 void EKF::initialize(double t)
 {
+
   x().t = t;
   x().x = x0_; //from yaml
   x().v.setZero(); //???
@@ -139,6 +141,7 @@ void EKF::initialize(double t)
 //calls EKF::initialize, EKF::dynamics (in dynmaics.cpp)
 void EKF::propagate(const double &t, const Vector6d &imu, const Matrix6d &R)
 {
+
   //if time t is a nan initialize
   if (std::isnan(x().t))
   {
@@ -147,7 +150,10 @@ void EKF::propagate(const double &t, const Vector6d &imu, const Matrix6d &R)
   }
 
   double dt = t - x().t;
-  assert(dt >= 0);
+  // assert(dt >= 0);
+  // is it okay to skip propagation rather than break the ekf?
+  if (dt < 0.0)
+    std::cerr << "dt < 0.0";
   if (dt < 1e-6)
     return;
   //this function is in dynamics.cpp but it is scopted in the EKF class
@@ -190,6 +196,7 @@ void EKF::propagate(const double &t, const Vector6d &imu, const Matrix6d &R)
 //calls EKF::update, EKF::logState (looks like the function has not been created yet), EKF::getOldestNewMeas, 
 void EKF::run()
 {
+
   meas::MeasSet::iterator nmit = getOldestNewMeas();
   if (nmit == meas_.end())
     return;
@@ -217,6 +224,7 @@ void EKF::run()
 //calls EKF::propagate, EKF:: zeroVelUpdate, EKF::gnssUpdate, EKF::mocapUpdate, EKF::cleanUpMeasurmenetsBuffers 
 void EKF::update(const meas::Base* m)
 {
+
   if (m->type == meas::Base::IMU)
   {
     const meas::Imu* z = dynamic_cast<const meas::Imu*>(m);
@@ -253,6 +261,7 @@ void EKF::update(const meas::Base* m)
 //called by EKF::run
 meas::MeasSet::iterator EKF::getOldestNewMeas()
 {
+
   meas::MeasSet::iterator it = meas_.begin();
   while (it != meas_.end() && (*it)->handled)
   {
@@ -305,6 +314,7 @@ bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
 //calls EKF::checkisFlying, can call EKF::run, EKF::propagate, EKF::zeroVelUpdate
 void EKF::imuCallback(const double &t, const Vector6d &z, const Matrix6d &R)
 {
+
   //On first update (which is triggered by the first imu message) check if it is flying
   if (!is_flying_)
     checkIsFlying();
@@ -338,6 +348,7 @@ void EKF::imuCallback(const double &t, const Vector6d &z, const Matrix6d &R)
 void EKF::baroCallback(const double &t, const double &z, const double &R,
                        const double &temp)
 {
+
   //???why does this not get implimented if multithreaded?
   if (enable_out_of_order_)
   {
@@ -363,6 +374,7 @@ void EKF::rangeCallback(const double& t, const double& z, const double& R)
 //calls gnssUpdate, meas::Gnss(struct)
 void EKF::gnssCallback(const double &t, const Vector6d &z, const Matrix6d &R)
 {
+
   if (!ref_lla_set_)
     return;
 
@@ -387,6 +399,7 @@ void EKF::gnssCallback(const double &t, const Vector6d &z, const Matrix6d &R)
 //calls mocapUpdate
 void EKF::mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R)
 {
+
   if (enable_out_of_order_)
   {
     mocap_meas_buf_.push_back(meas::Mocap(t, z, R));
@@ -408,6 +421,7 @@ void EKF::mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d&
 //calls this->groundTempPressSet, measUpdate
 void EKF::baroUpdate(const meas::Baro &z)
 {
+
   //groundTempPressSet returns true if ground temp and pressure are not both 0
   //return if gound temp and pressure are not yet set.
   if (!this->groundTempPressSet())
@@ -477,6 +491,7 @@ void EKF::baroUpdate(const meas::Baro &z)
 //not called becaues there is no subscription for this.  But all of the functions are set up if subscribed to.
 void EKF::rangeUpdate(const meas::Range &z)
 {
+
   // Assume that the earth is flat and that the range sensor is rigidly attached
   // to the UAV, so distance is dependent on the attitude of the UAV.
   // TODO this assumes that the laser is positioned at 0,0,0 in the body frame
@@ -534,6 +549,7 @@ void EKF::rangeUpdate(const meas::Range &z)
 //calls measUpdate
 void EKF::gnssUpdate(const meas::Gnss &z)
 {
+
   //calcuate gps (inertial frame) velocities and positions
   const Vector3d w = x().w - x().bg; //angluar velocity minus gyro bias
   const Vector3d gps_pos_I = x().p + x().q.rota(p_b2g_); //I is inertial frame, position plus the orientation rotated into the gps frame
@@ -592,6 +608,7 @@ void EKF::gnssUpdate(const meas::Gnss &z)
 //calls EKF::measUpdate
 void EKF::mocapUpdate(const meas::Mocap &z)
 {
+
   xform::Xformd zhat = x().x;
 
   // TODO Do we need to fix "-" operator for Xformd?
@@ -628,6 +645,7 @@ void EKF::mocapUpdate(const meas::Mocap &z)
 //calls EKF::measUpdate
 void EKF::zeroVelUpdate(double t)
 {
+
   ///////////PART OF ALGORITHM /////////////
   // Update Zero velocity and zero altitude
   typedef ErrorState E;
@@ -660,6 +678,7 @@ void EKF::zeroVelUpdate(double t)
 //called by EKF_ROS::gnssCallback, EKF_ROS::gnssCallbackUblox, EKF_ROS::gnssCallbackInertialSense
 void EKF::setRefLla(Vector3d ref_lla)
 {
+
   if (ref_lla_set_)
     return;
 
@@ -682,6 +701,7 @@ void EKF::setRefLla(Vector3d ref_lla)
 //called by EKF::update
 void EKF::cleanUpMeasurementBuffers()
 {
+
   // Remove all measurements older than our oldest state in the measurement buffer
   while ((*meas_.begin())->t < xbuf_.begin().x.t)
     meas_.erase(meas_.begin());
@@ -697,6 +717,7 @@ void EKF::cleanUpMeasurementBuffers()
 //called by EKF_ROS::baroCallback
 void EKF::setGroundTempPressure(const double& temp, const double& press)
 {
+  
   ground_temperature_ = temp;
   ground_pressure_ = press;
 }
@@ -705,6 +726,7 @@ void EKF::setGroundTempPressure(const double& temp, const double& press)
 //called by EKF::imuCallback
 void EKF::checkIsFlying()
 {
+
   //enable_arm_check_ set in load function and the value is set by the user in ekf.yaml
   // if enable_arm_check is true, then set okay_to_check to armed_.  If it is false set okay_to_check to true
   // set_armed and set_disarmed functions are set up in ekf.h, but would need to be called to set armed_.  By default it is false.

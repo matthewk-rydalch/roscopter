@@ -229,6 +229,7 @@ void EKF_ROS::publishEstimates(const sensor_msgs::ImuConstPtr &msg)
 
 void EKF_ROS::publishGpsCov(Matrix6d sigma_ecef, Vector6d sigma_ned, Vector6d z)
 {
+
   // const Eigen::Vector3d& ecef
   // z_ned = x_ecef2ned(const Eigen::Vector3d& ecef)
 
@@ -267,6 +268,7 @@ void EKF_ROS::publishGpsCov(Matrix6d sigma_ecef, Vector6d sigma_ned, Vector6d z)
 
 void EKF_ROS::imuCallback(const sensor_msgs::ImuConstPtr &msg)
 {
+
   //initializes time on first imu callback
   if (start_time_.sec == 0)
   {
@@ -334,6 +336,7 @@ void EKF_ROS::rangeCallback(const sensor_msgs::RangeConstPtr& msg)
 //calls mocapCallback
 void EKF_ROS::poseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
 {
+
   //xform is from geometry/xform.h
   xform::Xformd z;
   z.arr_ << msg->pose.position.x,
@@ -369,6 +372,7 @@ void EKF_ROS::odomCallback(const nav_msgs::OdometryConstPtr &msg)
 //calls EKF::mocapCallback
 void EKF_ROS::mocapCallback(const ros::Time &time, const xform::Xformd &z)
 {
+
   if (start_time_.sec == 0)
     return;
 
@@ -379,6 +383,7 @@ void EKF_ROS::mocapCallback(const ros::Time &time, const xform::Xformd &z)
 //no subscription 
 void EKF_ROS::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
+
   if (msg->armed)
   {
     ekf_.setArmed();
@@ -459,6 +464,7 @@ void EKF_ROS::gnssCallback(const rosflight_msgs::GNSSConstPtr &msg)
 #ifdef UBLOX
 void EKF_ROS::gnssCallbackUblox(const ublox::PosVelEcefConstPtr &msg)
 {
+
   //only uses the data if gnss is fixed as 2D or 3D
   if (msg->fix == ublox::PosVelEcef::FIX_TYPE_2D
       || msg->fix == ublox::PosVelEcef::FIX_TYPE_3D)
@@ -480,6 +486,7 @@ void EKF_ROS::gnssCallbackUblox(const ublox::PosVelEcefConstPtr &msg)
 
 void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
 {
+
   //This message is used in the waypoint manager
   //TODO:: put in logic to only use measurements if a flag of 311, 279, 271, or ... xxx, is found
   //TODO:: maybe put in logic to only move forward if in a landing state
@@ -496,6 +503,7 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
 
 void EKF_ROS::gnssCallbackBasevel(const ublox::PosVelEcefConstPtr &msg)
 {
+
   //This message is used by the controller for the feed forward term
   base_vel_msg_.twist.linear.x = msg->velocity[0];
   base_vel_msg_.twist.linear.y = msg->velocity[1];
@@ -512,6 +520,7 @@ void EKF_ROS::gnssCallbackBasevel(const ublox::PosVelEcefConstPtr &msg)
 #ifdef INERTIAL_SENSE
 void EKF_ROS::gnssCallbackInertialSense(const inertial_sense::GPSConstPtr &msg)
 {
+
   if (msg->fix_type == inertial_sense::GPS::GPS_STATUS_FIX_TYPE_2D_FIX
       || msg->fix_type == inertial_sense::GPS::GPS_STATUS_FIX_TYPE_3D_FIX)
   {
