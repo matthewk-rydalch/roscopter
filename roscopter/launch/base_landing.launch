@@ -4,13 +4,16 @@
 
   <arg name="target_name"         value="boat_landing_platform"/>
   <arg name="is_serial_port" default="/dev/ttyACM0"/>
-  <arg name="base_serial_port" default="/dev/ttyACM1"/>
+  <!-- <arg name="base_serial_port" default="/dev/ttyACM1"/>
   <arg name="base_host" default="192.168.0.111"/>
-  <arg name="rover_host" default="192.168.0.84"/>
+  <arg name="rover_host" default="192.168.0.84"/> -->
+
+  <!-- Inertial Sense Node -->
+  <node name="inertial_sense" type="inertial_sense_node" pkg="inertial_sense" output="screen"/>
 
 
   <!-- GPS Node-->
-  <node name="f9p" pkg="ublox" type="ublox_ros">
+  <!-- <node name="f9p" pkg="ublox" type="ublox_ros">
     <param name="serial_port" value="$(arg base_serial_port)"/>
     <param name="local_host" value="$(arg base_host)"/>
     <param name="local_port" value="16140"/>
@@ -19,25 +22,30 @@
     <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
     <param name="rover_quantity" value="1"/>
     <param name="base_type" value="moving"/>
-   </node> 
-  
+   </node>  -->
+
+  <!-- Motion Capture Node-->
+  <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
+
+  <!-- Mocap2Ublox Node-->
+  <group ns="m2u">
+    <!-- Load common parameters -->
+    <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
+    <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen">
+      <!-- to the base, it is the rover -->
+      <remap from="rover_mocap" to="/$(arg target_name)_ned"/>
+    </node>
+  </group>
+
 
   <!-- Estimator -->
   <rosparam command="load" file="$(find roscopter)/params/ekf.yaml" ns="estimator"/>
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
     <remap from="imu" to="is/imu"/> <!--need to figure out the right topic here-->
-    <remap from="baro" to="/baro"/>
-    <remap from="ublox_gnss" to="/PosVelEcef"/>
-    <remap from="ublox_relpos" to="/RelPos"/>
-    <remap from="ublox_basevel" to="/base/PosVelEcef"/>
+    <remap from="ublox_gnss" to="m2u/PosVelEcef"/>
   </node>
 
-  <!-- Waypoint Manager -->
-  <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
-    <remap from="waypoint" to="high_level_command"/>
-    <remap from="state" to="odom"/>
-    <remap from="base_relative_pos" to="base_relPos"/>
-  </node>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/flight --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/base --all"/>
+
 </launch>
