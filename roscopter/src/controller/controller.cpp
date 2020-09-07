@@ -42,19 +42,17 @@ Controller::Controller() :
   _server.setCallback(_func);
 
   // Set up Publishers and Subscriber
-  state_sub_ = nh_.subscribe("estimate", 1, &Controller::stateCallback, this);
-  is_flying_sub_ =
-      nh_.subscribe("is_flying", 1, &Controller::isFlyingCallback, this);
-  cmd_sub_ =
-      nh_.subscribe("high_level_command", 1, &Controller::cmdCallback, this);
-  status_sub_ = nh_.subscribe("status", 1, &Controller::statusCallback, this);
-  base_odom_sub_ =
-    nh_.subscribe("base_odom", 1, &Controller::baseOdomCallback, this);
-
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
+
+  state_sub_ = nh_.subscribe("estimate", 1, &Controller::stateCallback, this);
+  is_flying_sub_ = nh_.subscribe("is_flying", 1, &Controller::isFlyingCallback, this);
+  cmd_sub_ = nh_.subscribe("high_level_command", 1, &Controller::cmdCallback, this);
+  status_sub_ = nh_.subscribe("status", 1, &Controller::statusCallback, this);
+  base_odom_sub_ = nh_.subscribe("base_odom", 1, &Controller::baseOdomCallback, this);
   use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Controller::useFeedForwardCallback, this);
   is_landing_sub_ = nh_.subscribe("is_landing", 1, &Controller::isLandingCallback, this);
   landed_sub_ = nh_.subscribe("landed", 1, &Controller::landedCallback, this);
+
 }
 
 

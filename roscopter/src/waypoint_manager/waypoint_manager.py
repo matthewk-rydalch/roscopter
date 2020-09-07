@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import rospy
@@ -155,7 +155,7 @@ class WaypointManager():
         # heading_error = np.abs(self.wrap(current_waypoint[3] - y))
 
         if error < self.threshold:
-            print'reached waypoint ', self.current_waypoint_index + 1
+            print('reached waypoint ', self.current_waypoint_index + 1)
             # Get new waypoint index
             self.current_waypoint_index += 1
             if self.current_waypoint_index == len(self.waypoint_list) and self.auto_land == True:
