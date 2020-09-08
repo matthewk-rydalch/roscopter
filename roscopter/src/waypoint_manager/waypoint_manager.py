@@ -110,13 +110,14 @@ class WaypointManager():
     def pltRelPosCallback(self, msg):
         #TODO: implement time for the plt_relPos message?
 
+        print('self.antenna_offset = ', self.antenna_offset)
         antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
-        # print('antenna_offset = ', antenna_offset)
+        print('antenna_offset = ', antenna_offset)
         
         #flip to NEU and add antenna offset
         self.plt_pos[0] = msg.point.x + self.drone_odom[0] + antenna_offset[0]
         self.plt_pos[1] = msg.point.y + self.drone_odom[1] + antenna_offset[1]
-        self.plt_pos[2] = -msg.point.z - self.drone_odom[2] + antenna_offset[2]   
+        self.plt_pos[2] = -msg.point.z - self.drone_odom[2] - antenna_offset[2]   
  
 
     def baseOdomCallback(self, msg):

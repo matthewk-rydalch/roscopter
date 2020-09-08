@@ -24,18 +24,19 @@
     </node>  -->
 
     <!-- Motion Capture Node-->
-    <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
+    <!-- Launched from rover side -->
+    <!-- <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/> -->
 
-  <group ns="boat">
+  <!-- <group ns="boat"> -->
     <!-- Mocap2Ublox Node-->
-    <group ns="m2u">
+    <!-- <group ns="m2u"> -->
       <!-- Load common parameters -->
-      <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
-      <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen">
+      <!-- <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
+      <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen"> -->
         <!-- to the base, it is the rover -->
-        <remap from="rover_mocap" to="/$(arg target_name)_ned"/>
-      </node>
-    </group>
+        <!-- <remap from="rover_mocap" to="/$(arg target_name)_ned"/>
+      </node> -->
+    <!-- </group> -->
 
 
     <!-- Estimator -->

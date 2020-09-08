@@ -41,7 +41,7 @@
     <remap from="baro" to="/baro"/>
     <remap from="ublox_gnss" to="/m2u/rover_PosVelEcef"/>
     <remap from="ublox_relpos" to="/m2u/rover_relpos"/>
-    <remap from="ublox_basevel" to="/m2u/base_PosVelEcef"/>
+    <!-- <remap from="ublox_basevel" to="/m2u/base_PosVelEcef"/> -->
   </node>
 
   <!-- Waypoint Manager -->
@@ -49,6 +49,7 @@
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
     <remap from="base_relative_pos" to="base_relPos"/>
+    <remap from="base_odom" to="base/odom"/>
   </node>
 
   <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/m2u --all"/>
