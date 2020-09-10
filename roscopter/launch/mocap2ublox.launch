@@ -49,7 +49,7 @@
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
     <remap from="base_relative_pos" to="base_relPos"/>
-    <remap from="base_odom" to="base/odom"/>
+    <remap from="base_odom" to="boat/odom"/>
   </node>
 
   <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/m2u --all"/>

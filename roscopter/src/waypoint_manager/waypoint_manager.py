@@ -96,7 +96,7 @@ class WaypointManager():
         # relativePose_msg.z = y
         # relativePose_msg.F = current_position[2]
         # self.relPose_pub_.publish(relativePose_msg)
-
+        
         if self.mission_state == 1:
             self.rendevous(current_position_neu)
         elif self.mission_state == 2:
@@ -110,15 +110,13 @@ class WaypointManager():
     def pltRelPosCallback(self, msg):
         #TODO: implement time for the plt_relPos message?
 
-        print('self.antenna_offset = ', self.antenna_offset)
         antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
-        print('antenna_offset = ', antenna_offset)
-        
+                
         #flip to NEU and add antenna offset
         self.plt_pos[0] = msg.point.x + self.drone_odom[0] + antenna_offset[0]
         self.plt_pos[1] = msg.point.y + self.drone_odom[1] + antenna_offset[1]
         self.plt_pos[2] = -msg.point.z - self.drone_odom[2] - antenna_offset[2]   
- 
+        
 
     def baseOdomCallback(self, msg):
 
@@ -269,9 +267,9 @@ class WaypointManager():
         except KeyError:
             rospy.logfatal('waypoints not set')
             rospy.signal_shutdown('Parameters not set')
-        self.threshold = rospy.get_param('~threshold', 5)
-        self.landing_threshold = rospy.get_param('~rendevous_threshold', 3)
-        self.rendevous_threshold = rospy.get_param('~landing_threshold', 1)
+        self.threshold = rospy.get_param('~threshold', 0.5)
+        self.landing_threshold = rospy.get_param('~rendevous_threshold', 0.5)
+        self.rendevous_threshold = rospy.get_param('~landing_threshold', 0.5)
         landing_orient_threshold = rospy.get_param('~landing_orient_threshold', 10)
         self.landing_orient_threshold = landing_orient_threshold*np.pi/180.0
         self.begin_descent_height = rospy.get_param('~begin_descent_height', 2)
