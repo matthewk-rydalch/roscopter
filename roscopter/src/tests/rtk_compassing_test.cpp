@@ -1,34 +1,22 @@
 #include <iostream>
 #include "gtest/gtest.h"
-// #include "ekf.h"
+#include "ekf/ekf_ros.h"
 
-// void test_rgb_from_max255_to_max1(std::array<int,3> rgbMax255, std::array<double,3> expectedRGBMax1)
-// {
-//   const double tolerance{0.001};
 
-//   std::array<double,3> rgbMax1 = convert_rgb_from_max255_to_max1(rgbMax255);
-
-//   EXPECT_NEAR(expectedRGBMax1[0], rgbMax1[0], tolerance);
-//   EXPECT_NEAR(expectedRGBMax1[1], rgbMax1[1], tolerance);
-//   EXPECT_NEAR(expectedRGBMax1[2], rgbMax1[2], tolerance);
-// }
-
-// TEST(RGBConversion, givenRGBMax255EqualsBlackExpectRGBMax1IsCorrect)
-// {
-//   std::array<int,3> rgbMax255Black{0,0,0};
-//   std::array<double,3> expectedRGBMax1{0.0,0.0,0.0};
-
-//   test_rgb_from_max255_to_max1(rgbMax255Black, expectedRGBMax1);
-// }
-
-TEST(gpsCompassingCallback, placeHolder)
+TEST(rtkCompassingCallback, GivenRelPosMsgExpectHeading)
 {
-  EXPECT_NEAR(1.0, 1.0, 0.001);
+  int argc;
+  char** argv;
+  ros::init(argc, argv, "estimator");
+  ublox::RelPos message;
+  message.relPosNED[0] = 2.3;
+  message.relPosHeading = 2.0; //radians
+  ublox::RelPosConstPtr* msg = new ublox::RelPosConstPtr{&message};
+
+  roscopter::ekf::EKF_ROS estimator;
+  estimator.initROS();
+  estimator.gnssCallbackRelPos(*msg);
+
+  EXPECT_NEAR(estimator.base_relPos_msg_.point.x, -message.relPosNED[0], 0.001);
+  EXPECT_NEAR(estimator.compassing_heading, message.relPosHeading, 0.001);
 }
-
-// int main()
-// {
-//   std::cout << "In gps compassing test.cpp \n";
-
-//   return 0;
-// }

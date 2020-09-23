@@ -84,9 +84,11 @@ void EKF_ROS::initROS()
 #ifdef UBLOX
   ublox_gnss_sub_ = nh_.subscribe("ublox_gnss", 10, &EKF_ROS::gnssCallbackUblox, this);
   ublox_relpos_sub_ = nh_.subscribe("ublox_relpos", 10, &EKF_ROS::gnssCallbackRelPos, this);
-  ublox_base_posvelecef_sub_ = nh_.subscribe("ublox_base_posvelecef", 10, &EKF_ROS::gnssCallbackBasevel, this);
+  //I don't think we need this anymore.
+  // ublox_base_posvelecef_sub_ = nh_.subscribe("ublox_base_posvelecef", 10, &EKF_ROS::gnssCallbackBasevel, this);
   base_relPos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("base_relPos", 1);
-  base_vel_pub_ = nh_.advertise<geometry_msgs::TwistStamped>("base_vel", 1);
+  // I don't think we need this anymore
+  // base_vel_pub_ = nh_.advertise<geometry_msgs::TwistStamped>("base_vel", 1);
   std::cerr << "UBLOX is defined \n";
 #endif
 #ifdef INERTIAL_SENSE
@@ -486,31 +488,34 @@ void EKF_ROS::gnssCallbackUblox(const ublox::PosVelEcefConstPtr &msg)
 
 void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
 {
-
-  //This message is used in the waypoint manager
   //TODO:: put in logic to only use measurements if a flag of 311, 279, 271, or ... xxx, is found
   //TODO:: maybe put in logic to only move forward if in a landing state
   base_relPos_msg_.header = msg->header;
-  // negate relPos message to go from rover to base rather than base to rover
+  
+  // // // negate relPos message to go from rover to base rather than base to rover
   base_relPos_msg_.point.x = -msg->relPosNED[0];
   base_relPos_msg_.point.y = -msg->relPosNED[1];
   base_relPos_msg_.point.z = -msg->relPosNED[2];  
-  //TODO:: could add in the high precision (portion less than a mm)
-  //TODO:: could add in the accuracy of the NED measurment to update covariance
+  // //TODO:: could add in the high precision (portion less than a mm)
+  // //TODO:: could add in the accuracy of the NED measurment to update covariance
+
+  compassing_heading = msg->relPosHeading;
+
   base_relPos_pub_.publish(base_relPos_msg_);
 
 }
 
-void EKF_ROS::gnssCallbackBasevel(const ublox::PosVelEcefConstPtr &msg)
-{
+//I don't think we need this anymore
+// void EKF_ROS::gnssCallbackBasevel(const ublox::PosVelEcefConstPtr &msg)
+// {
 
-  //This message is used by the controller for the feed forward term
-  base_vel_msg_.twist.linear.x = msg->velocity[0];
-  base_vel_msg_.twist.linear.y = msg->velocity[1];
-  base_vel_msg_.twist.linear.z = msg->velocity[2];
+//   //This message is used by the controller for the feed forward term
+//   base_vel_msg_.twist.linear.x = msg->velocity[0];
+//   base_vel_msg_.twist.linear.y = msg->velocity[1];
+//   base_vel_msg_.twist.linear.z = msg->velocity[2];
 
-  base_vel_pub_.publish(base_vel_msg_);
-}
+//   base_vel_pub_.publish(base_vel_msg_);
+// }
 #endif
 
 /////simialr to EKF::ROS::gnssCallbackUblox

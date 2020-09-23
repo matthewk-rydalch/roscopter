@@ -17,6 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
+#can possibly add these required packages above
+
 find_package(inertial_sense QUIET)
 
 if (${inertial_sense_FOUND})
@@ -68,6 +70,17 @@ add_executable(controller
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(controller ${catkin_LIBRARIES})
 
+add_executable(ekf_node src/ekf/ekf_node.cpp)
+target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
+add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
+
+add_executable(ekf_rosbag src/ekf/ekf_rosbag.cpp)
+target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
+add_dependencies(ekf_rosbag ${catkin_EXPORTED_TARGETS})
+
+add_executable(rtk_compassing_test src/tests/rtk_compassing_test.cpp)
+target_link_libraries(rtk_compassing_test ekf_ros ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+
 add_library(ekf
   src/ekf/state.cpp
   src/ekf/dynamics.cpp
@@ -81,14 +94,3 @@ target_link_libraries(ekf ${YAML_CPP_LIBRARIES} stdc++fs)
 add_library(ekf_ros src/ekf/ekf_ros.cpp)
 target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
 add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
-
-add_executable(ekf_node src/ekf/ekf_node.cpp)
-target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
-add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
-
-add_executable(ekf_rosbag src/ekf/ekf_rosbag.cpp)
-target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
-add_dependencies(ekf_rosbag ${catkin_EXPORTED_TARGETS})
-
-add_executable(rtk_compassing_test src/tests/rtk_compassing_test.cpp)
-target_link_libraries(rtk_compassing_test ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)

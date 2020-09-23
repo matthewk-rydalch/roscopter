@@ -82,10 +82,14 @@ public:
   void mocapCallback(const ros::Time& time, const xform::Xformd &z);
   void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
 
+  geometry_msgs::PointStamped base_relPos_msg_;
+
+  double compassing_heading;
+
 #ifdef UBLOX
   void gnssCallbackUblox(const ublox::PosVelEcefConstPtr& msg);
   void gnssCallbackRelPos(const ublox::RelPosConstPtr& msg);
-  void gnssCallbackBasevel(const ublox::PosVelEcefConstPtr& msg);
+  // void gnssCallbackBasevel(const ublox::PosVelEcefConstPtr& msg);
 #endif
 
 #ifdef INERTIAL_SENSE
@@ -121,7 +125,6 @@ private:
   std_msgs::Bool is_flying_msg_;
   geometry_msgs::PoseWithCovariance gps_ned_cov_msg_;
   geometry_msgs::PoseWithCovariance gps_ecef_cov_msg_; 
-  geometry_msgs::PointStamped base_relPos_msg_;
   geometry_msgs::TwistStamped base_vel_msg_;
 
 #ifdef UBLOX
@@ -129,7 +132,7 @@ private:
   ros::Subscriber ublox_relpos_sub_;
   ros::Subscriber ublox_base_posvelecef_sub_;
   ros::Publisher base_relPos_pub_;
-  ros::Publisher base_vel_pub_;
+  // ros::Publisher base_vel_pub_;
 #endif
 
 #ifdef INERTIAL_SENSE
