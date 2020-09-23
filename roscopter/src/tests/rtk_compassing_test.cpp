@@ -27,7 +27,7 @@ TEST(rtkCompassingCallback, GivenRelPosMsgExpectHeading)
   EXPECT_NEAR(estimator.base_relPos_msg_.point.x, -relativeXPosition, 0.001);
   EXPECT_NEAR(estimator.compassing_heading, rtkHeading, 0.001);
   EXPECT_NEAR(estimator.compassing_R_, testCompassing_R, 0.001);
-//   EXPECT_NEAR(estimator.ekf_.compassing_heading, rtkHeading, 0.001);
+  EXPECT_NEAR(estimator.ekf_.test_heading, rtkHeading, 0.001);
 //   EXPECT_NEAR(estimator.ekf_.compassing_R_, testCompassing_R, 0.001);
 
   //** make sure that manual_compassing is turned off in ekf.yaml

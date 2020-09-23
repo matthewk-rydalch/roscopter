@@ -96,6 +96,7 @@ public:
   void rangeUpdate(const meas::Range &z);
   void gnssUpdate(const meas::Gnss &z);
   void mocapUpdate(const meas::Mocap &z);
+  void compassUpdate(const meas::Compass &z);
   void zeroVelUpdate(double t);
 
   void setRefLla(Eigen::Vector3d ref_lla);
@@ -138,6 +139,10 @@ public:
   bool enable_arm_check_;
   bool is_flying_;
   bool armed_;
+
+  //temporary for testing
+  double test_zhat;
+  double test_heading;
 
   // Constants
   xform::Xformd x0_;

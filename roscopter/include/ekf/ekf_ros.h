@@ -72,6 +72,8 @@ public:
   ~EKF_ROS();
   void init(const std::string& param_file);
   void initROS();
+  //put back to private section after test is figured out
+  EKF ekf_;
 
   void imuCallback(const sensor_msgs::ImuConstPtr& msg);
   void baroCallback(const rosflight_msgs::BarometerConstPtr& msg);
@@ -102,7 +104,7 @@ public:
 
   
 private:
-  EKF ekf_;
+  // EKF ekf_;
 
   ros::Time last_imu_update_;
 
