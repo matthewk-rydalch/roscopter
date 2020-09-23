@@ -148,6 +148,13 @@ void EKF_ROS::init(const std::string &param_file)
     get_yaml_node("gps_speed_stdev", param_file, gps_speed_stdev_);
   }
 
+  get_yaml_node("manual_compassing_noise", param_file, manual_compassing_noise_);
+  if(manual_compassing_noise_)
+  {
+    get_yaml_node("rtk_compassing_noise_stdev", param_file, rtk_compassing_noise_stdev_);
+    compassing_R_ = rtk_compassing_noise_stdev_ * rtk_compassing_noise_stdev_;
+  }
+
   start_time_.fromSec(0.0);
 }
 
@@ -499,7 +506,12 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   // //TODO:: could add in the high precision (portion less than a mm)
   // //TODO:: could add in the accuracy of the NED measurment to update covariance
 
-  compassing_heading = msg->relPosHeading;
+  compassing_heading = msg->relPosHeading; //in radians
+  double accHeading = msg->accHeading;  //in radians
+  if(!manual_compassing_noise_)
+  {
+    compassing_R_ = accHeading * accHeading;
+  }
 
   base_relPos_pub_.publish(base_relPos_msg_);
 

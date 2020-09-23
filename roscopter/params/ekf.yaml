@@ -34,6 +34,7 @@ use_mocap: false
 use_gnss: true
 use_baro: true
 use_range: false
+use_rtk_compassing: true
 use_zero_vel: true
 
 R_zero_vel: [0.001, 0.001, 0.001, # vel
@@ -86,6 +87,9 @@ position_noise_stdev: 0.01 # Mocap # used in sensor model noise
 attitude_noise_stdev: 0.01 # Mocap # used in sensor model noise
 baro_pressure_noise_stdev: 2.0 # used in sensor model noise
 range_noise_stdev: 0.1 # used in sensor model noise
+
+manual_compassing_noise: false
+rtk_compassing_noise_stdev: 0.3 #randomly selected for now
 
 # used in sensor model noise if set to true
 manual_gps_noise: true # choose noise params for GPS or use the values reported from the message topic
