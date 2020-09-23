@@ -90,6 +90,7 @@ public:
   void rangeCallback(const double& t, const double& z, const double& R);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
+  void compassingCallback(const double& t, const double& z, const double& R);
 
   void baroUpdate(const meas::Baro &z);
   void rangeUpdate(const meas::Range &z);
@@ -153,6 +154,10 @@ public:
   double ground_temperature_;
   bool update_baro_;
   double update_baro_vel_thresh_;
+
+  //Temporary
+  xform::Xformd z_test;
+  double R_test;
 
   // Matrix Workspace
   dxMat A_;

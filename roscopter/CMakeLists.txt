@@ -87,6 +87,7 @@ add_library(ekf
   src/ekf/ekf.cpp
   src/ekf/meas.cpp
   src/ekf/log.cpp
+  src/ekf/sensors.cpp
 )
 target_include_directories(ekf PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(ekf ${YAML_CPP_LIBRARIES} stdc++fs)

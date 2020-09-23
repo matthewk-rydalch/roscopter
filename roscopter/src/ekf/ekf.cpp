@@ -416,6 +416,26 @@ void EKF::mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d&
   }
 }
 
+// void EKF::compassingCallback(const double& t, const double& z, const double& R)
+// {
+//   std::cout << "in compassing callback";
+
+//   // if (enable_out_of_order_)
+//   // {
+//   //   mocap_meas_buf_.push_back(meas::Mocap(t, z, R));
+//   //   meas_.insert(meas_.end(), &mocap_meas_buf_.back());
+//   // }
+//   // else
+//   //   mocapUpdate(meas::Mocap(t, z, R));
+
+
+//   // if (enable_log_)
+//   // {
+//   //   logs_[LOG_REF]->log(t);
+//   //   logs_[LOG_REF]->logVectors(z.arr(), z.q().euler());
+//   // }
+// }
+
 ///// determines if baro needs to be updated.  Converts to appropriate parameters.  ???does this contain some of the algorithm? calculates measurement jacobian
 //called from baroCallback
 //calls this->groundTempPressSet, measUpdate

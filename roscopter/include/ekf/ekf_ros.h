@@ -80,6 +80,7 @@ public:
   void odomCallback(const nav_msgs::OdometryConstPtr &msg);
   void gnssCallback(const rosflight_msgs::GNSSConstPtr& msg);
   void mocapCallback(const ros::Time& time, const xform::Xformd &z);
+  void compassingCallback(const ros::Time &time, const double &z);
   void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
 
   geometry_msgs::PointStamped base_relPos_msg_;

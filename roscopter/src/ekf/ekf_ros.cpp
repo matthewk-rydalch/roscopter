@@ -389,6 +389,16 @@ void EKF_ROS::mocapCallback(const ros::Time &time, const xform::Xformd &z)
   ekf_.mocapCallback(t, z, mocap_R_);
 }
 
+void EKF_ROS::compassingCallback(const ros::Time &time, const double &z)
+{
+  // Temporary comment out
+  // if (start_time_.sec == 0)
+  //   return;
+
+  const double t = (time - start_time_).toSec();
+  ekf_.compassingCallback(t, z, compassing_R_);
+}
+
 //no subscription 
 void EKF_ROS::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
@@ -512,7 +522,12 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   {
     compassing_R_ = accHeading * accHeading;
   }
+  //xform is from geometry/xform.h
+  double z = msg->relPosHeading;
 
+  //make some of these variables scoped to this function only.
+
+  compassingCallback(msg->header.stamp, z);
   base_relPos_pub_.publish(base_relPos_msg_);
 
 }
