@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(GTest REQUIRED)
 find_package(inertial_sense QUIET)
 
 if (${inertial_sense_FOUND})
@@ -54,6 +55,7 @@ add_definitions(-DROSCOPTER_DIR="${CMAKE_CURRENT_LIST_DIR}")
 include_directories(include
   ${EIGEN3_INCLUDE_DIRS} 
   ${catkin_INCLUDE_DIRS}
+  ${GTEST_INCLUDE_DIRS}
   )
 message (STATUS "catkin include dirs" ${catkin_INCLUDE_DIRS})
 
@@ -87,3 +89,6 @@ add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
 add_executable(ekf_rosbag src/ekf/ekf_rosbag.cpp)
 target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_rosbag ${catkin_EXPORTED_TARGETS})
+
+add_executable(rtk_compassing_test src/tests/rtk_compassing_test.cpp)
+target_link_libraries(rtk_compassing_test ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
