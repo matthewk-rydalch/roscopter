@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <functional>
+#include <array>
 
 #include <Eigen/Core>
 #include <geometry/xform.h>
@@ -144,6 +145,7 @@ public:
   double test_zhat;
   double test_heading;
 
+
   // Constants
   xform::Xformd x0_;
   Eigen::Vector3d p_b2g_;
@@ -163,6 +165,8 @@ public:
   //Temporary
   xform::Xformd z_test;
   double R_test;
+  // quat::Quatd test_res;
+  std::array<double,4> test_res;
 
   // Matrix Workspace
   dxMat A_;
