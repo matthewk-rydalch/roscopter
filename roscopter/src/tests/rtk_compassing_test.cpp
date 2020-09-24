@@ -41,24 +41,14 @@ TEST(rtkCompassingCallback, GivenRelPosMsgExpectHeading)
 
   estimator.gnssCallbackRelPos(*msg);
 
-  std::cout << "q_res w = " << estimator.ekf_.q_res[0] << "\n";
-  std::cout << "test_q_res w = " << testResQuaternion.w << "\n";
-  std::cout << "q_res = x " << estimator.ekf_.q_res[1] << "\n";
-  std::cout << "test_q_res x = " << testResQuaternion.x << "\n";
-  std::cout << "q_res y = " << estimator.ekf_.q_res[2] << "\n";
-  std::cout << "test_q_res y = " << testResQuaternion.y << "\n";
-  std::cout << "q_res z = " << estimator.ekf_.q_res[3] << "\n";
-  std::cout << "test_q_res z = " << testResQuaternion.z << "\n";
   EXPECT_NEAR(estimator.base_relPos_msg_.point.x, -relativeXPosition, 0.001);
   EXPECT_NEAR(estimator.compassing_heading, rtkHeading, 0.001);
   EXPECT_NEAR(estimator.compassing_R_, testCompassing_R, 0.001);
-//   std::cout << "residual = " << estimator.ekf_.test_res << "\n";
-//   double test_heading = estimator.ekf_.test_res
   EXPECT_NEAR(estimator.ekf_.q_res[0], testResQuaternion.w, 0.001);
   EXPECT_NEAR(estimator.ekf_.q_res[1], testResQuaternion.x, 0.001);
   EXPECT_NEAR(estimator.ekf_.q_res[2], testResQuaternion.y, 0.001);
   EXPECT_NEAR(estimator.ekf_.q_res[3], testResQuaternion.z, 0.001);
-//   EXPECT_NEAR(estimator.ekf_.compassing_R_, testCompassing_R, 0.001);
+  EXPECT_NEAR(estimator.ekf_.testCompassingR, testCompassing_R, 0.001);
 
   //** make sure that manual_compassing is turned off in ekf.yaml
 }

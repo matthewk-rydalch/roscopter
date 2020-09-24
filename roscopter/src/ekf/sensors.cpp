@@ -15,14 +15,12 @@ void EKF::compassingCallback(const double& t, const double& z, const double& R)
 
 void EKF::compassUpdate(const meas::Compass &z)
 {
-    std::cout << "in compassing update \n";
-
     double yaw = z.z(0);
     double yaw_hat = x().q.yaw();
-
     double yaw_res = yaw - yaw_hat;
 
     q_res = quat::Quatd::from_euler(0.0, 0.0, yaw_res);
+    testCompassingR = z.R(0);
 
     // test_res = psi-psihat;
 // ///////////////////

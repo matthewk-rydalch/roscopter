@@ -168,6 +168,7 @@ public:
   // quat::Quatd test_res;
   std::array<double,4> test_res;
   quat::Quatd q_res;
+  double testCompassingR;
 
   // Matrix Workspace
   dxMat A_;
