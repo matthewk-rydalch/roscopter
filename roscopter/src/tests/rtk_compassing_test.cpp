@@ -1,5 +1,7 @@
 #include <iostream>
 #include "gtest/gtest.h"
+
+#define private public //not the best practise.  This may cause problems
 #include "ekf/ekf_ros.h"
 
 struct Quaternion
@@ -7,50 +9,72 @@ struct Quaternion
     double w, x, y, z;
 };
 
+struct Heading_Struct
+{
+  Quaternion expectedQuat;
+  Quaternion quat;
+
+  double expectedCovariance;
+  double covariance;
+};
+
+Heading_Struct setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingEstimate, double rtkHeadingAccuracy);
 Quaternion euler_2_quaternion(double yaw, double pitch, double roll);
 
 TEST(rtkCompassingCallback, GivenRelPosMsgExpectHeading)
 {
-  double relativeXPosition = 2.3;
   double rtkHeading = 1.3; //radians
+  double rtkHeadingEstimate = 0.0;
   double rtkHeadingAccuracy = 0.1; //radians
 
+  Heading_Struct heading = setup_given_relpos_expect_heading_test(rtkHeading, rtkHeadingEstimate, rtkHeadingAccuracy);
+
+  EXPECT_NEAR(heading.quat.w, heading.expectedQuat.w, 0.001);
+  EXPECT_NEAR(heading.quat.x, heading.expectedQuat.x, 0.001);
+  EXPECT_NEAR(heading.quat.y, heading.expectedQuat.y, 0.001);
+  EXPECT_NEAR(heading.quat.z, heading.expectedQuat.z, 0.001);
+  EXPECT_NEAR(heading.covariance, heading.expectedCovariance, 0.001);
+
+  //** make sure that manual_compassing is turned off in ekf.yaml
+}
+
+Heading_Struct setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingEstimate, double rtkHeadingAccuracy)
+{
   int argc;
   char** argv;
   ros::init(argc, argv, "estimator");
-  ublox::RelPos message;
-  message.relPosNED[0] = relativeXPosition;
-  message.relPosHeading = rtkHeading;
-  message.accHeading = rtkHeadingAccuracy;
-  ublox::RelPosConstPtr* msg = new ublox::RelPosConstPtr{&message};
-
   roscopter::ekf::EKF_ROS estimator;
   estimator.initROS();
 
-  double testCompassing_R = rtkHeadingAccuracy * rtkHeadingAccuracy;
-
-  double testEstimatedYaw = 0.0;
-  Quaternion testEstimatedQuaternion = euler_2_quaternion(0.0,0.0,testEstimatedYaw);
-  //TODO check the order of this quaternion
-  estimator.ekf_.x().q[0] = testEstimatedQuaternion.w;
-  estimator.ekf_.x().q[1] = testEstimatedQuaternion.x;
-  estimator.ekf_.x().q[2] = testEstimatedQuaternion.y;
-  estimator.ekf_.x().q[3] = testEstimatedQuaternion.z;
-  double testResYaw = rtkHeading-testEstimatedYaw;
-  Quaternion testResQuaternion = euler_2_quaternion(0.0,0.0,testResYaw);
+  ublox::RelPos message;
+  message.relPosHeading = rtkHeading;
+  message.accHeading = rtkHeadingAccuracy;
+  ublox::RelPosConstPtr* msg = new ublox::RelPosConstPtr{&message};
+  double rtkCompassing_R = rtkHeadingAccuracy * rtkHeadingAccuracy;
+  Quaternion rtkQuaternionEstimate = euler_2_quaternion(0.0,0.0,rtkHeadingEstimate);
+  estimator.ekf_.x().q[0] = rtkQuaternionEstimate.w;
+  estimator.ekf_.x().q[1] = rtkQuaternionEstimate.x;
+  estimator.ekf_.x().q[2] = rtkQuaternionEstimate.y;
+  estimator.ekf_.x().q[3] = rtkQuaternionEstimate.z;
+  double rtkResHeading = rtkHeading-rtkHeadingEstimate;
+  Quaternion rtkResQuaternion = euler_2_quaternion(0.0,0.0,rtkResHeading);
 
   estimator.gnssCallbackRelPos(*msg);
 
-  EXPECT_NEAR(estimator.base_relPos_msg_.point.x, -relativeXPosition, 0.001);
-  EXPECT_NEAR(estimator.compassing_heading, rtkHeading, 0.001);
-  EXPECT_NEAR(estimator.compassing_R_, testCompassing_R, 0.001);
-  EXPECT_NEAR(estimator.ekf_.q_res[0], testResQuaternion.w, 0.001);
-  EXPECT_NEAR(estimator.ekf_.q_res[1], testResQuaternion.x, 0.001);
-  EXPECT_NEAR(estimator.ekf_.q_res[2], testResQuaternion.y, 0.001);
-  EXPECT_NEAR(estimator.ekf_.q_res[3], testResQuaternion.z, 0.001);
-  EXPECT_NEAR(estimator.ekf_.testCompassingR, testCompassing_R, 0.001);
+  Heading_Struct headingStruct;
 
-  //** make sure that manual_compassing is turned off in ekf.yaml
+  headingStruct.quat.w = estimator.ekf_.q_res[0];
+  headingStruct.quat.x = estimator.ekf_.q_res[1];
+  headingStruct.quat.y = estimator.ekf_.q_res[2];
+  headingStruct.quat.z = estimator.ekf_.q_res[3];
+  headingStruct.expectedQuat.w = rtkResQuaternion.w;
+  headingStruct.expectedQuat.x = rtkResQuaternion.x;
+  headingStruct.expectedQuat.y = rtkResQuaternion.y;
+  headingStruct.expectedQuat.z = rtkResQuaternion.z;
+  headingStruct.covariance = estimator.ekf_.testCompassingR;
+  headingStruct.expectedCovariance = rtkCompassing_R;
+
+  return headingStruct;
 }
 
 Quaternion euler_2_quaternion(double roll, double pitch, double yaw)

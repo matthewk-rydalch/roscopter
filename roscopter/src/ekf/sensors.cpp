@@ -29,7 +29,6 @@ void EKF::compassUpdate(const meas::Compass &z)
     H.setZero();
     H.block<3,3>(0, E::DQ) = I_3x3;
     H(3, E::DQ+3) = 1.0;
-    std::cout << H << "\n";
 }
 
 }

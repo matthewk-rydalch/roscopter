@@ -73,13 +73,6 @@ public:
   void init(const std::string& param_file);
   void initROS();
 
-  //put back to private section after test is figured out
-  EKF ekf_;
-  double compassing_heading;
-  bool manual_compassing_noise_;
-  double rtk_compassing_noise_stdev_;
-  double compassing_R_;
-
   void imuCallback(const sensor_msgs::ImuConstPtr& msg);
   void baroCallback(const rosflight_msgs::BarometerConstPtr& msg);
   void rangeCallback(const sensor_msgs::RangeConstPtr& msg);
@@ -104,7 +97,8 @@ public:
 
   
 private:
-  // EKF ekf_;
+
+  EKF ekf_;
 
   ros::Time last_imu_update_;
 
@@ -166,6 +160,10 @@ private:
   Matrix6d mocap_R_;
   double baro_R_;
   double range_R_;
+  double compassing_R_;
+
+  bool manual_compassing_noise_;
+  double rtk_compassing_noise_stdev_;
 
   bool manual_gps_noise_;
   double gps_horizontal_stdev_;

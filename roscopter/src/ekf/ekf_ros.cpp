@@ -516,7 +516,6 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   // //TODO:: could add in the high precision (portion less than a mm)
   // //TODO:: could add in the accuracy of the NED measurment to update covariance
 
-  compassing_heading = msg->relPosHeading; //in radians
   double accHeading = msg->accHeading;  //in radians
   if(!manual_compassing_noise_)
   {
