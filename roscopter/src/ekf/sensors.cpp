@@ -17,21 +17,12 @@ void EKF::compassUpdate(const meas::Compass &z)
 {
     std::cout << "in compassing update \n";
 
-    x().q[0] = 1.0;
-    x().q[1] = 0.0;
-    x().q[2] = 0.0;
-    x().q[3] = 0.0;
     double yaw = z.z(0);
     double yaw_hat = x().q.yaw();
 
     double yaw_res = yaw - yaw_hat;
 
-    quat::Quatd q_res = quat::Quatd::from_euler(0.0, 0.0, yaw_res);
-
-    std::cout << "yaw_res = " << yaw_res << "\n";
-    std::cout << "q_res = " << q_res << "\n";
-    std::cout << "q_hat = " << x().q << "\n";
-    
+    q_res = quat::Quatd::from_euler(0.0, 0.0, yaw_res);
 
     // test_res = psi-psihat;
 // ///////////////////
