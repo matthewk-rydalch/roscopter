@@ -1,5 +1,7 @@
 #include "ekf/ekf.h"
 
+using namespace Eigen;
+
 namespace roscopter::ekf
 {
 void EKF::compassingCallback(const double& t, const double& z, const double& R)
@@ -21,6 +23,13 @@ void EKF::compassUpdate(const meas::Compass &z)
 
     q_res = quat::Quatd::from_euler(0.0, 0.0, yaw_res);
     testCompassingR = z.R(0);
+
+    typedef ErrorState E;
+    Matrix<double, 4, E::NDX> H;
+    H.setZero();
+    H.block<3,3>(0, E::DQ) = I_3x3;
+    H(3, E::DQ+3) = 1.0;
+    std::cout << H << "\n";
 
     // test_res = psi-psihat;
 // ///////////////////
@@ -52,11 +61,13 @@ void EKF::compassUpdate(const meas::Compass &z)
 //   // std::cout << "Altitude meas: " << z.z(0) << std::endl;
 //   // std::cout << "Altitude est: " << altitude << std::endl;
 
-//   typedef ErrorState E;
-
-//   Matrix<double, 1, E::NDX> H;
-//   H.setZero();
-//   H(0, E::DP + 2) = -1.;
+    //I pasted in the mocap update H calculation
+    // typedef ErrorState E;
+    // Matrix<double, 6, E::NDX> H;
+    // H.setZero();
+    // H.block<3,3>(0, E::DP) = I_3x3;
+    // H.block<3,3>(3, E::DQ) = I_3x3;
+    // std::cout << "H = " << H << "\n";
 
 //   // Vector1d r_saturated
 //   double r_sat = 0.1;
