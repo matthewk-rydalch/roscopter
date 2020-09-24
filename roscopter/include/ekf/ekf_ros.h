@@ -72,8 +72,13 @@ public:
   ~EKF_ROS();
   void init(const std::string& param_file);
   void initROS();
+
   //put back to private section after test is figured out
   EKF ekf_;
+  double compassing_heading;
+  bool manual_compassing_noise_;
+  double rtk_compassing_noise_stdev_;
+  double compassing_R_;
 
   void imuCallback(const sensor_msgs::ImuConstPtr& msg);
   void baroCallback(const rosflight_msgs::BarometerConstPtr& msg);
@@ -86,11 +91,6 @@ public:
   void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
 
   geometry_msgs::PointStamped base_relPos_msg_;
-
-  double compassing_heading;
-  bool manual_compassing_noise_;
-  double rtk_compassing_noise_stdev_;
-  double compassing_R_;
 
 #ifdef UBLOX
   void gnssCallbackUblox(const ublox::PosVelEcefConstPtr& msg);
