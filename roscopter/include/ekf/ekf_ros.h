@@ -158,7 +158,7 @@ private:
   
   Matrix6d imu_R_;
   Matrix6d mocap_R_;
-  Eigen::Matrix4d compassing_R_;
+  double compassing_R_;
   double baro_R_;
   double range_R_;
 

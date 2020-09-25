@@ -152,11 +152,7 @@ void EKF_ROS::init(const std::string &param_file)
   if(manual_compassing_noise_)
   {
     get_yaml_node("rtk_compassing_noise_stdev", param_file, rtk_compassing_noise_stdev_);
-    double comp_stdev = rtk_compassing_noise_stdev_ * rtk_compassing_noise_stdev_;
-    compassing_R_ << comp_stdev, 0.0, 0.0, 0.0,
-                     0.0, comp_stdev, 0.0, 0.0,
-                     0.0, 0.0, comp_stdev, 0.0,
-                     0.0, 0.0, 0.0, comp_stdev;
+    compassing_R_ = rtk_compassing_noise_stdev_ * rtk_compassing_noise_stdev_;
   }
 
   start_time_.fromSec(0.0);
@@ -523,11 +519,7 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   double accHeading = msg->accHeading;  //in radians
   if(!manual_compassing_noise_)
   {
-    double stdev = accHeading * accHeading;
-    compassing_R_ << stdev, 0.0, 0.0, 0.0,
-            0.0, stdev, 0.0, 0.0,
-            0.0, 0.0, stdev, 0.0,
-            0.0, 0.0, 0.0, stdev;
+    compassing_R_ = accHeading * accHeading;
   }
   //xform is from geometry/xform.h
   double z = msg->relPosHeading;

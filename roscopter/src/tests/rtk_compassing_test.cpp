@@ -77,6 +77,8 @@ Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double 
   estimator.initROS();
 
   State expectedState;
+  expectedState.qw = 0.9476507;
+  expectedState.qz = 0.3193088;
   State initialState;
 
   ublox::RelPos message;

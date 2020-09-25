@@ -83,9 +83,9 @@ struct Range : public Base
 struct Compass : public Base
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    Compass(double _t, const double& _z, const Eigen::Matrix4d& _R);
+    Compass(double _t, const double& _z, const double& _R);
     Eigen::Matrix<double, 1, 1> z;
-    Eigen::Matrix4d R;
+    Eigen::Matrix<double, 1, 1> R;
 };
 
 struct Mocap : public Base
