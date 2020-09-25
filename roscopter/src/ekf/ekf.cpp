@@ -305,6 +305,7 @@ bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
   CHECK_NAN(H); CHECK_NAN(R); CHECK_NAN(P());
   K = P() * H.T * innov;
   CHECK_NAN(K);
+  std::cout << "K = " << K << "\n";
 
   if (enable_partial_update_)
   {
