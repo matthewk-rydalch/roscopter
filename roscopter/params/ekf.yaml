@@ -34,7 +34,7 @@ use_mocap: false
 use_gnss: true
 use_baro: true
 use_range: false
-use_rtk_compassing: true
+use_compassing: true
 use_zero_vel: true
 
 R_zero_vel: [0.001, 0.001, 0.001, # vel

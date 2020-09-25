@@ -74,11 +74,11 @@ Range::Range(double _t, const double &_z, const double &_R)
     type = RANGE;
 }
 
-Compass::Compass(double _t, const double &_z, const double &_R)
+Compass::Compass(double _t, const double &_z, const Eigen::Matrix4d &_R)
 {
     t = _t;
     z(0) = _z;
-    R(0) = _R;
+    R = _R;
     type = RANGE;
 }
 

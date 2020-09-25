@@ -54,6 +54,7 @@ void EKF::load(const std::string &filename)
   get_yaml_node("use_gnss", filename, use_gnss_);
   get_yaml_node("use_baro", filename, use_baro_);
   get_yaml_node("use_range", filename, use_range_);
+  get_yaml_node("use_compassing", filename, use_compassing_);
   get_yaml_node("use_zero_vel", filename, use_zero_vel_);
 
   // Armed Check
@@ -275,12 +276,31 @@ meas::MeasSet::iterator EKF::getOldestNewMeas()
 bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
 {
 
-  ///////////PART OF ALGORITHM /////////////
+  std::cout << "res = " << res << "\n";
+  std::cout << "R = " << R << "\n";
+  std::cout << "H = " << H << "\n";
   int size = res.rows();
+  std::cout << "size = " << size << "\n";
   auto K = K_.leftCols(size);
+  std::cout << "K = " << K << "\n";
+
+  std::cout << "x.t = " << x().t << "\n";
+  std::cout << "x.x = " << x().x << "\n";
+  std::cout << "x.p = " << x().p << "\n";
+  std::cout << "x.q = " << x().q << "\n";
+  std::cout << "x.v = " << x().v << "\n";
+  std::cout << "x.ba = " << x().ba << "\n";
+  std::cout << "x.bg = " << x().bg << "\n";
+  std::cout << "x.bb = " << x().bb << "\n";
+  std::cout << "x.ref = " << x().ref << "\n";
+  std::cout << "x.imu = " << x().imu << "\n";
+  std::cout << "x.a = " << x().a << "\n";
+  std::cout << "x.w = " << x().w << "\n";
 
   ///TODO: perform covariance gating
   MatrixXd innov = (H*P()*H.T + R).inverse();
+  std::cout << "P() = " << P() << "\n";
+  std::cout << "innov = " << innov << "\n";
 
   CHECK_NAN(H); CHECK_NAN(R); CHECK_NAN(P());
   K = P() * H.T * innov;
@@ -299,14 +319,13 @@ bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
   {
     x() += K * res;
     dxMat ImKH = I_BIG - K*H;
+    std::cout << "ImKH" << ImKH << "\n";
     P() = ImKH*P()*ImKH.T + K*R*K.T;
+    std::cout << "P() = " << P() << "\n";
   }
 
   CHECK_NAN(P());
   return true;
-
-  ///////////END OF ALGORITHM SECTION/////////////
-
 }
 
 ///// Sets is flying if flying, calls propagation function, and creates logs

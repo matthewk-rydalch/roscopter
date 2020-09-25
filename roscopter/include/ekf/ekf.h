@@ -91,7 +91,7 @@ public:
   void rangeCallback(const double& t, const double& z, const double& R);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
-  void compassingCallback(const double& t, const double& z, const double& R);
+  void compassingCallback(const double& t, const double& z, const Eigen::Matrix4d& R);
 
   void baroUpdate(const meas::Baro &z);
   void rangeUpdate(const meas::Range &z);
@@ -180,6 +180,7 @@ public:
   bool use_mocap_;
   bool use_baro_;
   bool use_range_;
+  bool use_compassing_;
   bool use_gnss_;
   bool use_zero_vel_;
   bool enable_out_of_order_;
