@@ -97,7 +97,7 @@ public:
   void rangeUpdate(const meas::Range &z);
   void gnssUpdate(const meas::Gnss &z);
   void mocapUpdate(const meas::Mocap &z);
-  void compassUpdate(const meas::Compass &z);
+  void compassingUpdate(const meas::Compass &z);
   void zeroVelUpdate(double t);
 
   void setRefLla(Eigen::Vector3d ref_lla);
@@ -128,6 +128,7 @@ public:
     "zero_vel_res",
     "baro_res",
     "range_res",
+    "compassing_res",
     "imu",
     "lla",
     "ref"
@@ -156,10 +157,6 @@ public:
   double ground_temperature_;
   bool update_baro_;
   double update_baro_vel_thresh_;
-
-  //Temporary
-  quat::Quatd q_res;
-  double testCompassingR;
 
   // Matrix Workspace
   dxMat A_;

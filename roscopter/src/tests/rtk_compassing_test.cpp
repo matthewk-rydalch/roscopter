@@ -38,15 +38,17 @@ struct Compare_states
   State expectedState;
 };
 
-Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingAccuracy);
+Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingAccuracy, double expectedHeadingEstimateChange);
 Quaternion euler_2_quaternion(double yaw, double pitch, double roll);
+std::array<double,3> quaternion_2_euler(double qw, double qx, double qy, double qz);
 
-TEST(rtkCompassingUpdate, GivenAnRTKCompassingUpdateExpectCorrectEstimate)
+TEST(rtkCompassingUpdate, GivenAnRTKCompassingUpdateExpectCorrectEstimates)
 {
   double rtkHeading = 1.3; //radians
   double rtkHeadingAccuracy = 0.1; //radians
+  double expectedHeadingEstimateChange = 0.65;
 
-  Compare_states compare = setup_given_relpos_expect_heading_test(rtkHeading,rtkHeadingAccuracy);
+  Compare_states compare = setup_given_relpos_expect_heading_test(rtkHeading,rtkHeadingAccuracy, expectedHeadingEstimateChange);
 
   EXPECT_NEAR(compare.expectedState.x, compare.state.x, 0.001);
   EXPECT_NEAR(compare.expectedState.y, compare.state.y, 0.001);
@@ -68,7 +70,7 @@ TEST(rtkCompassingUpdate, GivenAnRTKCompassingUpdateExpectCorrectEstimate)
   EXPECT_NEAR(compare.expectedState.ref, compare.state.ref, 0.001);
 }
 
-Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingAccuracy)
+Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingAccuracy, double expectedHeadingEstimateChange)
 {
   int argc;
   char** argv;
@@ -77,9 +79,14 @@ Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double 
   estimator.initROS();
 
   State expectedState;
-  expectedState.qw = 0.9476507;
-  expectedState.qz = 0.3193088;
   State initialState;
+  std::array<double,3> initialEuler = quaternion_2_euler(initialState.qw,initialState.qx,initialState.qy,initialState.qz);
+  double expectedHeadingEstimate = expectedHeadingEstimateChange + initialEuler[2];
+  Quaternion expectedQuaternionEstimate = euler_2_quaternion(initialEuler[0],initialEuler[1],expectedHeadingEstimate);
+  expectedState.qw = expectedQuaternionEstimate.w;
+  expectedState.qx = expectedQuaternionEstimate.x;
+  expectedState.qy = expectedQuaternionEstimate.y;
+  expectedState.qz = expectedQuaternionEstimate.z;
 
   ublox::RelPos message;
   message.relPosHeading = rtkHeading;
@@ -104,6 +111,7 @@ Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double 
   estimator.ekf_.x().bg[2] = initialState.bg_z;
   estimator.ekf_.x().bb = initialState.bb;
   estimator.ekf_.x().ref = initialState.ref;
+  estimator.start_time_.sec = 1.0; //Much of the code won't run if time = 0
 
   estimator.gnssCallbackRelPos(*msg);
 
@@ -150,3 +158,26 @@ Quaternion euler_2_quaternion(double roll, double pitch, double yaw)
 
     return q;
 }
+
+std::array<double,3> quaternion_2_euler(double qw, double qx, double qy, double qz)
+{
+    // roll (x-axis rotation)
+    double sinr_cosp = 2 * (qw * qx + qy * qz);
+    double cosr_cosp = 1 - 2 * (qx * qx + qy * qy);
+    double roll = std::atan2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    double sinp = 2 * (qw * qy - qz * qx);
+    double pitch = std::asin(sinp);
+    if (std::abs(sinp) >= 1)
+        double pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+
+    // yaw (z-axis rotation)
+    double siny_cosp = 2 * (qw * qz + qx * qy);
+    double cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
+    double yaw = std::atan2(siny_cosp, cosy_cosp);
+
+    std::array<double,3> euler{roll, pitch, yaw};
+
+    return euler;
+} 

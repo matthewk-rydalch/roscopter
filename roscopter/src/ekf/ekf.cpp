@@ -275,37 +275,15 @@ meas::MeasSet::iterator EKF::getOldestNewMeas()
 //called by EKF::zeroVelUpdate, EKF::baroUpdate, EKF::gnssUpdate
 bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
 {
-
-  std::cout << "res = " << res << "\n";
-  std::cout << "R = " << R << "\n";
-  std::cout << "H = " << H << "\n";
   int size = res.rows();
-  std::cout << "size = " << size << "\n";
   auto K = K_.leftCols(size);
-  std::cout << "K = " << K << "\n";
-
-  std::cout << "x.t = " << x().t << "\n";
-  std::cout << "x.x = " << x().x << "\n";
-  std::cout << "x.p = " << x().p << "\n";
-  std::cout << "x.q = " << x().q << "\n";
-  std::cout << "x.v = " << x().v << "\n";
-  std::cout << "x.ba = " << x().ba << "\n";
-  std::cout << "x.bg = " << x().bg << "\n";
-  std::cout << "x.bb = " << x().bb << "\n";
-  std::cout << "x.ref = " << x().ref << "\n";
-  std::cout << "x.imu = " << x().imu << "\n";
-  std::cout << "x.a = " << x().a << "\n";
-  std::cout << "x.w = " << x().w << "\n";
 
   ///TODO: perform covariance gating
   MatrixXd innov = (H*P()*H.T + R).inverse();
-  std::cout << "P() = " << P() << "\n";
-  std::cout << "innov = " << innov << "\n";
 
   CHECK_NAN(H); CHECK_NAN(R); CHECK_NAN(P());
   K = P() * H.T * innov;
   CHECK_NAN(K);
-  std::cout << "K = " << K << "\n";
 
   if (enable_partial_update_)
   {
@@ -320,9 +298,7 @@ bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
   {
     x() += K * res;
     dxMat ImKH = I_BIG - K*H;
-    std::cout << "ImKH" << ImKH << "\n";
     P() = ImKH*P()*ImKH.T + K*R*K.T;
-    std::cout << "P() = " << P() << "\n";
   }
 
   CHECK_NAN(P());
@@ -435,26 +411,6 @@ void EKF::mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d&
     logs_[LOG_REF]->logVectors(z.arr(), z.q().euler());
   }
 }
-
-// void EKF::compassingCallback(const double& t, const double& z, const double& R)
-// {
-//   std::cout << "in compassing callback";
-
-//   // if (enable_out_of_order_)
-//   // {
-//   //   mocap_meas_buf_.push_back(meas::Mocap(t, z, R));
-//   //   meas_.insert(meas_.end(), &mocap_meas_buf_.back());
-//   // }
-//   // else
-//   //   mocapUpdate(meas::Mocap(t, z, R));
-
-
-//   // if (enable_log_)
-//   // {
-//   //   logs_[LOG_REF]->log(t);
-//   //   logs_[LOG_REF]->logVectors(z.arr(), z.q().euler());
-//   // }
-// }
 
 ///// determines if baro needs to be updated.  Converts to appropriate parameters.  ???does this contain some of the algorithm? calculates measurement jacobian
 //called from baroCallback

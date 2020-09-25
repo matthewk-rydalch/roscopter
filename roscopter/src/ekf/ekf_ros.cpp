@@ -391,9 +391,8 @@ void EKF_ROS::mocapCallback(const ros::Time &time, const xform::Xformd &z)
 
 void EKF_ROS::compassingCallback(const ros::Time &time, const double &z)
 {
-  // Temporary comment out
-  // if (start_time_.sec == 0)
-  //   return;
+  if (start_time_.sec == 0)
+    return;
 
   const double t = (time - start_time_).toSec();
   ekf_.compassingCallback(t, z, compassing_R_);
