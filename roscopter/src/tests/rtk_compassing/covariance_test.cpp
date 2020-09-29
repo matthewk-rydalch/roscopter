@@ -117,7 +117,7 @@ double setup_given_relpos_expect_covariance_test(double rtkHeading, double rtkHe
     }
   }
 
-  std::cout << "x().p = " << estimator.ekf_.x().p << std::endl;
+  std::cout << "x().q = " << quaternion2euler(estimator.ekf_.x().q << std::endl;
   std::cout << "P() = " << estimator.ekf_.P() << std::endl;
   
   return covarianceError;
