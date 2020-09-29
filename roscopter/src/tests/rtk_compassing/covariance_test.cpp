@@ -1,6 +1,6 @@
 #include "tests/rtk_compassing_test.h"
 
-TEST(rtkCompassingUpdate, TestCovariance)
+TEST(rtkCompassingUpdate, TestCovariance1)
 {
   double rtkHeading = 1.3; //radians
   double rtkHeadingAccuracy = 0.1; //radians
@@ -8,12 +8,40 @@ TEST(rtkCompassingUpdate, TestCovariance)
   int covarianceSize = 17;
   double expectedCovariance[covarianceSize][17] = {0.0};
   fill_expected_covariance(expectedCovariance,covarianceSize);
-
-  setup_given_relpos_expect_covariance_test(rtkHeading, rtkHeadingAccuracy, initialHeading, expectedCovariance);
+  double covarianceError = setup_given_relpos_expect_covariance_test(rtkHeading, rtkHeadingAccuracy, initialHeading, expectedCovariance, covarianceSize);
 
   double tolerance = 0.001;
-  // EXPECT_NEAR(compare.expectedState.x, compare.state.x, tolerance);
+  EXPECT_NEAR(covarianceError,0.0,tolerance);
+}
 
+TEST(rtkCompassingUpdate, TestCovariance2)
+{
+  double rtkHeading = -1.8; //radians
+  double rtkHeadingAccuracy = 0.3; //radians
+  double initialHeading = -1.0;
+  int covarianceSize = 17;
+  double expectedCovariance[covarianceSize][17] = {0.0};
+  fill_expected_covariance(expectedCovariance,covarianceSize);
+  expectedCovariance[5][5] = 0.009;
+  double covarianceError = setup_given_relpos_expect_covariance_test(rtkHeading, rtkHeadingAccuracy, initialHeading, expectedCovariance, covarianceSize);
+
+  double tolerance = 0.001;
+  EXPECT_NEAR(covarianceError,0.0,tolerance);
+}
+
+TEST(rtkCompassingUpdate, TestCovariance3)
+{
+  double rtkHeading = 0.23427; //radians
+  double rtkHeadingAccuracy = 0.11123; //radians
+  double initialHeading = -0.0732;
+  int covarianceSize = 17;
+  double expectedCovariance[covarianceSize][17] = {0.0};
+  fill_expected_covariance(expectedCovariance,covarianceSize);
+  expectedCovariance[5][5] = 0.0035;
+  double covarianceError = setup_given_relpos_expect_covariance_test(rtkHeading, rtkHeadingAccuracy, initialHeading, expectedCovariance, covarianceSize);
+
+  double tolerance = 0.001;
+  EXPECT_NEAR(covarianceError,0.0,tolerance);
 }
 
 void fill_expected_covariance(double expectedCovariance[][17], int covarianceSize)
@@ -37,7 +65,7 @@ void fill_expected_covariance(double expectedCovariance[][17], int covarianceSiz
   expectedCovariance[16][16] = 100.0;  
 }
 
-void setup_given_relpos_expect_covariance_test(double rtkHeading, double rtkHeadingAccuracy, double initialHeading, double expectedCovariance[][17])
+double setup_given_relpos_expect_covariance_test(double rtkHeading, double rtkHeadingAccuracy, double initialHeading, double expectedCovariance[][17], int covarianceSize)
 {
   int argc;
   char** argv;
@@ -80,9 +108,17 @@ void setup_given_relpos_expect_covariance_test(double rtkHeading, double rtkHead
 
   estimator.gnssCallbackRelPos(*msg);
 
-  // std::cout << "expected Covariance = " << expectedCovariance << std::endl;
-  std::cout << "Covariance = " << estimator.ekf_.P() << std::endl;
+  double covarianceError = 0.0;
+  for (int i=0;i<covarianceSize;i++)
+  {
+    for (int j=0;j<covarianceSize;j++)
+    {
+      covarianceError = covarianceError + estimator.ekf_.P()(i,j) - expectedCovariance[i][j];
+    }
+  }
 
-  // TODO find a way to test P
-  // compare.state.x = estimator.ekf_.x().p[0];
+  std::cout << "x().p = " << estimator.ekf_.x().p << std::endl;
+  std::cout << "P() = " << estimator.ekf_.P() << std::endl;
+  
+  return covarianceError;
 }

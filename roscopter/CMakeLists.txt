@@ -79,7 +79,7 @@ target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_rosbag ${catkin_EXPORTED_TARGETS})
 
 add_executable(rtk_compassing_test 
-  src/tests/rtk_compassing/state_test.cpp
+  # src/tests/rtk_compassing/state_test.cpp
   src/tests/rtk_compassing/covariance_test.cpp
   src/tests/rtk_compassing/compassing_utilities.cpp
   include/tests/rtk_compassing_test.h

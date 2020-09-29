@@ -38,11 +38,12 @@ struct Compare_states
   State expectedState;
 };
 
+
 Compare_states setup_given_relpos_expect_heading_test(double rtkHeading, double rtkHeadingAccuracy, double expectedHeadingEstimateChange, double initialHeading);
 void test_quaternion(Compare_states compare, double expectedHeadingEstimate);
 void test_all_states(Compare_states compare, double expectedHeadingEstimate);
 
-void setup_given_relpos_expect_covariance_test(double rtkHeading, double rtkHeadingAccuracy, double expectedHeadingEstimate, double initialHeading[][17]);
+double setup_given_relpos_expect_covariance_test(double rtkHeading, double rtkHeadingAccuracy, double expectedHeadingEstimate, double initialHeading[][17], int covarianceSize);
 void fill_expected_covariance(double expectedCovariance[][17], int covarianceSize);
 
 Quaternion euler_2_quaternion(double yaw, double pitch, double roll);
