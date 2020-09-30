@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import rospy
@@ -17,6 +17,8 @@ class MocapSimManager():
 
 
     def __init__(self):
+
+        self.antenna_offset = rospy.get_param('~waypoint_manager/antenna_offset', [0.0, 0.0, 0.0])
 
         self.base_pos = np.zeros(3)
         self.rover_pos = np.zeros(3)
@@ -44,9 +46,10 @@ class MocapSimManager():
     def baseOdomCallback(self, msg):
         # Get error between waypoint and current state
         #convert from gazebo NWU to NED
-        self.base_pos = np.array([msg.pose.pose.position.x,
+        base_pos_no_offset = np.array([msg.pose.pose.position.x,
                                      -msg.pose.pose.position.y,
                                      -msg.pose.pose.position.z])
+        self.base_pos = base_pos_no_offset - np.array(self.antenna_offset)
 
         self.publish_base_virtual_mocap_ned()
 

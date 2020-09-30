@@ -44,7 +44,9 @@
 
   <!-- simulation specific ros handling -->
   <group ns="sim">
+    <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
     <node name="mocap_sim_manager" pkg="roscopter_sim" type="mocap_sim_ros.py" output="screen">
+      <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
       <!-- Inputs -->
       <remap from="drone_odom" to="/$(arg mav_name)/ground_truth/odometry/NWU"/>  
       <remap from="platform_odom" to="/$(arg target_name)/odom"/> 

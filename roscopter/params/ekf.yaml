@@ -30,11 +30,11 @@ enable_log: true
 ## Measurement Processing
 enable_partial_update: false
 enable_out_of_order: false # TODO this isnt fully implemented
-use_mocap: false
-use_gnss: true
+use_mocap: true
+use_gnss: false
 use_baro: true
 use_range: false
-use_compassing: true
+use_compassing: false
 use_zero_vel: true
 
 R_zero_vel: [0.001, 0.001, 0.001, # vel
