@@ -3,10 +3,10 @@
 import numpy as np
 
 
-class Mocap2Ublox():
+class Pose2Ublox():
     
 
-    def __init__(self, Ts, gha, gva, gsa, rha, rva, rsa, no, rl, srp, srv, srr, sbp, sbv, lo, A, B):
+    def __init__(self, Ts, gha, gva, gsa, rha, rva, rsa, cha, no, rl, srp, srv, srr, sbp, sbv, lo, A, B):
 
         #parameters
         self.Ts = Ts
@@ -16,6 +16,7 @@ class Mocap2Ublox():
         self.relative_horizontal_accuracy = rha
         self.relative_vertical_accuracy = rva
         self.relative_speed_accuracy = rsa
+        self.compassing_heading_accuracy = cha
         self.noise_on = no
         self.ref_lla = rl
         self.sigma_rover_pos = srp 
@@ -49,11 +50,10 @@ class Mocap2Ublox():
         self.rover_prev_time = 0.0
         self.rover_relpos_lpf = np.zeros(3)
         self.base_ned = np.zeros(3)
-        self.base2_quat = np.zeros(4)
-        self.base2_heading = 0.0
         self.base_ned_prev = np.zeros(3)
         self.base_ned_lpf = np.zeros(3)
         self.base_vel_lpf = np.zeros(3)
+        self.base2_quat = np.zeros(4)
         self.base_prev_time = 0.0
         self.rover_ned_noise = np.zeros(3)
         self.rover_vel_noise = np.zeros(3)
@@ -68,6 +68,7 @@ class Mocap2Ublox():
         self.rover_virtual_relpos = np.zeros(3)
         self.base_virtual_pos_ecef = np.zeros(3)
         self.base_virtual_vel_ecef = np.zeros(3)
+        self.base2_heading = 0.0
 
 
     def update_rover_virtual_PosVelEcef(self, dt):
@@ -134,6 +135,8 @@ class Mocap2Ublox():
 
         euler = self.quat2euler(self.base2_quat)
         self.base2_heading = euler[2]
+        if self.noise_on:
+            self.base2_heading = np.random.normal(self.base2_heading, self.compassing_heading_accuracy)
 
 
     def add_noise_3d(self, value, std_dev):
@@ -236,6 +239,7 @@ class Mocap2Ublox():
                         [0.0, 0.0, 1.0]])
 
         return rotz
+
 
     def quat2euler(self, quat):
         
