@@ -8,71 +8,70 @@
   <arg name="base_host" default="192.168.0.111"/>
   <arg name="rover_host" default="192.168.0.84"/> -->
 
-    <group ns="boat">
+  <group ns="boat">
     <!-- Inertial Sense Node -->
-	<rosparam subst_value="True">
-    inertial_sense: { port: "/dev/ttyUSB0",
-                           baud: 921600,
-                           navigation_dt_ms: 10,
-                           stream_INS: false,
-                           stream_IMU: true,
-                           stream_GPS: false,
-                           stream_GPS_info: false,
-                           stream_baro: true,
-                           stream_mag: true,
-                           stream_preint_IMU: false,
-                           inclination: 1.14878541071,
-                           declination: 0.20007290992,
-                           dynamic_model: 5,
-                           INS_rpy: [1.5708, 0 0],
-                           INS_xyz: [1, 0, 0],
-                           GPS_ant_xyz: [1, 1, 1],
-                           GPS_ref_lla: [40.25, -111.67, 1556.59],
-                           serial1_baud_rate: 115200,
-                           NMEA_rate: 200,
-                           NMEA_configuration: 0x0F,
-                           NMEA_ports: 0x02
-                         }
+    <rosparam subst_value="True">
+      inertial_sense: { port: "/dev/ttyUSB0",
+                            baud: 921600,
+                            navigation_dt_ms: 10,
+                            stream_INS: false,
+                            stream_IMU: true,
+                            stream_GPS: false,
+                            stream_GPS_info: false,
+                            stream_baro: true,
+                            stream_mag: true,
+                            stream_preint_IMU: false,
+                            inclination: 1.14878541071,
+                            declination: 0.20007290992,
+                            dynamic_model: 5,
+                            INS_rpy: [1.5708, 0 0],
+                            INS_xyz: [1, 0, 0],
+                            GPS_ant_xyz: [1, 1, 1],
+                            GPS_ref_lla: [40.25, -111.67, 1556.59],
+                            serial1_baud_rate: 115200,
+                            NMEA_rate: 200,
+                            NMEA_configuration: 0x0F,
+                            NMEA_ports: 0x02
+                          }
 
-    </rosparam>
+      </rosparam>
 
     <node name="inertial_sense" type="inertial_sense_node" pkg="inertial_sense" output="screen"/>
-	    
+	  
+      <!-- GPS Node-->
+      <!-- <node name="f9p" pkg="ublox" type="ublox_ros">
+        <param name="serial_port" value="$(arg base_serial_port)"/>
+        <param name="local_host" value="$(arg base_host)"/>
+        <param name="local_port" value="16140"/>
+        <param name="rover_host" value="$(arg rover_host)"/>
+        <param name="rover_port" value="16140"/>
+        <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
+        <param name="rover_quantity" value="1"/>
+        <param name="base_type" value="moving"/>
+      </node>  -->
 
-    <!-- GPS Node-->
-    <!-- <node name="f9p" pkg="ublox" type="ublox_ros">
-      <param name="serial_port" value="$(arg base_serial_port)"/>
-      <param name="local_host" value="$(arg base_host)"/>
-      <param name="local_port" value="16140"/>
-      <param name="rover_host" value="$(arg rover_host)"/>
-      <param name="rover_port" value="16140"/>
-      <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
-      <param name="rover_quantity" value="1"/>
-      <param name="base_type" value="moving"/>
-    </node>  -->
+      <!-- Motion Capture Node-->
+      <!-- Launched from rover side -->
+      <!-- <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/> -->
 
-    <!-- Motion Capture Node-->
-    <!-- Launched from rover side -->
-    <!-- <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/> -->
-
-  <!-- group ns="boat"-->
-    <!-- Mocap2Ublox Node-->
-    <!-- <group ns="m2u"> -->
-      <!-- Load common parameters -->
-      <!-- <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
-      <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen"> -->
-        <!-- to the base, it is the rover -->
-        <!-- <remap from="rover_mocap" to="/$(arg target_name)_ned"/>
-      </node> -->
-    <!-- </group> -->
-
+      <!-- group ns="boat"-->
+      <!-- Mocap2Ublox Node-->
+      <!-- <group ns="m2u"> -->
+        <!-- Load common parameters -->
+        <!-- <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
+        <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen"> -->
+          <!-- to the base, it is the rover -->
+          <!-- <remap from="rover_mocap" to="/$(arg target_name)_ned"/>
+        </node> -->
+      <!-- </group> -->
 
     <!-- Estimator -->
     <rosparam command="load" file="$(find roscopter)/params/ekf.yaml" ns="estimator"/>
     <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
       <remap from="imu" to="imu"/> <!--need to figure out the right topic here-->
       <remap from="baro" to="dummy_topic"/>
-      <remap from="ublox_gnss" to="m2u/rover_PosVelEcef"/>
+      <remap from="ublox_gnss" to="m2u/base_PosVelEcef"/>
+      <remap from="ublox_relpos" to="/m2u/base2_relpos"/>
     </node>
 
     <node name="is_throttler" type="throttle" pkg="topic_tools" args="messages /imu 10 /imu_throttled"/>
