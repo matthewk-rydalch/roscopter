@@ -49,6 +49,8 @@ class Mocap2Ublox():
         self.rover_prev_time = 0.0
         self.rover_relpos_lpf = np.zeros(3)
         self.base_ned = np.zeros(3)
+        self.base2_quat = np.zeros(4)
+        self.base2_heading = 0.0
         self.base_ned_prev = np.zeros(3)
         self.base_ned_lpf = np.zeros(3)
         self.base_vel_lpf = np.zeros(3)
@@ -127,6 +129,11 @@ class Mocap2Ublox():
         self.base_ned_prev = self.base_ned
         self.base_vel_prev = base_vel
         self.base_vel_noise_prev = self.base_vel_noise
+
+    def update_base2_virtual_relPos(self):
+
+        euler = self.quat2euler(self.base2_quat)
+        self.base2_heading = euler[2]
 
 
     def add_noise_3d(self, value, std_dev):
@@ -229,4 +236,31 @@ class Mocap2Ublox():
                         [0.0, 0.0, 1.0]])
 
         return rotz
+
+    def quat2euler(self, quat):
+        
+        qw = quat[0]
+        qx = quat[1]
+        qy = quat[2]
+        qz = quat[3]
+
+        # roll (x-axis rotation)
+        sinr_cosp = 2.0 * (qw * qx + qy * qz)
+        cosr_cosp = 1.0 - 2.0 * (qx * qx + qy * qy)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+
+        # pitch (y-axis rotation)
+        sinp = 2.0 * (qw * qy - qz * qx)
+        pitch = np.arcsin(sinp)
+        if abs(sinp) >= 1:
+            pitch = np.pi*np.sign(sinp) / 2.0 # use 90 degrees if out of range
+
+        # yaw (z-axis rotation)
+        siny_cosp = 2.0 * (qw * qz + qx * qy)
+        cosy_cosp = 1.0 - 2 * (qy * qy + qz * qz)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+
+        euler = [roll, pitch, yaw]
+
+        return euler
         

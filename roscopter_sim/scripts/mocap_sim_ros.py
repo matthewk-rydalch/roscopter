@@ -7,6 +7,7 @@ import std_msgs.msg
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import Quaternion
 from rosflight_msgs.msg import GNSS
 # from rosflight_msgs.msg import GNSSRaw
 from ublox.msg import RelPos
@@ -24,6 +25,7 @@ class MocapSimManager():
         self.rover_pos = np.zeros(3)
         self.rover_virtual_mocap_ned = PoseStamped()
         self.base_virtual_mocap_ned = PoseStamped()
+        self.base_quat = Quaternion()
 
         self.origin_set = False
         self.origin = np.zeros(3)
@@ -49,7 +51,10 @@ class MocapSimManager():
         base_pos_no_offset = np.array([msg.pose.pose.position.x,
                                      -msg.pose.pose.position.y,
                                      -msg.pose.pose.position.z])
-        self.base_pos = base_pos_no_offset - np.array(self.antenna_offset)
+        self.base_quat = msg.pose.pose.orientation
+        base_euler = self.quat2euler(self.base_quat)
+        yaw_deg = base_euler[2]*180/np.pi
+        self.base_pos = base_pos_no_offset - self.Rz(yaw_deg)@np.array(self.antenna_offset)
 
         self.publish_base_virtual_mocap_ned()
 
@@ -85,9 +90,41 @@ class MocapSimManager():
         self.base_virtual_mocap_ned.pose.position.x = base_virtual_mocap_ned_array[0]
         self.base_virtual_mocap_ned.pose.position.y = base_virtual_mocap_ned_array[1]
         self.base_virtual_mocap_ned.pose.position.z = base_virtual_mocap_ned_array[2]
+        
+        self.base_virtual_mocap_ned.pose.orientation = self.base_quat
 
         self.base_virtual_mocap_ned_pub_.publish(self.base_virtual_mocap_ned)
 
+    def quat2euler(self, quat):
+        # roll (x-axis rotation)
+        sinr_cosp = 2.0 * (quat.w * quat.x + quat.y * quat.z)
+        cosr_cosp = 1.0 - 2.0 * (quat.x * quat.x + quat.y * quat.y)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+
+        # pitch (y-axis rotation)
+        sinp = 2.0 * (quat.w * quat.y - quat.z * quat.x)
+        pitch = np.arcsin(sinp)
+        if abs(sinp) >= 1:
+            pitch = np.pi*np.sign(sinp) / 2.0 # use 90 degrees if out of range
+
+        # yaw (z-axis rotation)
+        siny_cosp = 2.0 * (quat.w * quat.z + quat.x * quat.y)
+        cosy_cosp = 1.0 - 2 * (quat.y * quat.y + quat.z * quat.z)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+
+        euler = [roll, pitch, yaw]
+
+        return euler
+
+    def Rz(self, theta):
+        theta = theta*np.pi/180.0
+        st = np.sin(theta)
+        ct = np.cos(theta)
+        rotz = np.array([[ct, st, 0.0], \
+                        [-st, ct, 0.0], \
+                        [0.0, 0.0, 1.0]])
+
+        return rotz
 
 if __name__ == '__main__':
     rospy.init_node('mocap_sim_manager', anonymous=True)

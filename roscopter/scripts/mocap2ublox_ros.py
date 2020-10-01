@@ -28,6 +28,7 @@ class Mocap2UbloxROS():
         self.rover_virtual_relpos_pub_ = rospy.Publisher('rover_relpos', RelPos, queue_size=5, latch=True)
         self.rover_virtual_PosVelEcef_pub_ = rospy.Publisher('rover_PosVelEcef', PosVelEcef, queue_size=5, latch=True)
         self.base_virtual_PosVelEcef_pub_ = rospy.Publisher('base_PosVelEcef', PosVelEcef, queue_size=5, latch=True)
+        self.base2_virtual_relPos_pub_ = rospy.Publisher('base2_relpos', RelPos, queue_size=5, latch=True)
         
         # Subscribers
         self.rover_mocap_ned_sub_ = rospy.Subscriber('rover_mocap', PoseStamped, self.roverMocapNedCallback, queue_size=5)
@@ -55,6 +56,10 @@ class Mocap2UbloxROS():
                                    msg.pose.position.y,
                                    msg.pose.position.z])
 
+        self.m2u.base2_quat = np.array([msg.pose.orientation.w,
+                                        msg.pose.orientation.x,
+                                        msg.pose.orientation.y,
+                                        msg.pose.orientation.z])
     
     def ubloxRateCallback(self, event):
         
@@ -70,11 +75,13 @@ class Mocap2UbloxROS():
         self.m2u.update_rover_virtual_PosVelEcef(dt)
         self.m2u.update_rover_virtual_relPos()
         self.m2u.update_base_virtual_PosVelEcef(dt)
+        self.m2u.update_base2_virtual_relPos()
 
         #publish messages
         self.publish_rover_virtual_PosVelEcef(time_stamp)
         self.publish_rover_virtual_relPos()
         self.publish_base_virtual_PosVelEcef(time_stamp)
+        self.publish_base2_virtual_relPos()
 
 
     def publish_rover_virtual_PosVelEcef(self, time_stamp):
@@ -114,6 +121,14 @@ class Mocap2UbloxROS():
         self.base_virtual_PosVelEcef_pub_.publish(self.base_PosVelEcef)
 
     
+    def publish_base2_virtual_relPos(self):
+
+        self.base2_relPos.relPosHeading = self.m2u.base2_heading
+        self.base2_relPos.accHeading = self.accHeading
+        print('base2_relpos = ', self.base2_relPos)
+        self.base2_virtual_relPos_pub_.publish(self.base2_relPos)
+
+    
     def load_set_parameters(self):
 
         ublox_frequency = rospy.get_param('~ublox_frequency', 5.0)
@@ -124,6 +139,7 @@ class Mocap2UbloxROS():
         self.relative_horizontal_accuracy = rospy.get_param('~relative_horizontal_accuracy', 0.02)
         self.relative_vertical_accuracy = rospy.get_param('~relative_vertical_accuracy', 0.06)
         self.relative_speed_accuracy = rospy.get_param('~relative_speed_accuracy', 0.02)
+        self.accHeading = rospy.get_param('~heading_accuracy', 0.2)
         self.noise_on = rospy.get_param('~noise_on', True)
         ref_lla = rospy.get_param('~ref_lla', [40.267320, -111.635629, 1387.0])
         self.ref_lla = np.array(ref_lla)
@@ -140,6 +156,7 @@ class Mocap2UbloxROS():
         self.rover_PosVelEcef = PosVelEcef()
         self.base_PosVelEcef = PosVelEcef()
         self.rover_relPos = RelPos()
+        self.base2_relPos = RelPos()
 
         #used for updating dt
         self.prev_time = 0.0

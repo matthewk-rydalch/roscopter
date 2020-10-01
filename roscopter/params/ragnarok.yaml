@@ -4,12 +4,12 @@ waypoint_manager: {
 #NEU inertial frame
 waypoints:
  [[0, 0, 2.0, 0],
- [1.0, 0, 7.0, 1.0],
- [0, -1.5, 7.0, 1.0]],
+ [1.0, 0, 4.0, 1.0]],
+#  [0, -1.5, 7.0, 1.0]],
  # [4.5, -4.5, 4.5, 3.14],
  # [0., -4.5, 5.5, 1.57]],
 
-threshold: 0.5,
+threshold: 0.2,
 rendevous_threshold: 0.5,
 landing_threshold: 0.3,
 landing_orient_threshold: 10,
