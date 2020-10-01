@@ -125,7 +125,6 @@ class Mocap2UbloxROS():
 
         self.base2_relPos.relPosHeading = self.m2u.base2_heading
         self.base2_relPos.accHeading = self.accHeading
-        print('base2_relpos = ', self.base2_relPos)
         self.base2_virtual_relPos_pub_.publish(self.base2_relPos)
 
     
