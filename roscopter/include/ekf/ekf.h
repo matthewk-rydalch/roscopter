@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <functional>
+#include <array>
 
 #include <Eigen/Core>
 #include <geometry/xform.h>
@@ -90,11 +91,13 @@ public:
   void rangeCallback(const double& t, const double& z, const double& R);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
+  void compassingCallback(const double& t, const double& z, const double& R);
 
   void baroUpdate(const meas::Baro &z);
   void rangeUpdate(const meas::Range &z);
   void gnssUpdate(const meas::Gnss &z);
   void mocapUpdate(const meas::Mocap &z);
+  void compassingUpdate(const meas::Compass &z);
   void zeroVelUpdate(double t);
 
   void setRefLla(Eigen::Vector3d ref_lla);
@@ -125,6 +128,7 @@ public:
     "zero_vel_res",
     "baro_res",
     "range_res",
+    "compassing_res",
     "imu",
     "lla",
     "ref"
@@ -173,6 +177,7 @@ public:
   bool use_mocap_;
   bool use_baro_;
   bool use_range_;
+  bool use_compassing_;
   bool use_gnss_;
   bool use_zero_vel_;
   bool enable_out_of_order_;

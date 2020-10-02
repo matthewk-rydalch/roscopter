@@ -28,6 +28,9 @@ std::string Base::Type() const
     case RANGE:
         return "Range";
         break;
+    case COMPASS:
+        return "Compass";
+        break;
     case MOCAP:
         return "Mocap";
         break;
@@ -64,6 +67,14 @@ Baro::Baro(double _t, const double &_z, const double &_R, const double& _temp)
 }
 
 Range::Range(double _t, const double &_z, const double &_R)
+{
+    t = _t;
+    z(0) = _z;
+    R(0) = _R;
+    type = RANGE;
+}
+
+Compass::Compass(double _t, const double &_z, const double &_R)
 {
     t = _t;
     z(0) = _z;

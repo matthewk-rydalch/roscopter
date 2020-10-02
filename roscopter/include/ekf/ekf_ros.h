@@ -80,12 +80,15 @@ public:
   void odomCallback(const nav_msgs::OdometryConstPtr &msg);
   void gnssCallback(const rosflight_msgs::GNSSConstPtr& msg);
   void mocapCallback(const ros::Time& time, const xform::Xformd &z);
+  void compassingCallback(const ros::Time &time, const double &z);
   void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
+
+  geometry_msgs::PointStamped base_relPos_msg_;
 
 #ifdef UBLOX
   void gnssCallbackUblox(const ublox::PosVelEcefConstPtr& msg);
   void gnssCallbackRelPos(const ublox::RelPosConstPtr& msg);
-  void gnssCallbackBasevel(const ublox::PosVelEcefConstPtr& msg);
+  // void gnssCallbackBasevel(const ublox::PosVelEcefConstPtr& msg);
 #endif
 
 #ifdef INERTIAL_SENSE
@@ -94,6 +97,7 @@ public:
 
   
 private:
+
   EKF ekf_;
 
   ros::Time last_imu_update_;
@@ -121,7 +125,6 @@ private:
   std_msgs::Bool is_flying_msg_;
   geometry_msgs::PoseWithCovariance gps_ned_cov_msg_;
   geometry_msgs::PoseWithCovariance gps_ecef_cov_msg_; 
-  geometry_msgs::PointStamped base_relPos_msg_;
   geometry_msgs::TwistStamped base_vel_msg_;
 
 #ifdef UBLOX
@@ -129,7 +132,7 @@ private:
   ros::Subscriber ublox_relpos_sub_;
   ros::Subscriber ublox_base_posvelecef_sub_;
   ros::Publisher base_relPos_pub_;
-  ros::Publisher base_vel_pub_;
+  // ros::Publisher base_vel_pub_;
 #endif
 
 #ifdef INERTIAL_SENSE
@@ -155,8 +158,12 @@ private:
   
   Matrix6d imu_R_;
   Matrix6d mocap_R_;
+  double compassing_R_;
   double baro_R_;
   double range_R_;
+
+  bool manual_compassing_noise_;
+  double rtk_compassing_noise_stdev_;
 
   bool manual_gps_noise_;
   double gps_horizontal_stdev_;

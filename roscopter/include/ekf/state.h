@@ -81,8 +81,8 @@ public:
       BG = 14, ///gyro bias
       BB = 17, ///barometer bias
       REF = 18, ///lla reference
-      A = 19, ///altitude
-      W = 22, ///angular velocity
+      A = 19, ///acceleration?
+      W = 22, ///angular velocity?
       NX = 18, // number of states
       SIZE = 1 + NX + 6
   };
