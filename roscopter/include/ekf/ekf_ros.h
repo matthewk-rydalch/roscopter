@@ -75,7 +75,7 @@ public:
 
   void imuCallback(const sensor_msgs::ImuConstPtr& msg);
   void baroCallback(const rosflight_msgs::BarometerConstPtr& msg);
-  void rangeCallback(const sensor_msgs::RangeConstPtr& msg);
+  // void rangeCallback(const sensor_msgs::RangeConstPtr& msg);
   void poseCallback(const geometry_msgs::PoseStampedConstPtr &msg);
   void odomCallback(const nav_msgs::OdometryConstPtr &msg);
   void gnssCallback(const rosflight_msgs::GNSSConstPtr& msg);
@@ -115,8 +115,8 @@ private:
   ros::Publisher odometry_pub_;
   ros::Publisher euler_pub_;
   ros::Publisher imu_bias_pub_;
-  ros::Publisher gps_ned_cov_pub_;
-  ros::Publisher gps_ecef_cov_pub_;
+  // ros::Publisher gps_ned_cov_pub_;
+  // ros::Publisher gps_ecef_cov_pub_;
   ros::Publisher is_flying_pub_;
 
   sensor_msgs::Imu imu_bias_msg_;
@@ -160,7 +160,7 @@ private:
   Matrix6d mocap_R_;
   double compassing_R_;
   double baro_R_;
-  double range_R_;
+  // double range_R_;
 
   bool manual_compassing_noise_;
   double rtk_compassing_noise_stdev_;
@@ -171,7 +171,7 @@ private:
   double gps_speed_stdev_;
 
   void publishEstimates(const sensor_msgs::ImuConstPtr &msg);
-  void publishGpsCov(Matrix6d sigma_ecef, Vector6d sigma_ned, Vector6d z);
+  // void publishGpsCov(Matrix6d sigma_ecef, Vector6d sigma_ned, Vector6d z);
 };
 
 }

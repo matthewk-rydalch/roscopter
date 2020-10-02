@@ -55,7 +55,7 @@ public:
   ~EKF();
 
   State& x() { return xbuf_.x(); } // The current state object
-  const State& x() const { return xbuf_.x(); } //called by EKF_ROS::publishEstimates
+  const State& x() const { return xbuf_.x(); }
   dxMat& P() { return xbuf_.P(); } // The current covariance
   const dxMat& P() const { return xbuf_.P(); }
 
@@ -63,19 +63,18 @@ public:
   void load(const std::string& filename);
   void initLog(const std::string& filename);
 
-  void run();
-  void update(const meas::Base *m);
+  // void run();
+  // void update(const meas::Base *m);
 
   void setArmed() { armed_ = true; }
   void setDisarmed() { armed_ = false; }
 
-  bool refLlaSet() { return ref_lla_set_; } //called from EKF_ROS::gnssCallback
+  bool refLlaSet() { return ref_lla_set_; }
 
   void setGroundTempPressure(const double& temp, const double& press);
-  //called by EKF_ROS::baroCallback
-  bool groundTempPressSet() { return (ground_pressure_ != 0) && (ground_temperature_ != 0); } //returns true if ground pressure and groudn temperature are not equal to 0
+  bool groundTempPressSet() { return (ground_pressure_ != 0) && (ground_temperature_ != 0); }
 
-  bool isFlying() { return is_flying_; } // called from EKF_ROS::publishEstimates
+  bool isFlying() { return is_flying_; }
   void checkIsFlying();
 
   bool measUpdate(const Eigen::VectorXd &res, const Eigen::MatrixXd &R, const Eigen::MatrixXd &H);
@@ -88,13 +87,13 @@ public:
   void imuCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void baroCallback(const double& t, const double& z, const double& R,
                     const double& temp);
-  void rangeCallback(const double& t, const double& z, const double& R);
+  // void rangeCallback(const double& t, const double& z, const double& R);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
   void compassingCallback(const double& t, const double& z, const double& R);
 
   void baroUpdate(const meas::Baro &z);
-  void rangeUpdate(const meas::Range &z);
+  // void rangeUpdate(const meas::Range &z);
   void gnssUpdate(const meas::Gnss &z);
   void mocapUpdate(const meas::Mocap &z);
   void compassingUpdate(const meas::Compass &z);
@@ -127,7 +126,7 @@ public:
     "mocap_res",
     "zero_vel_res",
     "baro_res",
-    "range_res",
+    // "range_res",
     "compassing_res",
     "imu",
     "lla",
@@ -167,8 +166,8 @@ public:
   ErrorState dx_;
 
   // Partial Update
-  dxVec lambda_vec_;
-  dxMat lambda_mat_;
+  // dxVec lambda_vec_;
+  // dxMat lambda_mat_;
 
   // State buffer
   StateBuf xbuf_;
@@ -176,7 +175,7 @@ public:
   // Measurement Buffers
   bool use_mocap_;
   bool use_baro_;
-  bool use_range_;
+  // bool use_range_;
   bool use_compassing_;
   bool use_gnss_;
   bool use_zero_vel_;
