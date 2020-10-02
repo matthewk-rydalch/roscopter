@@ -65,7 +65,8 @@
         </node> -->
       <!-- </group> -->
 
-    <!-- Estimator -->
+      <!-- Estimator -->
+      <!-- I don't think that this param file is actually used.  It is specifiedn and loaded in ekf_ros.cpp -->
     <rosparam command="load" file="$(find roscopter)/params/ekf.yaml" ns="estimator"/>
     <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
       <remap from="imu" to="imu"/> <!--need to figure out the right topic here-->
