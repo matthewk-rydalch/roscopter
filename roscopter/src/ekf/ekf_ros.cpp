@@ -58,8 +58,6 @@ void EKF_ROS::initROS()
   odometry_pub_ = nh_.advertise<nav_msgs::Odometry>("odom", 1);
   euler_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("euler_degrees", 1);
   imu_bias_pub_ = nh_.advertise<sensor_msgs::Imu>("imu_bias", 1);
-  // gps_ned_cov_pub_ = nh_.advertise<geometry_msgs::PoseWithCovariance>("gps_ned_cov", 1); //Maybe remove these covariance publishers at some point.
-  // gps_ecef_cov_pub_ = nh_.advertise<geometry_msgs::PoseWithCovariance>("gps_ecef_cov", 1);
   is_flying_pub_ = nh_.advertise<std_msgs::Bool>("is_flying", 1);
 
   imu_sub_ = nh_.subscribe("imu", 100, &EKF_ROS::imuCallback, this);
@@ -71,12 +69,8 @@ void EKF_ROS::initROS()
 #ifdef UBLOX
   ublox_gnss_sub_ = nh_.subscribe("ublox_gnss", 10, &EKF_ROS::gnssCallbackUblox, this);
   ublox_relpos_sub_ = nh_.subscribe("ublox_relpos", 10, &EKF_ROS::gnssCallbackRelPos, this);
-  //I don't think we need this anymore.
-  // ublox_base_posvelecef_sub_ = nh_.subscribe("ublox_base_posvelecef", 10, &EKF_ROS::gnssCallbackBasevel, this);
   base_relPos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("base_relPos", 1);
-  // I don't think we need this anymore
-  // base_vel_pub_ = nh_.advertise<geometry_msgs::TwistStamped>("base_vel", 1);
-  std::cerr << "UBLOX is defined \n";
+  std::cout << "UBLOX is defined \n";
 #endif
 #ifdef INERTIAL_SENSE
   is_gnss_sub_ = nh_.subscribe("is_gnss", 10, &EKF_ROS::gnssCallbackInertialSense, this);
@@ -107,10 +101,6 @@ void EKF_ROS::init(const std::string &param_file)
   double baro_pressure_stdev;
   get_yaml_node("baro_pressure_noise_stdev", param_file, baro_pressure_stdev);
   baro_R_ = baro_pressure_stdev * baro_pressure_stdev;
-
-  double range_stdev;
-  // get_yaml_node("range_noise_stdev", param_file, range_stdev);
-  // range_R_ = range_stdev * range_stdev;
 
   get_yaml_node("manual_gps_noise", param_file, manual_gps_noise_);
   if (manual_gps_noise_)
@@ -201,42 +191,6 @@ void EKF_ROS::publishEstimates(const sensor_msgs::ImuConstPtr &msg)
   }
 }
 
-// void EKF_ROS::publishGpsCov(Matrix6d sigma_ecef, Vector6d sigma_ned, Vector6d z)
-// {
-
-//   //gps ecef covariance
-//   gps_ecef_cov_msg_.covariance[0] = sigma_ecef(0,0);
-//   gps_ecef_cov_msg_.covariance[1] = sigma_ecef(0,1);
-//   gps_ecef_cov_msg_.covariance[2] = sigma_ecef(0,2);
-//   gps_ecef_cov_msg_.covariance[3] = sigma_ecef(1,0);
-//   gps_ecef_cov_msg_.covariance[4] = sigma_ecef(1,1);
-//   gps_ecef_cov_msg_.covariance[5] = sigma_ecef(1,2);
-//   gps_ecef_cov_msg_.covariance[6] = sigma_ecef(2,0);
-//   gps_ecef_cov_msg_.covariance[7] = sigma_ecef(2,1);
-//   gps_ecef_cov_msg_.covariance[8] = sigma_ecef(2,2);
-
-//   // gps ned covariance
-//   gps_ned_cov_msg_.covariance[0] = sigma_ned[0];
-//   gps_ned_cov_msg_.covariance[1] = sigma_ned[1];
-//   gps_ned_cov_msg_.covariance[2] = sigma_ned[2];
-//   gps_ned_cov_msg_.covariance[3] = sigma_ned[3];
-//   gps_ned_cov_msg_.covariance[4] = sigma_ned[4];
-//   gps_ned_cov_msg_.covariance[5] = sigma_ned[5];
-
-//   //convert z to ned frame
-//   Vector3d z_lla = ecef2lla(z.head<3>());
-//   Vector3d ref_lla(ekf_.ref_lat_radians_, ekf_.ref_lon_radians_, ekf_.x().ref);
-//   Vector3d z_ned = lla2ned(ref_lla, z_lla);
-
-//   //get gps ned position
-//   gps_ned_cov_msg_.pose.position.x = z_ned[0];
-//   gps_ned_cov_msg_.pose.position.y = z_ned[1];
-//   gps_ned_cov_msg_.pose.position.z = z_ned[2];
-
-//   gps_ned_cov_pub_.publish(gps_ned_cov_msg_);
-//   gps_ecef_cov_pub_.publish(gps_ecef_cov_msg_);
-// }
-
 void EKF_ROS::imuCallback(const sensor_msgs::ImuConstPtr &msg)
 {
   if (start_time_.sec == 0)
@@ -278,20 +232,6 @@ void EKF_ROS::baroCallback(const rosflight_msgs::BarometerConstPtr& msg)
   const double t = (msg->header.stamp - start_time_).toSec();
   ekf_.baroCallback(t, pressure_meas, baro_R_, temperature_meas);
 }
-
-// //no subscription to range_Callback
-// void EKF_ROS::rangeCallback(const sensor_msgs::RangeConstPtr& msg)
-// {
-//   if (start_time_.sec == 0)
-//     return;
-
-//   const double range_meas = msg->range;
-//   if (range_meas < msg->max_range && range_meas > msg->min_range)
-//   {
-//     const double t = (msg->header.stamp - start_time_).toSec();
-//     ekf_.rangeCallback(t, range_meas, range_R_);
-//   }
-// }
 
 void EKF_ROS::poseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
 {
@@ -340,7 +280,6 @@ void EKF_ROS::compassingCallback(const ros::Time &time, const double &z)
   ekf_.compassingCallback(t, z, compassing_R_);
 }
 
-//no subscription 
 void EKF_ROS::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
 
@@ -402,8 +341,6 @@ void EKF_ROS::gnssCallback(const rosflight_msgs::GNSSConstPtr &msg)
     ekf_.setRefLla(ref_lla);
   }
 
-  // publishGpsCov(Sigma_ecef, Sigma_diag_NED, z); //delete this later
-
   if (start_time_.sec == 0)
     return;
 
@@ -440,7 +377,7 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   //TODO:: maybe put in logic to only move forward if in a landing state
   base_relPos_msg_.header = msg->header;
   
-  // // // negate relPos message to go from rover to base rather than base to rover
+  // negate relPos message to go from rover to base rather than base to rover
   base_relPos_msg_.point.x = -msg->relPosNED[0];
   base_relPos_msg_.point.y = -msg->relPosNED[1];
   base_relPos_msg_.point.z = -msg->relPosNED[2];  
@@ -452,7 +389,6 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   {
     compassing_R_ = accHeading * accHeading;
   }
-  //xform is from geometry/xform.h
   double z = msg->relPosHeading;
 
   //make some of these variables scoped to this function only.
@@ -461,18 +397,6 @@ void EKF_ROS::gnssCallbackRelPos(const ublox::RelPosConstPtr &msg)
   base_relPos_pub_.publish(base_relPos_msg_);
 
 }
-
-//I don't think we need this anymore
-// void EKF_ROS::gnssCallbackBasevel(const ublox::PosVelEcefConstPtr &msg)
-// {
-
-//   //This message is used by the controller for the feed forward term
-//   base_vel_msg_.twist.linear.x = msg->velocity[0];
-//   base_vel_msg_.twist.linear.y = msg->velocity[1];
-//   base_vel_msg_.twist.linear.z = msg->velocity[2];
-
-//   base_vel_pub_.publish(base_vel_msg_);
-// }
 #endif
 
 #ifdef INERTIAL_SENSE

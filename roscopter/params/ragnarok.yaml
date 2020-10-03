@@ -17,8 +17,8 @@ cycle: False,
 auto_land: True,
 begin_descent_height: 1.5,
 begin_landing_height: 0.3,
-antenna_offset: [0.0, 0.0, 0.0],
-# antenna_offset: [0.65, -0.80, 0.25],
+# antenna_offset: [0.0, 0.0, 0.0],
+antenna_offset: [0.65, -0.80, 0.25],
 }
 
 ### Controller Parameters

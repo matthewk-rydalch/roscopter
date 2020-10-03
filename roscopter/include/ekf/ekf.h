@@ -63,9 +63,6 @@ public:
   void load(const std::string& filename);
   void initLog(const std::string& filename);
 
-  // void run();
-  // void update(const meas::Base *m);
-
   void setArmed() { armed_ = true; }
   void setDisarmed() { armed_ = false; }
 
@@ -87,21 +84,17 @@ public:
   void imuCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void baroCallback(const double& t, const double& z, const double& R,
                     const double& temp);
-  // void rangeCallback(const double& t, const double& z, const double& R);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
   void compassingCallback(const double& t, const double& z, const double& R);
 
   void baroUpdate(const meas::Baro &z);
-  // void rangeUpdate(const meas::Range &z);
   void gnssUpdate(const meas::Gnss &z);
   void mocapUpdate(const meas::Mocap &z);
   void compassingUpdate(const meas::Compass &z);
   void zeroVelUpdate(double t);
 
   void setRefLla(Eigen::Vector3d ref_lla);
-
-  void cleanUpMeasurementBuffers();
 
   void initLog();
   void logState();
@@ -126,7 +119,6 @@ public:
     "mocap_res",
     "zero_vel_res",
     "baro_res",
-    // "range_res",
     "compassing_res",
     "imu",
     "lla",
@@ -165,22 +157,15 @@ public:
   dxuMat K_;
   ErrorState dx_;
 
-  // Partial Update
-  // dxVec lambda_vec_;
-  // dxMat lambda_mat_;
-
   // State buffer
   StateBuf xbuf_;
 
   // Measurement Buffers
   bool use_mocap_;
   bool use_baro_;
-  // bool use_range_;
   bool use_compassing_;
   bool use_gnss_;
   bool use_zero_vel_;
-  bool enable_out_of_order_;
-  bool enable_partial_update_;
   meas::MeasSet meas_;
   std::deque<meas::Imu, Eigen::aligned_allocator<meas::Imu>> imu_meas_buf_;
   std::deque<meas::Mocap, Eigen::aligned_allocator<meas::Mocap>> mocap_meas_buf_;
