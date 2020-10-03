@@ -82,16 +82,17 @@ public:
 
   meas::MeasSet::iterator getOldestNewMeas();
   void imuCallback(const double& t, const Vector6d& z, const Matrix6d& R);
-  void baroCallback(const double& t, const double& z, const double& R,
-                    const double& temp);
+  // void baroCallback(const double& t, const double& z, const double& R,
+  //                   const double& temp);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
-  void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
-  void compassingCallback(const double& t, const double& z, const double& R);
+  // void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
+  // void compassingCallback(const double& t, const double& z, const double& R);
 
-  void baroUpdate(const meas::Baro &z);
+  void baroUpdate(const double& t, const double& z, const double& R,
+                    const double& temp);
   void gnssUpdate(const meas::Gnss &z);
-  void mocapUpdate(const meas::Mocap &z);
-  void compassingUpdate(const meas::Compass &z);
+  void mocapUpdate(const double& t, const xform::Xformd& z, const Matrix6d& R);
+  void compassingUpdate(const double& t, const double& z, const double& R);
   void zeroVelUpdate(double t);
 
   void setRefLla(Eigen::Vector3d ref_lla);

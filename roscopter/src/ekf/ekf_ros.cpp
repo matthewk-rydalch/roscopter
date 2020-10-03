@@ -230,7 +230,7 @@ void EKF_ROS::baroCallback(const rosflight_msgs::BarometerConstPtr& msg)
     return;
 
   const double t = (msg->header.stamp - start_time_).toSec();
-  ekf_.baroCallback(t, pressure_meas, baro_R_, temperature_meas);
+  ekf_.baroUpdate(t, pressure_meas, baro_R_, temperature_meas);
 }
 
 void EKF_ROS::poseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
@@ -268,7 +268,7 @@ void EKF_ROS::mocapCallback(const ros::Time &time, const xform::Xformd &z)
     return;
 
   double t = (time - start_time_).toSec();
-  ekf_.mocapCallback(t, z, mocap_R_);
+  ekf_.mocapUpdate(t, z, mocap_R_);
 }
 
 void EKF_ROS::compassingCallback(const ros::Time &time, const double &z)
@@ -277,7 +277,7 @@ void EKF_ROS::compassingCallback(const ros::Time &time, const double &z)
     return;
 
   const double t = (time - start_time_).toSec();
-  ekf_.compassingCallback(t, z, compassing_R_);
+  ekf_.compassingUpdate(t, z, compassing_R_);
 }
 
 void EKF_ROS::statusCallback(const rosflight_msgs::StatusConstPtr &msg)

@@ -25,14 +25,16 @@ void EKF::imuCallback(const double &t, const Vector6d &z, const Matrix6d &R)
 
 }
 
-void EKF::baroCallback(const double &t, const double &z, const double &R,
+// void EKF::baroCallback(const double &t, const double &z, const double &R,
+//                        const double &temp)
+// {
+//     baroUpdate(meas::Baro(t, z, R, temp));
+// }
+
+void EKF::baroUpdate(const double &t, const double &z_baro, const double &R,
                        const double &temp)
 {
-    baroUpdate(meas::Baro(t, z, R, temp));
-}
-
-void EKF::baroUpdate(const meas::Baro &z)
-{
+  const meas::Baro z{meas::Baro(t, z_baro, R, temp)};
   if (!this->groundTempPressSet())
   {
     return;
@@ -60,7 +62,7 @@ void EKF::baroUpdate(const meas::Baro &z)
 
   // // From "Small Unmanned Aircraft: Theory and Practice" eq 7.8
   const double g = 9.80665; // m/(s^2) gravity 
-  const double R = 8.31432; // universal gas constant
+  const double R_gas = 8.31432; // universal gas constant
   const double M = 0.0289644; // kg / mol. molar mass of Earth's air
 
   const double altitude = -x().p(2);
@@ -68,7 +70,7 @@ void EKF::baroUpdate(const meas::Baro &z)
 
   // From "Small Unmanned Aircraft: Theory and Practice" eq 7.9
   // const double rho = M * ground_pressure_ / R / ground_temperature_;
-  const double rho = M * ground_pressure_ / R / z.temp;
+  const double rho = M * ground_pressure_ / R_gas / z.temp;
 
   const double press_hat = ground_pressure_ - rho * g * altitude + baro_bias;
 
@@ -162,14 +164,10 @@ void EKF::gnssUpdate(const meas::Gnss &z)
   }
 }
 
-void EKF::mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R)
-{
-    mocapUpdate(meas::Mocap(t, z, R));
-}
-
-void EKF::mocapUpdate(const meas::Mocap &z)
+void EKF::mocapUpdate(const double& t, const xform::Xformd& z_mocap, const Matrix6d& R)
 {
 
+  const meas::Mocap &z{meas::Mocap(t, z_mocap, R)};
   xform::Xformd zhat = x().x;
 
   // TODO Do we need to fix "-" operator for Xformd?
@@ -201,13 +199,15 @@ void EKF::mocapUpdate(const meas::Mocap &z)
   }
 }
 
-void EKF::compassingCallback(const double& t, const double& z, const double& R)
-{
-  compassingUpdate(meas::Compass(t, z, R));
-}
+// void EKF::compassingCallback(const double& t, const double& z, const double& R)
+// {
+//   compassingUpdate(meas::Compass(t, z, R));
+// }
 
-void EKF::compassingUpdate(const meas::Compass &z)
+void EKF::compassingUpdate(const double& t, const double& z_compassing, const double& R)
 {
+
+  const meas::Compass z{meas::Compass(t, z_compassing, R)};
   double yaw = z.z(0);
   const Vector1d yaw_hat(x().q.yaw()); 
   using Vector1d = Eigen::Matrix<double, 1, 1>;
