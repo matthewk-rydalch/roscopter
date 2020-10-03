@@ -62,13 +62,9 @@ include_directories(include
 message (STATUS "catkin include dirs" ${catkin_INCLUDE_DIRS})
 
 ## Declare cpp executables
-add_executable(controller
-  src/controller/controller_node.cpp
-  src/controller/controller.cpp
-  include/controller/controller.h
-  src/controller/simple_pid.cpp)
-add_dependencies(controller ${catkin_EXPORTED_TARGETS})
-target_link_libraries(controller ${catkin_LIBRARIES})
+add_executable(controller_node src/controller/controller_node.cpp)
+target_link_libraries(controller_node controller_ros ${catkin_LIBRARIES})
+add_dependencies(controller_node ${catkin_EXPORTED_TARGETS})
 
 add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
@@ -87,6 +83,25 @@ add_executable(rtk_compassing_test
   )
 target_link_libraries(rtk_compassing_test ekf_ros ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
+add_library(controller_ros src/controller/controller_ros.cpp)
+target_link_libraries(controller_ros controller ${catkin_LIBRARIES})
+add_dependencies(controller_ros ${catkin_EXPORTED_TARGETS})
+
+add_library(controller
+  src/controller/controller_node.cpp
+  src/controller/controller.cpp
+  include/controller/controller.h
+  src/controller/simple_pid.cpp)
+add_dependencies(controller ${catkin_EXPORTED_TARGETS})
+target_link_libraries(controller ${catkin_LIBRARIES})
+
+add_library(ekf_ros
+  src/ekf/ros/ekf_ros.cpp
+  src/ekf/ros/ekf_cb_ros.cpp
+  )
+target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
+add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
+
 add_library(ekf
   src/ekf/state.cpp
   src/ekf/dynamics.cpp
@@ -97,10 +112,3 @@ add_library(ekf
 )
 target_include_directories(ekf PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(ekf ${YAML_CPP_LIBRARIES} stdc++fs)
-
-add_library(ekf_ros
-  src/ekf/ros/ekf_ros.cpp
-  src/ekf/ros/ekf_cb_ros.cpp
-  )
-target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
-add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
