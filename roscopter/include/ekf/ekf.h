@@ -15,7 +15,7 @@
 
 /// TO ADD A NEW MEASUREMENT
 /// Add a new Meas type to the meas.h header file and meas.cpp
-/// Add a new callback like mocapCallback()...
+/// Add a new callback like mocapCallback()if needed...
 /// Add a new update function like mocapUpdate()...
 /// Add new cases to the update function
 /// Profit.
@@ -82,11 +82,7 @@ public:
 
   meas::MeasSet::iterator getOldestNewMeas();
   void imuCallback(const double& t, const Vector6d& z, const Matrix6d& R);
-  // void baroCallback(const double& t, const double& z, const double& R,
-  //                   const double& temp);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
-  // void mocapCallback(const double& t, const xform::Xformd& z, const Matrix6d& R);
-  // void compassingCallback(const double& t, const double& z, const double& R);
 
   void baroUpdate(const double& t, const double& z, const double& R,
                     const double& temp);
