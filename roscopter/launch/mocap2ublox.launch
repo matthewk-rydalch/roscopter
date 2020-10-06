@@ -52,6 +52,6 @@
     <remap from="base_odom" to="boat/odom"/>
   </node>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/m2u --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/m2u --all"/>
 
 </launch>

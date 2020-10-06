@@ -138,7 +138,7 @@ class Mocap2UbloxROS():
         self.relative_horizontal_accuracy = rospy.get_param('~relative_horizontal_accuracy', 0.02)
         self.relative_vertical_accuracy = rospy.get_param('~relative_vertical_accuracy', 0.06)
         self.relative_speed_accuracy = rospy.get_param('~relative_speed_accuracy', 0.02)
-        self.accHeading = rospy.get_param('~heading_accuracy', 0.2)
+        self.accHeading = rospy.get_param('~heading_accuracy', 0.01)
         self.noise_on = rospy.get_param('~noise_on', True)
         ref_lla = rospy.get_param('~ref_lla', [40.267320, -111.635629, 1387.0])
         self.ref_lla = np.array(ref_lla)
