@@ -233,6 +233,8 @@ class WaypointManager():
         self.cmd_msg.mode = Command.MODE_XPOS_YPOS_YAW_ALTITUDE
         self.waypoint_pub_.publish(self.cmd_msg)
 
+        rospy.sleep(10)
+
 
     # def droneOdomCallback(self, msg):
     #     self.drone_odom = np.array([msg.pose.pose.position.x,
