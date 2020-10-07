@@ -32,7 +32,8 @@ class HlcContinuousNed():
         #switch from NEU to NED frame
         self.highLevelCommand.x = msg.x
         self.highLevelCommand.y = msg.y
-        self.highLevelCommand.z = -msg.z
+        self.highLevelCommand.z = msg.z
+        self.highLevelCommand.F = -msg.F
     
     def hlcRateCallback(self, event):
         

@@ -113,7 +113,8 @@ private:
   ros::Subscriber status_sub_;
 
   ros::Publisher odometry_pub_;
-  ros::Publisher euler_pub_;
+  ros::Publisher euler_rad_pub_;
+  ros::Publisher euler_deg_pub_;
   ros::Publisher imu_bias_pub_;
   ros::Publisher gps_ned_cov_pub_;
   ros::Publisher gps_ecef_cov_pub_;
