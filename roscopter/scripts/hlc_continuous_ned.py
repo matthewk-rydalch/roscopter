@@ -30,10 +30,13 @@ class HlcContinuousNed():
     def hlcCallback(self, msg):
         
         #switch from NEU to NED frame
-        self.highLevelCommand = msg
+        self.highLevelCommand.x = msg.x
+        self.highLevelCommand.y = msg.y
+        self.highLevelCommand.z = -msg.z
     
     def hlcRateCallback(self, event):
         
+        self.highLevelCommand.header.stamp = rospy.Time.now()
         self.hlc_continuous_ned_pub_.publish(self.highLevelCommand)
 
 if __name__ == '__main__':
