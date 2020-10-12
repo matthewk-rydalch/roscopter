@@ -286,19 +286,14 @@ void Controller::computeControl(double dt)
     xc_.x_dot = pndot_c*cos(xhat_.psi) + pedot_c*sin(xhat_.psi);
     xc_.y_dot = -pndot_c*sin(xhat_.psi) + pedot_c*cos(xhat_.psi);
 
-    if(use_feed_forward_)
-    {
-      xc_.x_dot = xc_.x_dot + base_hat_.u; //feed forward the base velocity
-      xc_.y_dot = xc_.y_dot + base_hat_.v;
-      xc_.z_dot = xc_.z_dot + base_hat_.w;
-    }
-
     mode_flag = rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE;
   }
 
   if(mode_flag == rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE)
   {
     // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
+    double pddot_c = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pddot);
+
     // Rotate body frame velocities to vehicle 1 frame velocities
     double sinp = sin(xhat_.phi);
     double cosp = cos(xhat_.phi);
@@ -310,11 +305,20 @@ void Controller::computeControl(double dt)
     double pddot =
         -sint * xhat_.u + sinp * cost * xhat_.v + cosp * cost * xhat_.w;
 
+    // TODO: Rotate boat body frame velocities into drone vehicle 1 frame velocities
+
+
+    if(use_feed_forward_)
+    {
+      xc_.x_dot = xc_.x_dot + base_hat_.u; //feed forward the base velocity
+      xc_.y_dot = xc_.y_dot + base_hat_.v;
+      pddot_c = pddot_c + base_hat_.w;
+    }
+
     xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
 
     // Nested Loop for Altitude
-    double pddot_c = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pddot);
     xc_.az = PID_z_dot_.computePID(pddot_c, pddot, dt);
     mode_flag = rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ;
   }
