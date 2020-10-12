@@ -62,13 +62,9 @@ include_directories(include
 message (STATUS "catkin include dirs" ${catkin_INCLUDE_DIRS})
 
 ## Declare cpp executables
-add_executable(controller
-  src/controller/controller_node.cpp
-  src/controller/controller.cpp
-  include/controller/controller.h
-  src/controller/simple_pid.cpp)
-add_dependencies(controller ${catkin_EXPORTED_TARGETS})
-target_link_libraries(controller ${catkin_LIBRARIES})
+add_executable(controller_node src/controller/controller_node.cpp)
+add_dependencies(controller_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(controller_node controller ${catkin_LIBRARIES})
 
 add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
@@ -91,7 +87,15 @@ add_executable(ff_test
   tests/feed_forward/feed_forward_test.cpp
   include/tests/feed_forward_test.h
   )
-target_link_libraries(ff_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+target_link_libraries(ff_test controller ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+
+add_library(controller
+  src/controller/controller.cpp
+  include/controller/controller.h
+  src/controller/simple_pid.cpp
+)
+add_dependencies(controller ${catkin_EXPORTED_TARGETS})
+target_link_libraries(controller ${catkin_LIBRARIES})
 
 add_library(ekf
   src/ekf/state.cpp
