@@ -87,6 +87,12 @@ add_executable(rtk_compassing_test
   )
 target_link_libraries(rtk_compassing_test ekf_ros ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
+add_executable(ff_test 
+  tests/feed_forward/feed_forward_test.cpp
+  include/tests/feed_forward_test.h
+  )
+target_link_libraries(ff_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+
 add_library(ekf
   src/ekf/state.cpp
   src/ekf/dynamics.cpp

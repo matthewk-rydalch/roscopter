@@ -100,9 +100,9 @@
 
     <!-- Waypoint Manager -->
     <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
-      <remap from="waypoint" to="high_level_command"/>
       <remap from="state" to="odom"/>
       <remap from="base_relative_pos" to="base_relPos"/>
+      <remap from="base_odom" to="/platform/odom"/>
     </node>
 
     <!--Estimator-->
@@ -114,11 +114,10 @@
       <!-- <remap from="gnss" to="gps/data"/> -->
       <remap from="ublox_gnss" to="/m2u/rover_PosVelEcef"/>
       <remap from="ublox_relpos" to="/m2u/rover_relpos"/>
-      <remap from="ublox_base_posvelecef" to="/m2u/base_PosVelEcef"/>
+      <!-- <remap from="ublox_base_posvelecef" to="/m2u/base_PosVelEcef"/> -->
       <!--Outputs-->
       <remap from="is_flying" to="not_for_sim"/>
     </node>
-
   </group>
 
   <!--Throttle ground truth for use in the estimator. Estimator cant handle 1000hz-->

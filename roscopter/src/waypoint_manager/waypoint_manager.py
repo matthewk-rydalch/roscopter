@@ -97,9 +97,9 @@ class WaypointManager():
         # relativePose_msg.F = current_position[2]
         # self.relPose_pub_.publish(relativePose_msg)
         
-        if self.mission_state == 1:
+        if self.mission_state == 1 or self.mission_state == 2:
             self.rendevous(current_position_neu)
-        elif self.mission_state == 2:
+        elif self.mission_state == 10:
             self.descend(current_position_neu)
         elif self.mission_state == 3:
             self.land(current_position_neu)
@@ -233,7 +233,7 @@ class WaypointManager():
         self.cmd_msg.mode = Command.MODE_XPOS_YPOS_YAW_ALTITUDE
         self.waypoint_pub_.publish(self.cmd_msg)
 
-        rospy.sleep(10)
+        # rospy.sleep(10)
 
 
     # def droneOdomCallback(self, msg):
