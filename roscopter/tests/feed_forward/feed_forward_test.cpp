@@ -33,6 +33,28 @@ TEST(ff_test, BaseVelEquals1_NoError_NoHeadingDifference)
     test_velocities_vs_expected_velocities(cntrl, expectedV1Velocities);
 }
 
+TEST(ff_test, BaseVelEquals1_NoError_BaseMinusRoverHeadingEqualsPiHalves)
+{
+    int argc;
+    char** argv;
+    ros::init(argc, argv, "ff_test");
+    ros::NodeHandle nh;
+    controller::Controller cntrl;
+
+    setup_control_object(cntrl);
+    
+    cntrl.use_feed_forward_ = true;
+    cntrl.base_hat_.u = 1.0;
+    cntrl.base_hat_.psi = M_PI/2.0;
+    cntrl.xhat_.psi = -M_PI;
+    cntrl.base_hat_.phi = M_PI/10.0;
+    cntrl.base_hat_.theta = M_PI/12.0;
+
+    std::array<double,3> expectedV1Velocities{0.0,1.0,0.0};
+
+    test_velocities_vs_expected_velocities(cntrl, expectedV1Velocities);
+}
+
 void test_velocities_vs_expected_velocities(controller::Controller &cntrl, std::array<double,3> expectedV1Velocities)
 {
     double tolerance{0.001};

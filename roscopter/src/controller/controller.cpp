@@ -157,10 +157,10 @@ void Controller::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
 void Controller::baseOdomCallback(const nav_msgs::OdometryConstPtr &msg)
 {
 
-  // // Convert Quaternion to RPY
-  // tf::Quaternion tf_quat;
-  // tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
-  // tf::Matrix3x3(tf_quat).getRPY(base_hat_.phi, base_hat_.theta, base_hat_.psi);
+  // Convert Quaternion to RPY
+  tf::Quaternion tf_quat;
+  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
+  tf::Matrix3x3(tf_quat).getRPY(base_hat_.phi, base_hat_.theta, base_hat_.psi);
   // base_hat_.psi = -base_hat_.psi; //have to negate to go from Counter Clockwise positive rotation to Clockwise;
 
   // double sinp = sin(base_hat_.psi);
@@ -308,9 +308,7 @@ void Controller::computeControl(double dt)
 
     if(use_feed_forward_)
     {
-      xc_.x_dot = xc_.x_dot + base_hat_.u; //feed forward the base velocity
-      xc_.y_dot = xc_.y_dot + base_hat_.v;
-      pddot_c = pddot_c + base_hat_.w;
+      addFeedForwardTerm();
     }
 
     xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
@@ -387,6 +385,23 @@ void Controller::publishCommand()
   command_pub_.publish(command_);
 }
 
+void Controller::addFeedForwardTerm()
+{
+
+  Eigen::Matrix3d Rphi = Controller::Rroll(base_hat_.phi);
+  Eigen::Matrix3d Rth = Controller::Rpitch(base_hat_.theta);
+  Eigen::Matrix3d Rpsi = Controller::Ryaw(base_hat_.psi + xhat_.psi);
+
+  std::cout << "Rphi = " << Rphi << std::endl;
+  std::cout << "Rth = " << Rth << std::endl;
+  std::cout << "Rpsi = " << Rpsi << std::endl;
+  // Eigen::Vector3d vel(1,2,3);
+
+  // xc_.x_dot = xc_.x_dot + base_hat_.u; //feed forward the base velocity
+  // xc_.y_dot = xc_.y_dot + base_hat_.v;
+  // pddot_c = pddot_c + base_hat_.w;
+}
+
 void Controller::resetIntegrators()
 {
   PID_x_dot_.clearIntegrator();
@@ -403,6 +418,40 @@ double Controller::saturate(double x, double max, double min)
   x = (x > max) ? max : x;
   x = (x < min) ? min : x;
   return x;
+}
+
+Eigen::Matrix3d Controller::Rroll(double phi)
+{
+  double cp = cos(phi);
+  double sp = sin(phi);
+  Eigen::Matrix3d Rphi;
+  Rphi << 1.0, 0.0, 0.0,
+          0.0,  cp, -sp,
+          0.0,  sp,  cp;
+  return Rphi;
+}
+
+Eigen::Matrix3d Controller::Rpitch(double theta)
+{
+  double ct = cos(theta);
+  double st = sin(theta);
+  Eigen::Matrix3d Rth;
+  Rth <<  ct, 0.0,  st,
+          0.0, 1.0, 0.0,
+          -st, 0.0,  ct;
+  return Rth;
+}
+
+Eigen::Matrix3d Controller::Ryaw(double psi)
+{
+  double cp = cos(psi);
+  double sp = sin(psi);
+  Eigen::Matrix3d Rpsi;
+  Rpsi <<  cp, -sp, 0.0,
+           sp,  cp, 0.0,
+          0.0, 0.0, 1.0;
+
+  return Rpsi;
 }
 
 }  // namespace controller

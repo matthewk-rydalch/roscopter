@@ -1,6 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include <Eigen/Dense>
+#include <math.h>
 #include <ros/ros.h>
 #include <rosflight_msgs/Command.h>
 #include <rosflight_msgs/Status.h>
@@ -148,6 +150,11 @@ private:
   void resetIntegrators();
   void publishCommand();
   double saturate(double x, double max, double min);
+  void addFeedForwardTerm();
+
+  Eigen::Matrix3d Rroll(double phi);
+  Eigen::Matrix3d Rpitch(double theta);
+  Eigen::Matrix3d Ryaw(double psi);
 };
 }
 
