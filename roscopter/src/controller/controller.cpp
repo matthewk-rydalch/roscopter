@@ -291,9 +291,6 @@ void Controller::computeControl(double dt)
 
   if(mode_flag == rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE)
   {
-    // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
-    double pddot_c = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pddot);
-
     // Rotate body frame velocities to vehicle 1 frame velocities
     double sinp = sin(xhat_.phi);
     double cosp = cos(xhat_.phi);
@@ -306,7 +303,8 @@ void Controller::computeControl(double dt)
         -sint * xhat_.u + sinp * cost * xhat_.v + cosp * cost * xhat_.w;
 
     // TODO: Rotate boat body frame velocities into drone vehicle 1 frame velocities
-
+    // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
+    double pddot_c = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pddot);
 
     if(use_feed_forward_)
     {
