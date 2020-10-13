@@ -299,12 +299,12 @@ void Controller::computeControl(double dt)
     double pxdot =
         cost * xhat_.u + sinp * sint * xhat_.v + cosp * sint * xhat_.w;
     double pydot = cosp * xhat_.v - sinp * xhat_.w;
-    double pddot =
+    double pzdot =
         -sint * xhat_.u + sinp * cost * xhat_.v + cosp * cost * xhat_.w;
 
     // TODO: Rotate boat body frame velocities into drone vehicle 1 frame velocities
     // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
-    double pddot_c = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pddot);
+    xc_.z_dot = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pzdot);
 
     if(use_feed_forward_)
     {
@@ -315,7 +315,7 @@ void Controller::computeControl(double dt)
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
 
     // Nested Loop for Altitude
-    xc_.az = PID_z_dot_.computePID(pddot_c, pddot, dt);
+    xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
     mode_flag = rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ;
   }
 
@@ -392,14 +392,13 @@ void Controller::addFeedForwardTerm()
   Eigen::Matrix3d Rth = Controller::Rpitch(base_hat_.theta);
   Eigen::Matrix3d Rpsi = Controller::Ryaw(base_hat_.psi + xhat_.psi);
 
-  std::cout << "Rphi = " << Rphi << std::endl;
-  std::cout << "Rth = " << Rth << std::endl;
-  std::cout << "Rpsi = " << Rpsi << std::endl;
-  // Eigen::Vector3d vel(1,2,3);
+  Eigen::Vector3d base_velocity_body_frame(base_hat_.u, base_hat_.v, base_hat_.w);
 
-  // xc_.x_dot = xc_.x_dot + base_hat_.u; //feed forward the base velocity
-  // xc_.y_dot = xc_.y_dot + base_hat_.v;
-  // pddot_c = pddot_c + base_hat_.w;
+  Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);
+
+  xc_.x_dot = xc_.x_dot + base_velocity_rover_v1_frame[0]; //feed forward the base velocity
+  xc_.y_dot = xc_.y_dot + base_velocity_rover_v1_frame[1];
+  xc_.z_dot = xc_.z_dot + base_velocity_rover_v1_frame[2];
 }
 
 void Controller::resetIntegrators()
