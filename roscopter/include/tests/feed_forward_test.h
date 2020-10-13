@@ -6,3 +6,4 @@
 #include "controller/controller.h"
 
 void setup_control_object(controller::Controller &cntrl);
+void test_velocities_vs_expected_velocities(controller::Controller &cntrl, std::array<double,3> expectedV1Velocities);
