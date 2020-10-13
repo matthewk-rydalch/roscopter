@@ -270,7 +270,6 @@ void Controller::computeControl(double dt)
     // By running the position controllers
     double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
     double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
-
     // Calculate desired yaw rate
     // First, determine the shortest direction to the commanded psi
     if(fabs(xc_.psi + 2*M_PI - xhat_.psi) < fabs(xc_.psi - xhat_.psi))
