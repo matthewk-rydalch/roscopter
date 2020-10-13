@@ -9,10 +9,14 @@ TEST(ff_test, stationaryBaseWNoError)
     controller::Controller cntrl;
 
     setup_control_object(cntrl);
+    
+    double tolerance{0.001};
     double dt = 0.001;
+    double expected_x_dot{0.0};
+
     cntrl.computeControl(dt);
 
-    EXPECT_NEAR(1.0,1.0,0.1);
+    EXPECT_NEAR(cntrl.xc_.x_dot,expected_x_dot,tolerance);
 }
 
 
