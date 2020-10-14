@@ -66,6 +66,10 @@ add_executable(controller_node src/controller/controller_node.cpp)
 add_dependencies(controller_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(controller_node controller ${catkin_LIBRARIES})
 
+add_executable(vel_cntrl_node src/controller/vel_cntrl/vel_cntrl_node.cpp)
+add_dependencies(vel_cntrl_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(vel_cntrl_node vel_cntrl ${catkin_LIBRARIES})
+
 add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
@@ -96,6 +100,13 @@ add_library(controller
 )
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(controller ${catkin_LIBRARIES})
+
+add_library(vel_cntrl
+  src/controller/vel_cntrl/vel_cntrl.cpp
+  include/controller/vel_cntrl.h
+)
+add_dependencies(vel_cntrl ${catkin_EXPORTED_TARGETS})
+target_link_libraries(vel_cntrl controller ${catkin_LIBRARIES})
 
 add_library(ekf
   src/ekf/state.cpp
