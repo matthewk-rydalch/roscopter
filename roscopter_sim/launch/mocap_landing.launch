@@ -93,8 +93,8 @@
     <node pkg="rostopic" type="rostopic" name="status_pub" args="pub -r 1 status rosflight_msgs/Status '{armed: true, failsafe: false, rc_override: false, offboard: true, error_code: 0, num_errors: 0, loop_time_us: 1}'"/>
 
     <!-- PID Position Controller -->
-    <node name="controller" pkg="roscopter" type="controller" output="screen">
-      <remap from="base_velocity" to="base_vel"/>
+    <node name="controller" pkg="roscopter" type="controller_node" output="screen">
+      <remap from="base_odom" to="/platform/odom"/>
       <remap from="estimate" to="odom"/>
     </node>
 
