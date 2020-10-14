@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "controller/vel_cntrl.h"
+
 class Vel_Cntrl_Ros
 {
 public:
