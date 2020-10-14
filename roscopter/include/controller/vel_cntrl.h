@@ -3,12 +3,14 @@
 
 #include <iostream>
 
-class Vel_Cntrl
+#include "controller/controller.h"
+
+class Vel_Cntrl : public controller::Controller
 {
 public:
     Vel_Cntrl();
 
-private:
+// private:
 };
 
 #endif

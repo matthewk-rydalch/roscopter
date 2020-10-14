@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <math.h>
+#include <array>
 #include <ros/ros.h>
 #include <rosflight_msgs/Command.h>
 #include <rosflight_msgs/Status.h>
@@ -78,6 +79,10 @@ public:
 
   Controller();
 
+protected:
+
+  uint8_t control_mode_;
+
 private:
 
   // Node handles, publishers, subscribers
@@ -134,8 +139,7 @@ private:
   rosflight_msgs::Command command_;
   command_t xc_ = {}; // command
   double prev_time_;
-  uint8_t control_mode_;
-
+//
   // Functions
   void stateCallback(const nav_msgs::OdometryConstPtr &msg);
   void isFlyingCallback(const std_msgs::BoolConstPtr &msg);

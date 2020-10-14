@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #define private public //not the best practise.  This may cause problems
+#define protected public
 #include "controller/controller.h"
 
 void setup_control_object(controller::Controller &cntrl);
