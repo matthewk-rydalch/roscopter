@@ -50,9 +50,9 @@ void Controller::computeControl(double dt)
     return;
   }
 
-  uint8_t mode_flag = control_mode_;
+  mode_flag_ = control_mode_;
 
-  if(mode_flag == rosflight_msgs::Command::MODE_XPOS_YPOS_YAW_ALTITUDE)
+  if(mode_flag_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
   {
     // Figure out desired velocities (in inertial frame)
     // By running the position controllers
@@ -73,10 +73,10 @@ void Controller::computeControl(double dt)
     xc_.x_dot = pndot_c*cos(xhat_.psi) + pedot_c*sin(xhat_.psi);
     xc_.y_dot = -pndot_c*sin(xhat_.psi) + pedot_c*cos(xhat_.psi);
 
-    mode_flag = rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE;
+    mode_flag_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
   }
 
-  if(mode_flag == rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE)
+  if(mode_flag_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
   {
     // Rotate body frame velocities to vehicle 1 frame velocities
     double sinp = sin(xhat_.phi);
@@ -98,10 +98,10 @@ void Controller::computeControl(double dt)
 
     // Nested Loop for Altitude
     xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
-    mode_flag = rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ;
+    mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
   }
 
-  if(mode_flag == rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ)
+  if(mode_flag_ == MODE_XACC_YACC_YAWRATE_AZ_)
   {
     // Model inversion (m[ax;ay;az] = m[0;0;g] + R'[0;0;-T]
     double total_acc_c = sqrt((1.0 - xc_.az) * (1.0 - xc_.az) +
@@ -122,10 +122,10 @@ void Controller::computeControl(double dt)
     double cost = cos(xhat_.theta);
     xc_.throttle = (1.0 - xc_.az) * throttle_eq_ / cosp / cost;
 
-    mode_flag = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE;
+    mode_flag_ = MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
   }
 
-  if(mode_flag == rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE)
+  if(mode_flag_ == MODE_ROLL_PITCH_YAWRATE_THROTTLE_)
   {
     // Pack up and send the command
 

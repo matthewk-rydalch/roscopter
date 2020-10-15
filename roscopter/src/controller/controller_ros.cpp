@@ -9,6 +9,7 @@ Controller_Ros::Controller_Ros() :
   std::string roscopter_path = ros::package::getPath("roscopter");
   std::string parameter_filename = nh_private_.param<std::string>("param_filename", roscopter_path + "/params/ragnarok.yaml");
   control.load(parameter_filename);
+  init_controller();
 
   _func = boost::bind(&Controller_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
@@ -20,6 +21,17 @@ Controller_Ros::Controller_Ros() :
   is_flying_sub_ = nh_.subscribe("is_flying", 1, &Controller_Ros::isFlyingCallback, this);
   cmd_sub_ = nh_.subscribe("high_level_command", 1, &Controller_Ros::cmdCallback, this);
   status_sub_ = nh_.subscribe("status", 1, &Controller_Ros::statusCallback, this);
+}
+
+void Controller_Ros::init_controller()
+{
+  control.MODE_PASS_THROUGH_ = rosflight_msgs::Command::MODE_PASS_THROUGH;
+  control.MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_ = rosflight_msgs::Command::MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE;
+  control.MODE_ROLL_PITCH_YAWRATE_THROTTLE_ = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE;
+  control.MODE_ROLL_PITCH_YAWRATE_ALTITUDE_ = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_ALTITUDE;
+  control.MODE_XPOS_YPOS_YAW_ALTITUDE_ = rosflight_msgs::Command::MODE_XPOS_YPOS_YAW_ALTITUDE;
+  control.MODE_XVEL_YVEL_YAWRATE_ALTITUDE_ = rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE;
+  control.MODE_XACC_YACC_YAWRATE_AZ_ = rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ;
 }
 
 void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
@@ -73,7 +85,6 @@ void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
   }
 }
 
-
 void Controller_Ros::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.is_flying_ = msg->data;
@@ -83,7 +94,6 @@ void Controller_Ros::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
   control.armed_ = msg->armed;
 }
-
 
 void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
 {
@@ -182,7 +192,7 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 void Controller_Ros::publishCommand()
 {
   command_.header.stamp = ros::Time::now();
-  command_.mode = control.control_mode_;
+  command_.mode = control.mode_flag_;
   command_.F = control.xc_.throttle;
   command_.x = control.xc_.phi;
   command_.y = control.xc_.theta;

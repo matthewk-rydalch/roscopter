@@ -5,6 +5,11 @@
 #include <ros/package.h>
 #include <tf/tf.h>
 #include <stdint.h>
+#include <rosflight_msgs/Command.h>
+#include <rosflight_msgs/Status.h>
+#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/TwistStamped.h>
+#include <std_msgs/Bool.h>
 #include <dynamic_reconfigure/server.h>
 #include <roscopter/ControllerConfig.h>
 #include <iostream>
@@ -43,6 +48,7 @@ private:
   ros::Publisher command_pub_;
 
   //functions
+  void init_controller();
   void stateCallback(const nav_msgs::OdometryConstPtr &msg);
   void isFlyingCallback(const std_msgs::BoolConstPtr &msg);
   void cmdCallback(const rosflight_msgs::CommandConstPtr &msg);

@@ -2,16 +2,9 @@
 #define CONTROLLER_H
 
 #include <ros/ros.h>
-#include <rosflight_msgs/Command.h>
-#include <rosflight_msgs/Status.h>
-#include <controller/simple_pid.h>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <std_msgs/Bool.h>
 #include <tf/tf.h>
 #include <stdint.h>
-// #include <dynamic_reconfigure/server.h>
-// #include <roscopter/ControllerConfig.h>
+#include <controller/simple_pid.h>
 #include "roscopter_utils/yaml.h"
 
 namespace controller
@@ -102,6 +95,7 @@ public:
 // protected:
 
   uint8_t control_mode_;
+  uint8_t mode_flag_;
 
 // private:
 
@@ -126,6 +120,14 @@ public:
   void computeControl(double dt);
   void resetIntegrators();
   double saturate(double x, double max, double min);
+
+  uint8_t MODE_PASS_THROUGH_;
+  uint8_t MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_;
+  uint8_t MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
+  uint8_t MODE_ROLL_PITCH_YAWRATE_ALTITUDE_;
+  uint8_t MODE_XPOS_YPOS_YAW_ALTITUDE_;
+  uint8_t MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+  uint8_t MODE_XACC_YACC_YAWRATE_AZ_;
 };
 } //namespace controller
 
