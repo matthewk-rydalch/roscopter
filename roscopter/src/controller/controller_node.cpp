@@ -1,12 +1,12 @@
 #include <ros/ros.h>
-#include "controller/controller.h"
+#include "controller/controller_ros.h"
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "controller_node");
   ros::NodeHandle nh;
 
-  controller::Controller Thing;
+  Controller_Ros Thing;
 
   ros::spin();
 

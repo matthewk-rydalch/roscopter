@@ -64,7 +64,7 @@ message (STATUS "catkin include dirs" ${catkin_INCLUDE_DIRS})
 ## Declare cpp executables
 add_executable(controller_node src/controller/controller_node.cpp)
 add_dependencies(controller_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(controller_node controller ${catkin_LIBRARIES})
+target_link_libraries(controller_node controller_ros ${catkin_LIBRARIES})
 
 add_executable(vel_cntrl_node src/controller/vel_cntrl/vel_cntrl_node.cpp)
 add_dependencies(vel_cntrl_node ${catkin_EXPORTED_TARGETS})
@@ -92,6 +92,13 @@ add_executable(ff_test
   include/tests/feed_forward_test.h
   )
 target_link_libraries(ff_test controller ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+
+add_library(controller_ros
+  src/controller/controller_ros.cpp
+  include/controller/controller_ros.h
+)
+add_dependencies(controller_ros ${catkin_EXPORTED_TARGETS})
+target_link_libraries(controller_ros ${catkin_LIBRARIES})
 
 add_library(controller
   src/controller/controller.cpp
