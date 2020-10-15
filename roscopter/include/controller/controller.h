@@ -1,9 +1,6 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <Eigen/Dense>
-#include <math.h>
-#include <array>
 #include <ros/ros.h>
 #include <rosflight_msgs/Command.h>
 #include <rosflight_msgs/Status.h>
@@ -75,7 +72,7 @@ typedef struct
 
 class Controller
 {
-
+//TODO: determine what should be private and protected
 public:
 
   Controller();
@@ -101,9 +98,6 @@ public:
   bool is_flying_;
   bool armed_;
   bool received_cmd_;
-  bool use_feed_forward_ = false;
-  bool is_landing_ = false;
-  bool landed_ = false;
 
 // protected:
 
@@ -112,20 +106,8 @@ public:
 // private:
 
   // Node handles, publishers, subscribers
-  ros::NodeHandle nh_;
-  ros::NodeHandle nh_private_;
-
-  // Publishers and Subscribers
-  ros::Subscriber state_sub_;
-  ros::Subscriber is_flying_sub_;
-  ros::Subscriber cmd_sub_;
-  ros::Subscriber status_sub_;
-  ros::Subscriber base_odom_sub_;
-  ros::Subscriber is_landing_sub_;
-  ros::Subscriber use_feed_forward_sub_;
-  ros::Subscriber landed_sub_;
-
-  ros::Publisher command_pub_;
+  // ros::NodeHandle nh_;
+  // ros::NodeHandle nh_private_;
 
   // PID Controllers
   controller::SimplePID PID_x_dot_;
@@ -138,30 +120,12 @@ public:
 
   // Memory for sharing information between functions
   state_t xhat_ = {}; // estimate
-  state_t base_hat_ = {}; //base(frame) state
-  rosflight_msgs::Command command_;
   command_t xc_ = {}; // command
-  double prev_time_;
-//
-  // Functions
-  void stateCallback(const nav_msgs::OdometryConstPtr &msg);
-  void isFlyingCallback(const std_msgs::BoolConstPtr &msg);
-  void cmdCallback(const rosflight_msgs::CommandConstPtr &msg);
-  void statusCallback(const rosflight_msgs::StatusConstPtr &msg);
-  void baseOdomCallback(const nav_msgs::OdometryConstPtr &msg);
-  void useFeedForwardCallback(const std_msgs::BoolConstPtr &msg);
-  void isLandingCallback(const std_msgs::BoolConstPtr &msg);
-  void landedCallback(const std_msgs::BoolConstPtr &msg);
 
+  // Functions
   void computeControl(double dt);
   void resetIntegrators();
-  void publishCommand();
   double saturate(double x, double max, double min);
-  void addFeedForwardTerm();
-
-  Eigen::Matrix3d Rroll(double phi);
-  Eigen::Matrix3d Rpitch(double theta);
-  Eigen::Matrix3d Ryaw(double psi);
 };
 } //namespace controller
 

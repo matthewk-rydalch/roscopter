@@ -66,9 +66,9 @@ add_executable(controller_node src/controller/controller_node.cpp)
 add_dependencies(controller_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(controller_node controller_ros ${catkin_LIBRARIES})
 
-add_executable(vel_cntrl_node src/controller/vel_cntrl/vel_cntrl_node.cpp)
-add_dependencies(vel_cntrl_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(vel_cntrl_node vel_cntrl_ros ${catkin_LIBRARIES})
+# add_executable(vel_cntrl_node src/controller/vel_cntrl/vel_cntrl_node.cpp)
+# add_dependencies(vel_cntrl_node ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(vel_cntrl_node vel_cntrl_ros ${catkin_LIBRARIES})
 
 add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
@@ -87,11 +87,11 @@ add_executable(rtk_compassing_test
   )
 target_link_libraries(rtk_compassing_test ekf_ros ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
-add_executable(ff_test 
-  tests/feed_forward/feed_forward_test.cpp
-  include/tests/feed_forward_test.h
-  )
-target_link_libraries(ff_test controller ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+# add_executable(ff_test 
+#   tests/feed_forward/feed_forward_test.cpp
+#   include/tests/feed_forward_test.h
+#   )
+# target_link_libraries(ff_test controller ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
 add_library(controller_ros
   src/controller/controller_ros.cpp
@@ -108,17 +108,17 @@ add_library(controller
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(controller ${catkin_LIBRARIES})
 
-add_library(vel_cntrl
-  src/controller/vel_cntrl/vel_cntrl.cpp
-  include/controller/vel_cntrl.h
-)
+# add_library(vel_cntrl
+#   src/controller/vel_cntrl/vel_cntrl.cpp
+#   include/controller/vel_cntrl.h
+# )
 
-add_library(vel_cntrl_ros src/controller/vel_cntrl/vel_cntrl_ros.cpp)
-target_link_libraries(vel_cntrl_ros vel_cntrl ${catkin_LIBRARIES})
-add_dependencies(vel_cntrl_ros ${catkin_EXPORTED_TARGETS})
+# add_library(vel_cntrl_ros src/controller/vel_cntrl/vel_cntrl_ros.cpp)
+# target_link_libraries(vel_cntrl_ros vel_cntrl ${catkin_LIBRARIES})
+# add_dependencies(vel_cntrl_ros ${catkin_EXPORTED_TARGETS})
 
-add_dependencies(vel_cntrl ${catkin_EXPORTED_TARGETS})
-target_link_libraries(vel_cntrl controller ${catkin_LIBRARIES})
+# add_dependencies(vel_cntrl ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(vel_cntrl controller ${catkin_LIBRARIES})
 
 add_library(ekf
   src/ekf/state.cpp

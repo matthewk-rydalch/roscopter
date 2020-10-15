@@ -12,6 +12,112 @@ Controller_Ros::Controller_Ros() :
 
   _func = boost::bind(&Controller_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
+
+  // Set up Publishers and Subscriber
+  command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
+
+  state_sub_ = nh_.subscribe("estimate", 1, &Controller_Ros::stateCallback, this);
+  is_flying_sub_ = nh_.subscribe("is_flying", 1, &Controller_Ros::isFlyingCallback, this);
+  cmd_sub_ = nh_.subscribe("high_level_command", 1, &Controller_Ros::cmdCallback, this);
+  status_sub_ = nh_.subscribe("status", 1, &Controller_Ros::statusCallback, this);
+}
+
+void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
+{
+  
+  static double prev_time = 0;
+  if(prev_time == 0)
+  {
+    prev_time = msg->header.stamp.toSec();
+    return;
+  }
+
+  // Calculate time
+  double now = msg->header.stamp.toSec();
+  double dt = now - prev_time;
+  prev_time = now;
+
+  if(dt <= 0)
+    return;
+
+  // This should already be coming in NED
+  control.xhat_.pn = msg->pose.pose.position.x;
+  control.xhat_.pe = msg->pose.pose.position.y;
+  control.xhat_.pd = msg->pose.pose.position.z;
+
+  control.xhat_.u = msg->twist.twist.linear.x;
+  control.xhat_.v = msg->twist.twist.linear.y;
+  control.xhat_.w = msg->twist.twist.linear.z;
+
+  // Convert Quaternion to RPY
+  tf::Quaternion tf_quat;
+  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
+  tf::Matrix3x3(tf_quat).getRPY(control.xhat_.phi, control.xhat_.theta, control.xhat_.psi);
+  // xhat_.theta = xhat_.theta;
+  // xhat_.psi = xhat_.psi;
+
+  control.xhat_.p = msg->twist.twist.angular.x;
+  control.xhat_.q = msg->twist.twist.angular.y;
+  control.xhat_.r = msg->twist.twist.angular.z;
+  
+  if(control.is_flying_ && control.armed_ && control.received_cmd_)
+  {
+    ROS_WARN_ONCE("CONTROLLER ACTIVE");
+    control.computeControl(dt);
+    publishCommand();
+  }
+  else
+  {
+    control.resetIntegrators();
+    prev_time_ = msg->header.stamp.toSec();
+  }
+}
+
+
+void Controller_Ros::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.is_flying_ = msg->data;
+}
+
+void Controller_Ros::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
+{
+  control.armed_ = msg->armed;
+}
+
+
+void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
+{
+  switch(msg->mode)
+  {
+    case rosflight_msgs::Command::MODE_XPOS_YPOS_YAW_ALTITUDE:
+      control.xc_.pn = msg->x;
+      control.xc_.pe = msg->y;
+      control.xc_.pd = -msg->F;
+      control.xc_.psi = msg->z;
+      control.control_mode_ = msg->mode;
+      break;
+    case rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE:
+      control.xc_.x_dot = msg->x;
+      control.xc_.y_dot = msg->y;
+      control.xc_.pd = -msg->F;
+      control.xc_.r = msg->z;
+      control.control_mode_ = msg->mode;
+      break;
+    case rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ:
+      control.xc_.ax = msg->x;
+      control.xc_.ay = msg->y;
+      control.xc_.az = msg->F;
+      control.xc_.r = msg->z;
+      control.control_mode_ = msg->mode;
+      break;
+    default:
+      ROS_ERROR("roscopter/controller: Unhandled command message of type %d",
+                msg->mode);
+      break;
+  }
+
+  if (!control.received_cmd_)
+    control.received_cmd_ = true;
 }
 
 void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
@@ -71,4 +177,15 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   ROS_INFO("new gains");
 
   control.resetIntegrators();
+}
+
+void Controller_Ros::publishCommand()
+{
+  command_.header.stamp = ros::Time::now();
+  command_.mode = control.control_mode_;
+  command_.F = control.xc_.throttle;
+  command_.x = control.xc_.phi;
+  command_.y = control.xc_.theta;
+  command_.z = control.xc_.r;
+  command_pub_.publish(command_);
 }

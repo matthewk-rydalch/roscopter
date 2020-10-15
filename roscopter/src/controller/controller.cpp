@@ -23,19 +23,6 @@ Controller::Controller() //:
 
   is_flying_ = false;
   received_cmd_ = false;
-
-  // Set up Publishers and Subscriber
-  command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
-
-  state_sub_ = nh_.subscribe("estimate", 1, &Controller::stateCallback, this);
-  is_flying_sub_ = nh_.subscribe("is_flying", 1, &Controller::isFlyingCallback, this);
-  cmd_sub_ = nh_.subscribe("high_level_command", 1, &Controller::cmdCallback, this);
-  status_sub_ = nh_.subscribe("status", 1, &Controller::statusCallback, this);
-  base_odom_sub_ = nh_.subscribe("base_odom", 1, &Controller::baseOdomCallback, this);
-  use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Controller::useFeedForwardCallback, this);
-  is_landing_sub_ = nh_.subscribe("is_landing", 1, &Controller::isLandingCallback, this);
-  landed_sub_ = nh_.subscribe("landed", 1, &Controller::landedCallback, this);
-
 }
 
 void Controller::load(const std::string &filename)
@@ -53,144 +40,6 @@ void Controller::load(const std::string &filename)
   roscopter::get_yaml_node("max_d_dot", filename, max_.d_dot);
 
   roscopter::get_yaml_node("min_altitude", filename, min_altitude_);
-}
-
-
-void Controller::stateCallback(const nav_msgs::OdometryConstPtr &msg)
-{
-  
-  static double prev_time = 0;
-  if(prev_time == 0)
-  {
-    prev_time = msg->header.stamp.toSec();
-    return;
-  }
-
-  // Calculate time
-  double now = msg->header.stamp.toSec();
-  double dt = now - prev_time;
-  prev_time = now;
-
-  if(dt <= 0)
-    return;
-
-  // This should already be coming in NED
-  xhat_.pn = msg->pose.pose.position.x;
-  xhat_.pe = msg->pose.pose.position.y;
-  xhat_.pd = msg->pose.pose.position.z;
-
-  xhat_.u = msg->twist.twist.linear.x;
-  xhat_.v = msg->twist.twist.linear.y;
-  xhat_.w = msg->twist.twist.linear.z;
-
-  // Convert Quaternion to RPY
-  tf::Quaternion tf_quat;
-  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
-  tf::Matrix3x3(tf_quat).getRPY(xhat_.phi, xhat_.theta, xhat_.psi);
-  xhat_.theta = xhat_.theta;
-  xhat_.psi = xhat_.psi;
-
-  xhat_.p = msg->twist.twist.angular.x;
-  xhat_.q = msg->twist.twist.angular.y;
-  xhat_.r = msg->twist.twist.angular.z;
-  
-  if(is_flying_ && armed_ && received_cmd_)
-  {
-    ROS_WARN_ONCE("CONTROLLER ACTIVE");
-    computeControl(dt);
-    publishCommand();
-  }
-  else
-  {
-    resetIntegrators();
-    prev_time_ = msg->header.stamp.toSec();
-  }
-}
-
-
-void Controller::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
-{
-  is_flying_ = msg->data;
-}
-
-void Controller::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
-{
-  armed_ = msg->armed;
-}
-
-
-void Controller::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
-{
-  switch(msg->mode)
-  {
-    case rosflight_msgs::Command::MODE_XPOS_YPOS_YAW_ALTITUDE:
-      xc_.pn = msg->x;
-      xc_.pe = msg->y;
-      xc_.pd = -msg->F;
-      xc_.psi = msg->z;
-      control_mode_ = msg->mode;
-      break;
-    case rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE:
-      xc_.x_dot = msg->x;
-      xc_.y_dot = msg->y;
-      xc_.pd = -msg->F;
-      xc_.r = msg->z;
-      control_mode_ = msg->mode;
-      break;
-    case rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ:
-      xc_.ax = msg->x;
-      xc_.ay = msg->y;
-      xc_.az = msg->F;
-      xc_.r = msg->z;
-      control_mode_ = msg->mode;
-      break;
-    default:
-      ROS_ERROR("roscopter/controller: Unhandled command message of type %d",
-                msg->mode);
-      break;
-  }
-
-  if (!received_cmd_)
-    received_cmd_ = true;
-}
-
-void Controller::baseOdomCallback(const nav_msgs::OdometryConstPtr &msg)
-{
-
-  // Convert Quaternion to RPY
-  tf::Quaternion tf_quat;
-  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
-  tf::Matrix3x3(tf_quat).getRPY(base_hat_.phi, base_hat_.theta, base_hat_.psi);
-  // base_hat_.psi = -base_hat_.psi; //have to negate to go from Counter Clockwise positive rotation to Clockwise;
-
-  // double sinp = sin(base_hat_.psi);
-  // double cosp = cos(base_hat_.psi);
-
-  double u = msg->twist.twist.linear.x;
-  double v = msg->twist.twist.linear.y;
-  double w = msg->twist.twist.linear.z;
-
-  base_hat_.u = u;
-  base_hat_.v = v;
-  base_hat_.w = w;
-
-  // base_hat_.r = -msg->twist.angular.z; //have to negate to go from Counter Clockwise positive rotation to Clockwise
-
-}
-
-void Controller::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
-{
-  use_feed_forward_ = msg->data;
-}
-
-void Controller::isLandingCallback(const std_msgs::BoolConstPtr &msg)
-{
-  is_landing_ = msg->data;
-}
-
-void Controller::landedCallback(const std_msgs::BoolConstPtr &msg)
-{
-  landed_ = msg->data;
 }
 
 void Controller::computeControl(double dt)
@@ -244,11 +93,6 @@ void Controller::computeControl(double dt)
     // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
     xc_.z_dot = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pzdot);
 
-    if(use_feed_forward_)
-    {
-      addFeedForwardTerm();
-    }
-
     xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
 
@@ -284,59 +128,18 @@ void Controller::computeControl(double dt)
   if(mode_flag == rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE)
   {
     // Pack up and send the command
-    if(landed_ == true)
-    {
-      command_.F = 0.0;
-      command_.x = 0.0;
-      command_.y = 0.0;
-      command_.z = 0.0;
-    }
-    else if(is_landing_ == true) //this is for the mission state "land"
-    {
-      command_.mode = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE;
-      command_.F = throttle_down_ * command_.F;
-      command_.x = saturate(xc_.phi, max_.roll, -max_.roll);
-      command_.y = saturate(xc_.theta, max_.pitch, -max_.pitch);
-      command_.z = saturate(xc_.r, max_.yaw_rate, -max_.yaw_rate);
-      // std::cerr << "throttle = " << command_.F << "\n"; //good for testing the throttle_down_ multiplier
-    }
-    else
-    {
-      command_.mode = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE;
-      command_.F = saturate(xc_.throttle, max_.throttle, 0.0);
-      command_.x = saturate(xc_.phi, max_.roll, -max_.roll);
-      command_.y = saturate(xc_.theta, max_.pitch, -max_.pitch);
-      command_.z = saturate(xc_.r, max_.yaw_rate, -max_.yaw_rate);
-    }
+
+    xc_.throttle = saturate(xc_.throttle, max_.throttle, 0.0);
+    xc_.phi = saturate(xc_.phi, max_.roll, -max_.roll);
+    xc_.theta = saturate(xc_.theta, max_.pitch, -max_.pitch);
+    xc_.r = saturate(xc_.r, max_.yaw_rate, -max_.yaw_rate);
     if (-xhat_.pd < min_altitude_)
     {
-      command_.x = 0.;
-      command_.y = 0.;
-      command_.z = 0.;
+      xc_.phi = 0.;
+      xc_.theta = 0.;
+      xc_.r = 0.;
     }
   }
-}
-
-void Controller::publishCommand()
-{
-  command_.header.stamp = ros::Time::now();
-  command_pub_.publish(command_);
-}
-
-void Controller::addFeedForwardTerm()
-{
-
-  Eigen::Matrix3d Rphi = Controller::Rroll(base_hat_.phi);
-  Eigen::Matrix3d Rth = Controller::Rpitch(base_hat_.theta);
-  Eigen::Matrix3d Rpsi = Controller::Ryaw(base_hat_.psi + xhat_.psi);
-
-  Eigen::Vector3d base_velocity_body_frame(base_hat_.u, base_hat_.v, base_hat_.w);
-
-  Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);
-
-  xc_.x_dot = xc_.x_dot + base_velocity_rover_v1_frame[0]; //feed forward the base velocity
-  xc_.y_dot = xc_.y_dot + base_velocity_rover_v1_frame[1];
-  xc_.z_dot = xc_.z_dot + base_velocity_rover_v1_frame[2];
 }
 
 void Controller::resetIntegrators()
@@ -355,40 +158,6 @@ double Controller::saturate(double x, double max, double min)
   x = (x > max) ? max : x;
   x = (x < min) ? min : x;
   return x;
-}
-
-Eigen::Matrix3d Controller::Rroll(double phi)
-{
-  double cp = cos(phi);
-  double sp = sin(phi);
-  Eigen::Matrix3d Rphi;
-  Rphi << 1.0, 0.0, 0.0,
-          0.0,  cp, -sp,
-          0.0,  sp,  cp;
-  return Rphi;
-}
-
-Eigen::Matrix3d Controller::Rpitch(double theta)
-{
-  double ct = cos(theta);
-  double st = sin(theta);
-  Eigen::Matrix3d Rth;
-  Rth <<  ct, 0.0,  st,
-          0.0, 1.0, 0.0,
-          -st, 0.0,  ct;
-  return Rth;
-}
-
-Eigen::Matrix3d Controller::Ryaw(double psi)
-{
-  double cp = cos(psi);
-  double sp = sin(psi);
-  Eigen::Matrix3d Rpsi;
-  Rpsi <<  cp, -sp, 0.0,
-           sp,  cp, 0.0,
-          0.0, 0.0, 1.0;
-
-  return Rpsi;
 }
 
 void Controller::setPIDXDot(double P, double I, double D, double tau)
