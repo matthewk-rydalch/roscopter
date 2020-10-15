@@ -5,6 +5,8 @@
 #include <ros/package.h>
 // #include <tf/tf.h>
 // #include <stdint.h>
+#include <dynamic_reconfigure/server.h>
+#include <roscopter/ControllerConfig.h>
 #include <iostream>
 #include <controller/controller.h>
 
@@ -21,6 +23,12 @@ private:
   ros::NodeHandle nh_private_;
 
   controller::Controller control;
+
+    // Dynamic Reconfigure Hooks
+  dynamic_reconfigure::Server<roscopter::ControllerConfig> _server;
+  dynamic_reconfigure::Server<roscopter::ControllerConfig>::CallbackType _func;
+  void reconfigure_callback(roscopter::ControllerConfig& config,
+                            uint32_t level);
 };
 
 #endif

@@ -14,8 +14,6 @@ Controller::Controller() //:
   // Retrieve global MAV equilibrium throttle. This is the only MAV specific
   // parameter that is required
   // ros::NodeHandle nh_mav(ros::this_node::getNamespace());
-  // if (!nh_private_.getParam("equilibrium_throttle", throttle_eq_))
-  //   ROS_ERROR("[Controller] MAV equilibrium_throttle not found!");
 
   // Calculate max accelerations. Assuming that equilibrium throttle produces
   // 1 g of acceleration and a linear thrust model, these max acceleration
@@ -25,9 +23,6 @@ Controller::Controller() //:
 
   is_flying_ = false;
   received_cmd_ = false;
-
-  _func = boost::bind(&Controller::reconfigure_callback, this, _1, _2);
-  _server.setCallback(_func);
 
   // Set up Publishers and Subscriber
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
@@ -197,67 +192,6 @@ void Controller::landedCallback(const std_msgs::BoolConstPtr &msg)
 {
   landed_ = msg->data;
 }
-
-void Controller::reconfigure_callback(roscopter::ControllerConfig& config,
-                                      uint32_t level)
-{
-  double P, I, D, tau;
-  tau = config.tau;
-  P = config.x_dot_P;
-  I = config.x_dot_I;
-  D = config.x_dot_D;
-  PID_x_dot_.setGains(P, I, D, tau, max_accel_xy_, -max_accel_xy_);
-
-  P = config.y_dot_P;
-  I = config.y_dot_I;
-  D = config.y_dot_D;
-  PID_y_dot_.setGains(P, I, D, tau, max_accel_xy_, -max_accel_xy_);
-
-  P = config.z_dot_P;
-  I = config.z_dot_I;
-  D = config.z_dot_D;
-  // set max z accelerations so that we can't fall faster than 1 gravity
-  PID_z_dot_.setGains(P, I, D, tau, 1.0, -max_accel_z_);
-
-  P = config.north_P;
-  I = config.north_I;
-  D = config.north_D;
-  max_.n_dot = config.max_n_dot;
-  PID_n_.setGains(P, I, D, tau, max_.n_dot, -max_.n_dot);
-
-  P = config.east_P;
-  I = config.east_I;
-  D = config.east_D;
-  max_.e_dot = config.max_e_dot;
-  PID_e_.setGains(P, I, D, tau, max_.e_dot, -max_.e_dot);
-
-  P = config.down_P;
-  I = config.down_I;
-  D = config.down_D;
-  max_.d_dot = config.max_d_dot;
-  PID_d_.setGains(P, I, D, tau, max_.d_dot, -max_.d_dot);
-
-  P = config.psi_P;
-  I = config.psi_I;
-  D = config.psi_D;
-  PID_psi_.setGains(P, I, D, tau);
-
-  max_.roll = config.max_roll;
-  max_.pitch = config.max_pitch;
-  max_.yaw_rate = config.max_yaw_rate;
-  max_.throttle = config.max_throttle;
-
-  max_.n_dot = config.max_n_dot;
-  max_.e_dot = config.max_e_dot;
-  max_.d_dot = config.max_d_dot;
-
-  throttle_eq_ = config.equilibrium_throttle;
-
-  ROS_INFO("new gains");
-
-  resetIntegrators();
-}
-
 
 void Controller::computeControl(double dt)
 {
@@ -455,5 +389,35 @@ Eigen::Matrix3d Controller::Ryaw(double psi)
           0.0, 0.0, 1.0;
 
   return Rpsi;
+}
+
+void Controller::setPIDXDot(double P, double I, double D, double tau)
+{
+  PID_x_dot_.setGains(P, I, D, tau, max_accel_xy_, -max_accel_xy_);
+}
+void Controller::setPIDYDot(double P, double I, double D, double tau)
+{
+  PID_y_dot_.setGains(P, I, D, tau, max_accel_xy_, -max_accel_xy_);
+}
+void Controller::setPIDZDot(double P, double I, double D, double tau)
+{
+  // set max z accelerations so that we can't fall faster than 1 gravity
+  PID_z_dot_.setGains(P, I, D, tau, 1.0, -max_accel_z_);
+}
+void Controller::setPIDN(double P, double I, double D, double tau)
+{
+  PID_n_.setGains(P, I, D, tau, max_.n_dot, -max_.n_dot);
+}
+void Controller::setPIDE(double P, double I, double D, double tau)
+{
+  PID_e_.setGains(P, I, D, tau, max_.e_dot, -max_.e_dot);
+}
+void Controller::setPIDD(double P, double I, double D, double tau)
+{
+  PID_d_.setGains(P, I, D, tau, max_.d_dot, -max_.d_dot);
+}
+void Controller::setPIDPsi(double P, double I, double D, double tau)
+{
+  PID_psi_.setGains(P, I, D, tau);
 }
 }
