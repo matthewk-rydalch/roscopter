@@ -263,7 +263,7 @@ class WaypointManager():
 
     
     def load_set_parameters(self):
-        
+        print('in loading')
         try:
             self.waypoint_list = rospy.get_param('~waypoints') #params are loaded in launch file
         except KeyError:
@@ -282,6 +282,7 @@ class WaypointManager():
         self.antenna_offset = rospy.get_param('~antenna_offset', [0.36, -0.36, -0.12])
         base_yaw0_deg = rospy.get_param('~base_yaw0', 0.0)
         self.base_yaw0 = base_yaw0_deg*np.pi/180.0
+        print('waypoints = ', self.waypoint_list)
 
         #calculate parameters
         self.len_wps = len(self.waypoint_list)
