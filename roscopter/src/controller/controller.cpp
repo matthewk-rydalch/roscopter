@@ -4,14 +4,11 @@
 #include <iostream>
 #include <fstream>
 
-
-
 namespace controller
 {
-
-Controller::Controller() :
-  nh_(ros::NodeHandle()),
-  nh_private_("~")
+Controller::Controller() //:
+  // nh_(ros::NodeHandle()),
+  // nh_private_("~")
 {
   std::cout << "in controller \n";
   // Retrieve global MAV equilibrium throttle. This is the only MAV specific
@@ -29,15 +26,15 @@ Controller::Controller() :
   is_flying_ = false;
   received_cmd_ = false;
 
-  nh_private_.getParam("max_roll", max_.roll);
-  nh_private_.getParam("max_pitch", max_.pitch);
-  nh_private_.getParam("max_yaw_rate", max_.yaw_rate);
-  nh_private_.getParam("max_throttle", max_.throttle);
-  nh_private_.getParam("max_n_dot", max_.n_dot);
-  nh_private_.getParam("max_e_dot", max_.e_dot);
-  nh_private_.getParam("max_d_dot", max_.d_dot);
+  // nh_private_.getParam("max_roll", max_.roll);
+  // nh_private_.getParam("max_pitch", max_.pitch);
+  // nh_private_.getParam("max_yaw_rate", max_.yaw_rate);
+  // nh_private_.getParam("max_throttle", max_.throttle);
+  // nh_private_.getParam("max_n_dot", max_.n_dot);
+  // nh_private_.getParam("max_e_dot", max_.e_dot);
+  // nh_private_.getParam("max_d_dot", max_.d_dot);
 
-  nh_private_.getParam("min_altitude", min_altitude_);
+  // nh_private_.getParam("min_altitude", min_altitude_);
 
   _func = boost::bind(&Controller::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
@@ -54,6 +51,19 @@ Controller::Controller() :
   is_landing_sub_ = nh_.subscribe("is_landing", 1, &Controller::isLandingCallback, this);
   landed_sub_ = nh_.subscribe("landed", 1, &Controller::landedCallback, this);
 
+}
+
+void Controller::load(const std::string &filename)
+{
+  roscopter::get_yaml_node("max_roll", filename, max_.roll);
+  roscopter::get_yaml_node("max_pitch", filename, max_.pitch);
+  roscopter::get_yaml_node("max_yaw_rate", filename, max_.yaw_rate);
+  roscopter::get_yaml_node("max_throttle", filename, max_.throttle);
+  roscopter::get_yaml_node("max_n_dot", filename, max_.n_dot);
+  roscopter::get_yaml_node("max_e_dot", filename, max_.e_dot);
+  roscopter::get_yaml_node("max_d_dot", filename, max_.d_dot);
+
+  roscopter::get_yaml_node("min_altitude", filename, min_altitude_);
 }
 
 
@@ -452,5 +462,4 @@ Eigen::Matrix3d Controller::Ryaw(double psi)
 
   return Rpsi;
 }
-
-}  // namespace controller
+}

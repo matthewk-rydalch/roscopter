@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <dynamic_reconfigure/server.h>
 #include <roscopter/ControllerConfig.h>
+#include "roscopter_utils/yaml.h"
 
 namespace controller
 {
@@ -78,6 +79,7 @@ class Controller
 public:
 
   Controller();
+  void load(const std::string &filename);
 
 protected:
 
@@ -160,6 +162,6 @@ private:
   Eigen::Matrix3d Rpitch(double theta);
   Eigen::Matrix3d Ryaw(double psi);
 };
-}
+} //namespace controller
 
 #endif
