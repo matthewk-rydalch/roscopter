@@ -98,7 +98,7 @@ add_library(controller_ros
   include/controller/controller_ros.h
 )
 add_dependencies(controller_ros ${catkin_EXPORTED_TARGETS})
-target_link_libraries(controller_ros ${catkin_LIBRARIES})
+target_link_libraries(controller_ros controller ${catkin_LIBRARIES})
 
 add_library(controller
   src/controller/controller.cpp

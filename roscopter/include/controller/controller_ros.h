@@ -2,6 +2,7 @@
 #define CONTROLLER_ROS_H
 
 #include <iostream>
+#include <controller/controller.h>
 
 class Controller_Ros
 {
@@ -12,6 +13,7 @@ public:
 
 private:
 
+  controller::Controller control;
   
 };
 
