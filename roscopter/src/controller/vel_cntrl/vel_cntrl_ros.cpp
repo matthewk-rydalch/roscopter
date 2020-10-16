@@ -2,6 +2,6 @@
 
 Vel_Cntrl_Ros::Vel_Cntrl_Ros()
 {
-    std::cout << "in ROS velocity controll contructor. \n";
-    Vel_Cntrl vel_cntrl;
+    std::cout << "in ROS velocity control constructor. \n";
+    // Vel_Cntrl vel_cntrl;
 }
