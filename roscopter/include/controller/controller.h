@@ -92,6 +92,13 @@ public:
   bool armed_;
   bool received_cmd_;
 
+  bool debug_Controller_{false};
+  bool debug_load_{true};
+  bool debug_computeControl_{false};
+  bool debug_resetIntegrators_{false};
+  bool debug_saturate_{false};
+  bool debug_setGains_{false};
+
 // protected:
 
   uint8_t control_mode_;

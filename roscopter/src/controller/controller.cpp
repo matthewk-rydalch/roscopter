@@ -10,16 +10,11 @@ Controller::Controller() //:
   // nh_(ros::NodeHandle()),
   // nh_private_("~")
 {
-  std::cout << "in controller \n";
+  if (debug_Controller_)
+    std::cout << "In Controller::Controller!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   // Retrieve global MAV equilibrium throttle. This is the only MAV specific
   // parameter that is required
   // ros::NodeHandle nh_mav(ros::this_node::getNamespace());
-
-  // Calculate max accelerations. Assuming that equilibrium throttle produces
-  // 1 g of acceleration and a linear thrust model, these max acceleration
-  // values are computed in g's as well.
-  max_accel_z_ = 1.0 / throttle_eq_;
-  max_accel_xy_ = sin(acos(throttle_eq_)) / throttle_eq_ / sqrt(2.);
 
   is_flying_ = false;
   received_cmd_ = false;
@@ -27,9 +22,13 @@ Controller::Controller() //:
 
 void Controller::load(const std::string &filename)
 {
+  if (debug_load_)
+    std::cout << "In Controller::load!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   // parameter that is required
   if (!roscopter::get_yaml_node("equilibrium_throttle", filename, throttle_eq_))
     ROS_ERROR("[Controller] MAV equilibrium_throttle not found!");
+
+  std::cout << "loaded throttle equilibrium = " << throttle_eq_ << std::endl;
 
   roscopter::get_yaml_node("max_roll", filename, max_.roll);
   roscopter::get_yaml_node("max_pitch", filename, max_.pitch);
@@ -40,10 +39,18 @@ void Controller::load(const std::string &filename)
   roscopter::get_yaml_node("max_d_dot", filename, max_.d_dot);
 
   roscopter::get_yaml_node("min_altitude", filename, min_altitude_);
+
+  // Calculate max accelerations. Assuming that equilibrium throttle produces
+  // 1 g of acceleration and a linear thrust model, these max acceleration
+  // values are computed in g's as well.
+  max_accel_z_ = 1.0 / throttle_eq_;
+  max_accel_xy_ = sin(acos(throttle_eq_)) / throttle_eq_ / sqrt(2.);
 }
 
 void Controller::computeControl(double dt)
 {
+  if (debug_computeControl_)
+    std::cout << "In Controller::computeControl!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   if(dt <= 0.0000001)
   {
     // This messes up the derivative calculation in the PID controllers
@@ -122,6 +129,21 @@ void Controller::computeControl(double dt)
     double cost = cos(xhat_.theta);
     xc_.throttle = (1.0 - xc_.az) * throttle_eq_ / cosp / cost;
 
+    std::cout << "xc_.pn = " << xc_.pn << std::endl;
+    std::cout << "xc_.pe = " << xc_.pe << std::endl;
+    std::cout << "xc_.pd = " << xc_.pd << std::endl;
+    std::cout << "xc_.psi = " << xc_.psi << std::endl;
+    std::cout << "xc_.x_dot = " << xc_.x_dot << std::endl;
+    std::cout << "xc_.y_dot = " << xc_.y_dot << std::endl;
+    std::cout << "xc_.z_dot = " << xc_.z_dot << std::endl;
+    std::cout << "xc_.r = " << xc_.r << std::endl;
+    std::cout << "xc_.ax = " << xc_.ax << std::endl;
+    std::cout << "xc_.ay = " << xc_.ay << std::endl;
+    std::cout << "xc_.az = " << xc_.az << std::endl;
+    std::cout << "xc_.phi = " << xc_.phi << std::endl;
+    std::cout << "xc_.theta = " << xc_.theta << std::endl;
+    std::cout << "xc_.throttle = " << xc_.throttle << std::endl;
+   
     mode_flag_ = MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
   }
 
@@ -144,6 +166,8 @@ void Controller::computeControl(double dt)
 
 void Controller::resetIntegrators()
 {
+  if (debug_resetIntegrators_)
+    std::cout << "In Controller::resetIntegrators!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_x_dot_.clearIntegrator();
   PID_y_dot_.clearIntegrator();
   PID_z_dot_.clearIntegrator();
@@ -155,6 +179,8 @@ void Controller::resetIntegrators()
 
 double Controller::saturate(double x, double max, double min)
 {
+  if (debug_saturate_)
+    std::cout << "In Controller::saturate!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   x = (x > max) ? max : x;
   x = (x < min) ? min : x;
   return x;
@@ -162,31 +188,45 @@ double Controller::saturate(double x, double max, double min)
 
 void Controller::setPIDXDot(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDXDot!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_x_dot_.setGains(P, I, D, tau, max_accel_xy_, -max_accel_xy_);
 }
 void Controller::setPIDYDot(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDYDot!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_y_dot_.setGains(P, I, D, tau, max_accel_xy_, -max_accel_xy_);
 }
 void Controller::setPIDZDot(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDZDot!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   // set max z accelerations so that we can't fall faster than 1 gravity
   PID_z_dot_.setGains(P, I, D, tau, 1.0, -max_accel_z_);
 }
 void Controller::setPIDN(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDN!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_n_.setGains(P, I, D, tau, max_.n_dot, -max_.n_dot);
 }
 void Controller::setPIDE(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDE!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_e_.setGains(P, I, D, tau, max_.e_dot, -max_.e_dot);
 }
 void Controller::setPIDD(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDD!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_d_.setGains(P, I, D, tau, max_.d_dot, -max_.d_dot);
 }
 void Controller::setPIDPsi(double P, double I, double D, double tau)
 {
+  if (debug_setGains_)
+    std::cout << "In Controller::setPIDPsi!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   PID_psi_.setGains(P, I, D, tau);
 }
 }

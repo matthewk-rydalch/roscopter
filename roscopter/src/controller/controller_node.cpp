@@ -5,7 +5,6 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "controller_node");
   ros::NodeHandle nh;
-
   Controller_Ros Thing;
 
   ros::spin();

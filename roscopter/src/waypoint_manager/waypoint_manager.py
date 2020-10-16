@@ -263,7 +263,6 @@ class WaypointManager():
 
     
     def load_set_parameters(self):
-        print('in loading')
         try:
             self.waypoint_list = rospy.get_param('~waypoints') #params are loaded in launch file
         except KeyError:

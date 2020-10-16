@@ -3,7 +3,8 @@
 Controller_Ros::Controller_Ros() :
   nh_(ros::NodeHandle()), nh_private_("~")
 {
-  std::cout << "In Controller_Ros \n";
+  if (debug_Controller_Ros_)
+    std::cout << "In Controller_Ros::Controller_Ros!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 
   //sets a variable to the parameter file path and name
   std::string roscopter_path = ros::package::getPath("roscopter");
@@ -25,6 +26,8 @@ Controller_Ros::Controller_Ros() :
 
 void Controller_Ros::init_controller()
 {
+  if (debug_init_controller_)
+    std::cout << "In Controller_Ros::init_controller!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   control.MODE_PASS_THROUGH_ = rosflight_msgs::Command::MODE_PASS_THROUGH;
   control.MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_ = rosflight_msgs::Command::MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE;
   control.MODE_ROLL_PITCH_YAWRATE_THROTTLE_ = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE;
@@ -36,7 +39,9 @@ void Controller_Ros::init_controller()
 
 void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
-  
+  if (debug_stateCallback_)
+    std::cout << "In Controller_Ros::stateCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+
   static double prev_time = 0;
   if(prev_time == 0)
   {
@@ -87,16 +92,23 @@ void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
 
 void Controller_Ros::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
 {
+  if (debug_isFlyingCallback_)
+    std::cout << "In Controller_Ros::isFlyingCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   control.is_flying_ = msg->data;
 }
 
 void Controller_Ros::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
+  if (debug_statusCallback_)
+    std::cout << "In Controller_Ros::statusCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   control.armed_ = msg->armed;
 }
 
 void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
 {
+  if (debug_cmdCallback_)
+    std::cout << "In Controller_Ros::cmdCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+
   switch(msg->mode)
   {
     case rosflight_msgs::Command::MODE_XPOS_YPOS_YAW_ALTITUDE:
@@ -133,11 +145,16 @@ void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
 void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
                                       uint32_t level)
 {
+  if (debug_reconfigure_callback_)
+    std::cout << "In Controller_Ros::reconfigure_callback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   double P, I, D, tau;
   tau = config.tau;
   P = config.x_dot_P;
   I = config.x_dot_I;
   D = config.x_dot_D;
+  std::cout << "P = " << P << std::endl;
+  std::cout << "I = " << I << std::endl;
+  std::cout << "D = " << D << std::endl;
   control.setPIDXDot(P, I, D, tau);
 
   P = config.y_dot_P;
@@ -191,6 +208,8 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 
 void Controller_Ros::publishCommand()
 {
+  if (debug_publishCommand_)
+    std::cout << "In Controller_Ros::publishCommand!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   command_.header.stamp = ros::Time::now();
   command_.mode = control.mode_flag_;
   command_.F = control.xc_.throttle;
