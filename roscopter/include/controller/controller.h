@@ -93,7 +93,7 @@ public:
   bool received_cmd_;
 
   bool debug_Controller_{false};
-  bool debug_load_{true};
+  bool debug_load_{false};
   bool debug_computeControl_{false};
   bool debug_resetIntegrators_{false};
   bool debug_saturate_{false};

@@ -147,14 +147,24 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 {
   if (debug_reconfigure_callback_)
     std::cout << "In Controller_Ros::reconfigure_callback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+  
+  control.max_.roll = config.max_roll;
+  control.max_.pitch = config.max_pitch;
+  control.max_.yaw_rate = config.max_yaw_rate;
+  control.max_.throttle = config.max_throttle;
+
+  control.min_altitude_ = config.min_altitude;
+
+  control.throttle_eq_ = config.equilibrium_throttle;
+
+  control.max_accel_z_ = 1.0 / control.throttle_eq_;
+  control.max_accel_xy_ = sin(acos(control.throttle_eq_)) / control.throttle_eq_ / sqrt(2.);
+
   double P, I, D, tau;
   tau = config.tau;
   P = config.x_dot_P;
   I = config.x_dot_I;
   D = config.x_dot_D;
-  std::cout << "P = " << P << std::endl;
-  std::cout << "I = " << I << std::endl;
-  std::cout << "D = " << D << std::endl;
   control.setPIDXDot(P, I, D, tau);
 
   P = config.y_dot_P;
@@ -189,17 +199,6 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   I = config.psi_I;
   D = config.psi_D;
   control.setPIDPsi(P, I, D, tau);
-
-  control.max_.roll = config.max_roll;
-  control.max_.pitch = config.max_pitch;
-  control.max_.yaw_rate = config.max_yaw_rate;
-  control.max_.throttle = config.max_throttle;
-
-  control.max_.n_dot = config.max_n_dot;
-  control.max_.e_dot = config.max_e_dot;
-  control.max_.d_dot = config.max_d_dot;
-
-  control.throttle_eq_ = config.equilibrium_throttle;
 
   ROS_INFO("new gains");
 

@@ -25,26 +25,26 @@ void Controller::load(const std::string &filename)
   if (debug_load_)
     std::cout << "In Controller::load!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   // parameter that is required
-  if (!roscopter::get_yaml_node("equilibrium_throttle", filename, throttle_eq_))
-    ROS_ERROR("[Controller] MAV equilibrium_throttle not found!");
+  // if (!roscopter::get_yaml_node("controller::equilibrium_throttle", filename, throttle_eq_))
+  //   ROS_ERROR("[Controller] MAV equilibrium_throttle not found!");
 
-  std::cout << "loaded throttle equilibrium = " << throttle_eq_ << std::endl;
+  // std::cout << "loaded throttle equilibrium = " << throttle_eq_ << std::endl;
 
-  roscopter::get_yaml_node("max_roll", filename, max_.roll);
-  roscopter::get_yaml_node("max_pitch", filename, max_.pitch);
-  roscopter::get_yaml_node("max_yaw_rate", filename, max_.yaw_rate);
-  roscopter::get_yaml_node("max_throttle", filename, max_.throttle);
-  roscopter::get_yaml_node("max_n_dot", filename, max_.n_dot);
-  roscopter::get_yaml_node("max_e_dot", filename, max_.e_dot);
-  roscopter::get_yaml_node("max_d_dot", filename, max_.d_dot);
+  // roscopter::get_yaml_node("controller::max_roll", filename, max_.roll);
+  // roscopter::get_yaml_node("controller::max_pitch", filename, max_.pitch);
+  // roscopter::get_yaml_node("controller::max_yaw_rate", filename, max_.yaw_rate);
+  // roscopter::get_yaml_node("controller::max_throttle", filename, max_.throttle);
+  // roscopter::get_yaml_node("controller::max_n_dot", filename, max_.n_dot);
+  // roscopter::get_yaml_node("controller::max_e_dot", filename, max_.e_dot);
+  // roscopter::get_yaml_node("controller::max_d_dot", filename, max_.d_dot);
 
-  roscopter::get_yaml_node("min_altitude", filename, min_altitude_);
+  // roscopter::get_yaml_node("controller::min_altitude", filename, min_altitude_);
 
   // Calculate max accelerations. Assuming that equilibrium throttle produces
   // 1 g of acceleration and a linear thrust model, these max acceleration
   // values are computed in g's as well.
-  max_accel_z_ = 1.0 / throttle_eq_;
-  max_accel_xy_ = sin(acos(throttle_eq_)) / throttle_eq_ / sqrt(2.);
+  // max_accel_z_ = 1.0 / throttle_eq_;
+  // max_accel_xy_ = sin(acos(throttle_eq_)) / throttle_eq_ / sqrt(2.);
 }
 
 void Controller::computeControl(double dt)
@@ -99,7 +99,6 @@ void Controller::computeControl(double dt)
     // TODO: Rotate boat body frame velocities into drone vehicle 1 frame velocities
     // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
     xc_.z_dot = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pzdot);
-
     xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
 
@@ -128,21 +127,6 @@ void Controller::computeControl(double dt)
     double cosp = cos(xhat_.phi);
     double cost = cos(xhat_.theta);
     xc_.throttle = (1.0 - xc_.az) * throttle_eq_ / cosp / cost;
-
-    std::cout << "xc_.pn = " << xc_.pn << std::endl;
-    std::cout << "xc_.pe = " << xc_.pe << std::endl;
-    std::cout << "xc_.pd = " << xc_.pd << std::endl;
-    std::cout << "xc_.psi = " << xc_.psi << std::endl;
-    std::cout << "xc_.x_dot = " << xc_.x_dot << std::endl;
-    std::cout << "xc_.y_dot = " << xc_.y_dot << std::endl;
-    std::cout << "xc_.z_dot = " << xc_.z_dot << std::endl;
-    std::cout << "xc_.r = " << xc_.r << std::endl;
-    std::cout << "xc_.ax = " << xc_.ax << std::endl;
-    std::cout << "xc_.ay = " << xc_.ay << std::endl;
-    std::cout << "xc_.az = " << xc_.az << std::endl;
-    std::cout << "xc_.phi = " << xc_.phi << std::endl;
-    std::cout << "xc_.theta = " << xc_.theta << std::endl;
-    std::cout << "xc_.throttle = " << xc_.throttle << std::endl;
    
     mode_flag_ = MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
   }
