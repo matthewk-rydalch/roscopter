@@ -69,7 +69,6 @@ class Controller
 public:
 
   Controller();
-  void load(const std::string &filename);
   void setPIDXDot(double P, double I, double D, double tau);
   void setPIDYDot(double P, double I, double D, double tau);
   void setPIDZDot(double P, double I, double D, double tau);
@@ -93,7 +92,6 @@ public:
   bool received_cmd_;
 
   bool debug_Controller_{false};
-  bool debug_load_{false};
   bool debug_computeControl_{false};
   bool debug_resetIntegrators_{false};
   bool debug_saturate_{false};

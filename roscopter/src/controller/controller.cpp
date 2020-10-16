@@ -20,33 +20,6 @@ Controller::Controller() //:
   received_cmd_ = false;
 }
 
-void Controller::load(const std::string &filename)
-{
-  if (debug_load_)
-    std::cout << "In Controller::load!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  // parameter that is required
-  // if (!roscopter::get_yaml_node("controller::equilibrium_throttle", filename, throttle_eq_))
-  //   ROS_ERROR("[Controller] MAV equilibrium_throttle not found!");
-
-  // std::cout << "loaded throttle equilibrium = " << throttle_eq_ << std::endl;
-
-  // roscopter::get_yaml_node("controller::max_roll", filename, max_.roll);
-  // roscopter::get_yaml_node("controller::max_pitch", filename, max_.pitch);
-  // roscopter::get_yaml_node("controller::max_yaw_rate", filename, max_.yaw_rate);
-  // roscopter::get_yaml_node("controller::max_throttle", filename, max_.throttle);
-  // roscopter::get_yaml_node("controller::max_n_dot", filename, max_.n_dot);
-  // roscopter::get_yaml_node("controller::max_e_dot", filename, max_.e_dot);
-  // roscopter::get_yaml_node("controller::max_d_dot", filename, max_.d_dot);
-
-  // roscopter::get_yaml_node("controller::min_altitude", filename, min_altitude_);
-
-  // Calculate max accelerations. Assuming that equilibrium throttle produces
-  // 1 g of acceleration and a linear thrust model, these max acceleration
-  // values are computed in g's as well.
-  // max_accel_z_ = 1.0 / throttle_eq_;
-  // max_accel_xy_ = sin(acos(throttle_eq_)) / throttle_eq_ / sqrt(2.);
-}
-
 void Controller::computeControl(double dt)
 {
   if (debug_computeControl_)
