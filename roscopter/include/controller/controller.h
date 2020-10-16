@@ -65,7 +65,6 @@ typedef struct
 
 class Controller
 {
-//TODO: determine what should be private and protected
 public:
 
   Controller();
@@ -101,13 +100,8 @@ public:
 
 protected:
 
-
-
-  // Paramters
-
   double mass_;
   double max_thrust_;
-
 
   float throttle_down_ = 0.95;
 
@@ -116,12 +110,6 @@ protected:
   bool debug_resetIntegrators_{false};
   bool debug_saturate_{false};
   bool debug_setGains_{false};
-
-// private:
-
-  // Node handles, publishers, subscribers
-  // ros::NodeHandle nh_;
-  // ros::NodeHandle nh_private_;
 
   // PID Controllers
   controller::SimplePID PID_x_dot_;
@@ -132,9 +120,6 @@ protected:
   controller::SimplePID PID_d_;
   controller::SimplePID PID_psi_;
 
-  // Memory for sharing information between functions
-
-  // Functions
   double saturate(double x, double max, double min);
 
 };

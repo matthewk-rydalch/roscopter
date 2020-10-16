@@ -44,7 +44,7 @@ protected:
   ros::Subscriber is_landing_sub_;
   ros::Subscriber use_feed_forward_sub_;
   ros::Subscriber landed_sub_;
-
+  
   ros::Publisher command_pub_;
 
   //functions
