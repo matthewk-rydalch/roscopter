@@ -22,7 +22,7 @@ public:
 
   Controller_Ros();
 
-private:
+protected:
   // Node handles, publishers, subscribers
   ros::NodeHandle nh_;
   ros::NodeHandle nh_private_;
@@ -67,6 +67,10 @@ private:
   bool debug_statusCallback_{false};
   bool debug_reconfigure_callback_{false};
   bool debug_publishCommand_{false};
+
+  bool is_flying_{false};
+  bool received_cmd_{false};
+  bool armed_{false}; //TODO this may need to be left undefined
 };
 
 #endif

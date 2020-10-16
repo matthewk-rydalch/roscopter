@@ -15,9 +15,6 @@ Controller::Controller() //:
   // Retrieve global MAV equilibrium throttle. This is the only MAV specific
   // parameter that is required
   // ros::NodeHandle nh_mav(ros::this_node::getNamespace());
-
-  is_flying_ = false;
-  received_cmd_ = false;
 }
 
 void Controller::computeControl(double dt)

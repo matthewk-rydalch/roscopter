@@ -69,6 +69,28 @@ class Controller
 public:
 
   Controller();
+
+  uint8_t MODE_PASS_THROUGH_;
+  uint8_t MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_;
+  uint8_t MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
+  uint8_t MODE_ROLL_PITCH_YAWRATE_ALTITUDE_;
+  uint8_t MODE_XPOS_YPOS_YAW_ALTITUDE_;
+  uint8_t MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+  uint8_t MODE_XACC_YACC_YAWRATE_AZ_;
+
+  state_t xhat_ = {}; // estimate
+  command_t xc_ = {}; // command
+  max_t max_ = {};
+  double min_altitude_;
+  double throttle_eq_;
+  double max_accel_xy_;
+  double max_accel_z_;
+  uint8_t mode_flag_;
+  uint8_t control_mode_;
+
+  void computeControl(double dt);
+  void resetIntegrators();
+
   void setPIDXDot(double P, double I, double D, double tau);
   void setPIDYDot(double P, double I, double D, double tau);
   void setPIDZDot(double P, double I, double D, double tau);
@@ -77,30 +99,23 @@ public:
   void setPIDD(double P, double I, double D, double tau);
   void setPIDPsi(double P, double I, double D, double tau);
 
-  max_t max_ = {};
+protected:
+
+
 
   // Paramters
-  double throttle_eq_;
+
   double mass_;
   double max_thrust_;
-  double max_accel_xy_;
-  double max_accel_z_;
-  double min_altitude_;
+
+
   float throttle_down_ = 0.95;
-  bool is_flying_;
-  bool armed_;
-  bool received_cmd_;
 
   bool debug_Controller_{false};
   bool debug_computeControl_{false};
   bool debug_resetIntegrators_{false};
   bool debug_saturate_{false};
   bool debug_setGains_{false};
-
-// protected:
-
-  uint8_t control_mode_;
-  uint8_t mode_flag_;
 
 // private:
 
@@ -118,21 +133,10 @@ public:
   controller::SimplePID PID_psi_;
 
   // Memory for sharing information between functions
-  state_t xhat_ = {}; // estimate
-  command_t xc_ = {}; // command
 
   // Functions
-  void computeControl(double dt);
-  void resetIntegrators();
   double saturate(double x, double max, double min);
 
-  uint8_t MODE_PASS_THROUGH_;
-  uint8_t MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_;
-  uint8_t MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
-  uint8_t MODE_ROLL_PITCH_YAWRATE_ALTITUDE_;
-  uint8_t MODE_XPOS_YPOS_YAW_ALTITUDE_;
-  uint8_t MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
-  uint8_t MODE_XACC_YACC_YAWRATE_AZ_;
 };
 } //namespace controller
 

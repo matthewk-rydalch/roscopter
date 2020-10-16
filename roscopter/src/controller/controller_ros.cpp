@@ -75,7 +75,7 @@ void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
   control.xhat_.q = msg->twist.twist.angular.y;
   control.xhat_.r = msg->twist.twist.angular.z;
   
-  if(control.is_flying_ && control.armed_ && control.received_cmd_)
+  if(is_flying_ && armed_ && received_cmd_)
   {
     ROS_WARN_ONCE("CONTROLLER ACTIVE");
     control.computeControl(dt);
@@ -92,14 +92,14 @@ void Controller_Ros::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
 {
   if (debug_isFlyingCallback_)
     std::cout << "In Controller_Ros::isFlyingCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  control.is_flying_ = msg->data;
+  is_flying_ = msg->data;
 }
 
 void Controller_Ros::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
   if (debug_statusCallback_)
     std::cout << "In Controller_Ros::statusCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  control.armed_ = msg->armed;
+  armed_ = msg->armed;
 }
 
 void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
@@ -136,8 +136,8 @@ void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
       break;
   }
 
-  if (!control.received_cmd_)
-    control.received_cmd_ = true;
+  if (!received_cmd_)
+    received_cmd_ = true;
 }
 
 void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
