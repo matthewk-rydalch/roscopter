@@ -121,6 +121,7 @@ protected:
   controller::SimplePID PID_psi_;
 
   double saturate(double x, double max, double min);
+  double determineShortestDirectionPsi(double psi_c, double psi_hat);
 
 };
 } //namespace controller

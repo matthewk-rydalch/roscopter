@@ -36,15 +36,8 @@ void Controller::computeControl(double dt)
     double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
     double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
     // Calculate desired yaw rate
-    // First, determine the shortest direction to the commanded psi
-    if(fabs(xc_.psi + 2*M_PI - xhat_.psi) < fabs(xc_.psi - xhat_.psi))
-    {
-      xc_.psi += 2*M_PI;
-    }
-    else if (fabs(xc_.psi - 2*M_PI -xhat_.psi) < fabs(xc_.psi - xhat_.psi))
-    {
-      xc_.psi -= 2*M_PI;
-    }
+    xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
+
     xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
 
     xc_.x_dot = pndot_c*cos(xhat_.psi) + pedot_c*sin(xhat_.psi);
@@ -138,6 +131,19 @@ double Controller::saturate(double x, double max, double min)
   x = (x > max) ? max : x;
   x = (x < min) ? min : x;
   return x;
+}
+
+double Controller::determineShortestDirectionPsi(double psi_c, double psi_hat)
+{
+    if(fabs(psi_c + 2*M_PI - psi_hat) < fabs(psi_c - psi_hat))
+    {
+      psi_c += 2*M_PI;
+    }
+    else if (fabs(psi_c - 2*M_PI -psi_hat) < fabs(psi_c - psi_hat))
+    {
+      psi_c -= 2*M_PI;
+    }
+    return psi_c;
 }
 
 void Controller::setPIDXDot(double P, double I, double D, double tau)

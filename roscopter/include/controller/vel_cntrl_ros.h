@@ -12,9 +12,15 @@ public:
     Vel_Cntrl_Ros();
 
 protected:
-    ros::Subscriber vel_model_input_sub_;
+    
+    Vel_Cntrl vel_cntrl;
 
+    rosflight_msgs::Command v_cmd_;
+    
+    ros::Subscriber vel_model_input_sub_;
     void velModelCallback(const rosflight_msgs::CommandConstPtr &msg);
+
+    void getVelocityCommand();
 };
 
 #endif
