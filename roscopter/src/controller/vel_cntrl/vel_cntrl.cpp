@@ -46,4 +46,54 @@ double Vel_Cntrl::velocityModel(double xc, double xhat, double Km)
   double velocity_command = Km*(xc-xhat);
   return velocity_command;
 }
+
+void Vel_Cntrl::addFeedForwardTerm()
+{
+
+  Eigen::Matrix3d Rphi = Vel_Cntrl::Rroll(base_hat_.phi);
+  Eigen::Matrix3d Rth = Vel_Cntrl::Rpitch(base_hat_.theta);
+  Eigen::Matrix3d Rpsi = Vel_Cntrl::Ryaw(base_hat_.psi + xhat_.psi);
+
+  Eigen::Vector3d base_velocity_body_frame(base_hat_.u, base_hat_.v, base_hat_.w);
+
+  Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);
+
+  xc_.x_dot = xc_.x_dot + base_velocity_rover_v1_frame[0]; //feed forward the base velocity
+  xc_.y_dot = xc_.y_dot + base_velocity_rover_v1_frame[1];
+  xc_.z_dot = xc_.z_dot + base_velocity_rover_v1_frame[2];
+}
+
+Eigen::Matrix3d Vel_Cntrl::Rroll(double phi)
+{
+  double cp = cos(phi);
+  double sp = sin(phi);
+  Eigen::Matrix3d Rphi;
+  Rphi << 1.0, 0.0, 0.0,
+          0.0,  cp, -sp,
+          0.0,  sp,  cp;
+  return Rphi;
+}
+
+Eigen::Matrix3d Vel_Cntrl::Rpitch(double theta)
+{
+  double ct = cos(theta);
+  double st = sin(theta);
+  Eigen::Matrix3d Rth;
+  Rth <<  ct, 0.0,  st,
+          0.0, 1.0, 0.0,
+          -st, 0.0,  ct;
+  return Rth;
+}
+
+Eigen::Matrix3d Vel_Cntrl::Ryaw(double psi)
+{
+  double cp = cos(psi);
+  double sp = sin(psi);
+  Eigen::Matrix3d Rpsi;
+  Rpsi <<  cp, -sp, 0.0,
+           sp,  cp, 0.0,
+          0.0, 0.0, 1.0;
+
+  return Rpsi;
+}
 }

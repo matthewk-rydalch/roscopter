@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <Eigen/Dense>
 
 #include "controller/controller.h"
 
@@ -30,6 +31,13 @@ protected:
     bool debug_Vel_Cntrl_{false};
     bool debug_computeVelocityControl_{false};
     bool debug_velocityModel_{false};
+
+    void addFeedForwardTerm();
+
+    Eigen::Matrix3d Rroll(double phi);
+    Eigen::Matrix3d Rpitch(double theta);
+    Eigen::Matrix3d Ryaw(double psi);
+
 };
 }
 
