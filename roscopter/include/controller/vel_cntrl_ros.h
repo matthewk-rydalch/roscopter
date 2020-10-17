@@ -59,7 +59,7 @@ protected:
 
   rosflight_msgs::Command command_;
 
-  bool debug_Vel_Cntrl_Ros_{true};
+  bool debug_Vel_Cntrl_Ros_{false};
   bool debug_init_controller_{false};
   bool debug_stateCallback_{false};
   bool debug_isFlyingCallback_{false};
