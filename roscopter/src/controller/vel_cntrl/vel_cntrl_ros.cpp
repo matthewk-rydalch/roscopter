@@ -42,12 +42,15 @@ void Vel_Cntrl_Ros::velModelCallback(const rosflight_msgs::CommandConstPtr &msg)
   switch(msg->mode)
   {
     case rosflight_msgs::Command::MODE_XPOS_YPOS_YAW_ALTITUDE:
+      std::cout << "calculating velocity control. \n";
       v_cmd_ = new rosflight_msgs::Command;
       v_cmd_->header = msg->header;
       vel_cntrl.xc_.pn = msg->x;
       vel_cntrl.xc_.pe = msg->y;
       vel_cntrl.xc_.psi = msg->z;
       vel_cntrl.xhat_ = control.xhat_;
+      std::cout << "xc = " << vel_cntrl.xc_.pn << ", " << vel_cntrl.xc_.pe << ", " << vel_cntrl.xc_.psi << std::endl;
+      std::cout << "xhat = " << control.xhat_.pn << ", " << control.xhat_.pe << ", " <<control.xhat_.pd << std::endl;
       vel_cntrl.computeVelocityCommand();
       getVelocityCommand();
       v_cmd_->F = msg->F;
@@ -57,6 +60,8 @@ void Vel_Cntrl_Ros::velModelCallback(const rosflight_msgs::CommandConstPtr &msg)
       control.xc_.pd = -v_cmd_->F;
       control.xc_.r = v_cmd_->z;
       control.control_mode_ = v_cmd_->mode;
+      std::cout << "xc dot = " << control.xc_.x_dot << ", " << control.xc_.y_dot << ", " << control.xc_.r << std::endl;
+      std::cout << "control mode = " << control.control_mode_ << std::endl;
       break;
     case rosflight_msgs::Command::MODE_XVEL_YVEL_YAWRATE_ALTITUDE:
       control.xc_.x_dot = msg->x;
