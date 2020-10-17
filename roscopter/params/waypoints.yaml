@@ -1,18 +1,18 @@
 waypoint_manager: {
 #NEU inertial frame
 waypoints:
- [[-0.5, 0, 2.0, 0],
-#  [1.0, 0, 4.0, 1.0],
-#  [0, -1.5, 7.0, 1.0],
-#  [4.5, -4.5, 4.5, 3.14],
+ [[-5.0, 0, 2.0, 0],
+ [1.0, 0, 4.0, 1.0],
+ [0, 4.5, 7.0, 1.0],
+ [4.5, -4.5, 4.5, 3.14],
  [0.5, 0, 2.0, 1.]],
 
 threshold: 0.2,
 rendevous_threshold: 0.5,
 landing_threshold: 0.3,
 landing_orient_threshold: 10,
-cycle: False,
-auto_land: True,
+cycle: True,
+auto_land: False,
 begin_descent_height: 1.5,
 begin_landing_height: 0.3,
 antenna_offset: [0.0, 0.0, 0.0],

@@ -22,6 +22,10 @@ Vel_Cntrl_Ros::Vel_Cntrl_Ros() :
   is_flying_sub_ = nh_.subscribe("is_flying", 1, &Vel_Cntrl_Ros::isFlyingCallback, this);
   cmd_sub_ = nh_.subscribe("waypoint", 1, &Vel_Cntrl_Ros::cmdCallback, this);
   status_sub_ = nh_.subscribe("status", 1, &Vel_Cntrl_Ros::statusCallback, this);
+  if(control.feed_forward_velocity_)
+  {
+    target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Vel_Cntrl_Ros::targetEstimateCallback, this);
+  }
 }
 
 void Vel_Cntrl_Ros::init_controller()
@@ -201,6 +205,41 @@ void Vel_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   ROS_INFO("new gains");
 
   control.resetIntegrators();
+}
+
+void VelCntrlRos::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
+{
+
+  // // Convert Quaternion to RPY
+  // tf::Quaternion tf_quat;
+  // tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
+  // tf::Matrix3x3(tf_quat).getRPY(base_hat_.phi, base_hat_.theta, base_hat_.psi);
+  // base_hat_.psi = -base_hat_.psi; //have to negate to go from Counter Clockwise positive rotation to Clockwise;
+
+  // double sinp = sin(base_hat_.psi);
+  // double cosp = cos(base_hat_.psi);
+
+  control.target_hat_.u = msg->twist.twist.linear.x;;
+  control.target_hat_.v = msg->twist.twist.linear.y;;
+  control.target_hat_.w = msg->twist.twist.linear.z;;
+
+  // base_hat_.r = -msg->twist.angular.z; //have to negate to go from Counter Clockwise positive rotation to Clockwise
+
+}
+
+void VelCntrlRos::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.use_feed_forward_ = msg->data;
+}
+
+void VelCntrlRos::isLandingCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.is_landing_ = msg->data;
+}
+
+void VelCntrlRos::landedCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.landed_ = msg->data;
 }
 
 void Vel_Cntrl_Ros::publishCommand()

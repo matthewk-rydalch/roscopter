@@ -25,8 +25,11 @@ void Vel_Cntrl::computeVelocityControl(double dt)
     xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
     xc_.r = velocityModel(xc_.psi,xhat_.psi,Km_psi_);
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
+    if(use_feed_forward_)
+    {
+      addFeedForward();
+    }
     control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
-    std::cout << "vel control xc_ = " << xc_.x_dot << ", " << xc_.y_dot << ", " << xc_.r << std::endl; 
     computeControl(dt);
     control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
   }
@@ -40,7 +43,7 @@ double Vel_Cntrl::velocityModel(double xc, double xhat, double Km)
 {
   if (debug_velocityModel_)
     std::cout << "In Vel_Contrl::velocityModel!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  double velocity_command = Km*pow(xc-xhat,3);
+  double velocity_command = Km*(xc-xhat);
   return velocity_command;
 }
 }

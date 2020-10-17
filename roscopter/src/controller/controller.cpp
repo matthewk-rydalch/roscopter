@@ -31,7 +31,6 @@ void Controller::computeControl(double dt)
 
   if(mode_flag_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
   {
-    std::cout << "in positioin control.  Bad!!!!!!!!!!!!!!1 \n";
     // Figure out desired velocities (in inertial frame)
     // By running the position controllers
     double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
@@ -47,7 +46,6 @@ void Controller::computeControl(double dt)
 
   if(mode_flag_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
   {
-    std::cout << "controller xc_ = " << xc_.x_dot << ", " << xc_.y_dot << ", " << xc_.r << std::endl; 
     // Rotate body frame velocities to vehicle 1 frame velocities
     double sinp = sin(xhat_.phi);
     double cosp = cos(xhat_.phi);
