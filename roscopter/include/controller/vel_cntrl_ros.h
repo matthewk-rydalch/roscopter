@@ -15,7 +15,7 @@ protected:
     
     Vel_Cntrl vel_cntrl;
 
-    rosflight_msgs::Command v_cmd_;
+    rosflight_msgs::Command *v_cmd_{nullptr};
     
     ros::Subscriber vel_model_input_sub_;
     void velModelCallback(const rosflight_msgs::CommandConstPtr &msg);
