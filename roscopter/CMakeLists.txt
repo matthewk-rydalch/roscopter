@@ -112,9 +112,11 @@ add_library(vel_cntrl
   src/controller/vel_cntrl/vel_cntrl.cpp
   include/controller/vel_cntrl.h
 )
+target_link_libraries(vel_cntrl controller ${catkin_LIBRARIES})
+add_dependencies(vel_cntrl ${catkin_EXPORTED_TARGETS})
 
 add_library(vel_cntrl_ros src/controller/vel_cntrl/vel_cntrl_ros.cpp)
-target_link_libraries(vel_cntrl_ros vel_cntrl controller_ros ${catkin_LIBRARIES})
+target_link_libraries(vel_cntrl_ros vel_cntrl ${catkin_LIBRARIES})
 add_dependencies(vel_cntrl_ros ${catkin_EXPORTED_TARGETS})
 
 add_library(ekf

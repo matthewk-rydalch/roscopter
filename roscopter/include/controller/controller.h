@@ -122,6 +122,7 @@ protected:
 
   double saturate(double x, double max, double min);
   double determineShortestDirectionPsi(double psi_c, double psi_hat);
+  void rotateVelocityCommandsToVehicle1Frame(double pndot_c, double pedot_c);
 
 };
 } //namespace controller

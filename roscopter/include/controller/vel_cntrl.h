@@ -5,27 +5,22 @@
 
 #include "controller/controller.h"
 
+namespace controller
+{
+
 class Vel_Cntrl : public controller::Controller
 {
 public:
     Vel_Cntrl();
-    
-    void computeVelocityCommand();
-
-    controller::command_t xc_;
-    controller::state_t xhat_;
-    uint8_t mode_flag_;
+    void computeVelocityControl(double dt);
 
 protected:
 
     double velocityModel(double xc, double xhat, double Km);
-    double determineShortestDirectionPsi(double psi_c, double psi_hat);
-    void rotateVelocityCommandsToVehicle1Frame(double pndot_c, double pedot_c);
-
-    double Km_n_;
-    double Km_e_;
-    double Km_psi_;
-    uint8_t MODE_XVEL_YVEL_YAWRATE_ALTITUDE_ = 5;
+    double Km_n_{1.0};
+    double Km_e_{1.0};
+    double Km_psi_{1.0};
 };
+}
 
 #endif

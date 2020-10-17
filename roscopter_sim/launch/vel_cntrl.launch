@@ -45,7 +45,7 @@
     <node name="controller" pkg="roscopter" type="vel_cntrl_node" output="screen">
       <!-- <remap from="estimate" to="ground_truth/odometry/NED"/> -->
       <remap from="estimate" to="odom"/>
-      <remap from="vel_model_input" to="high_level_command"/>
+      <remap from="waypoint" to="high_level_command"/>
     </node>
 
     <!-- Waypoint Manager -->

@@ -39,9 +39,7 @@ void Controller::computeControl(double dt)
     xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
 
     xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
-
-    xc_.x_dot = pndot_c*cos(xhat_.psi) + pedot_c*sin(xhat_.psi);
-    xc_.y_dot = -pndot_c*sin(xhat_.psi) + pedot_c*cos(xhat_.psi);
+    rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
 
     mode_flag_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
   }
@@ -144,6 +142,12 @@ double Controller::determineShortestDirectionPsi(double psi_c, double psi_hat)
       psi_c -= 2*M_PI;
     }
     return psi_c;
+}
+
+void Controller::rotateVelocityCommandsToVehicle1Frame(double pndot_c, double pedot_c)
+{
+    xc_.x_dot = pndot_c*cos(xhat_.psi) + pedot_c*sin(xhat_.psi);
+    xc_.y_dot = -pndot_c*sin(xhat_.psi) + pedot_c*cos(xhat_.psi);
 }
 
 void Controller::setPIDXDot(double P, double I, double D, double tau)
