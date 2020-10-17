@@ -52,6 +52,7 @@
     <!-- PID Position Controller -->
     <node name="controller" pkg="roscopter" type="controller" output="screen">
       <remap from="estimate" to="odom"/>
+      <remap from="waypoint" to="high_level_command"/>
     </node>
 
     <!-- Waypoint Manager -->

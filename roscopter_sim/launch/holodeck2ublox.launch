@@ -103,6 +103,7 @@
     <node name="controller" pkg="roscopter" type="controller" output="screen">
       <remap from="base_velocity" to="base_vel"/>
       <remap from="estimate" to="odom"/>
+      <remap from="waypoint" to="high_level_command"/>
     </node>
 
     <!-- Waypoint Manager -->

@@ -20,7 +20,7 @@ Controller_Ros::Controller_Ros() :
 
   state_sub_ = nh_.subscribe("estimate", 1, &Controller_Ros::stateCallback, this);
   is_flying_sub_ = nh_.subscribe("is_flying", 1, &Controller_Ros::isFlyingCallback, this);
-  cmd_sub_ = nh_.subscribe("high_level_command", 1, &Controller_Ros::cmdCallback, this);
+  cmd_sub_ = nh_.subscribe("waypoint", 1, &Controller_Ros::cmdCallback, this);
   status_sub_ = nh_.subscribe("status", 1, &Controller_Ros::statusCallback, this);
 }
 

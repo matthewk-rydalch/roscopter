@@ -10,6 +10,11 @@ class Vel_Cntrl_Ros : public Controller_Ros
 {
 public:
     Vel_Cntrl_Ros();
+
+protected:
+    ros::Subscriber vel_model_input_sub_;
+
+    void velModelCallback(const rosflight_msgs::CommandConstPtr &msg);
 };
 
 #endif

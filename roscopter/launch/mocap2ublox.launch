@@ -32,6 +32,7 @@
   <node name="controller" pkg="roscopter" type="controller">
     <remap from="base_odom" to="boat/odom"/>
     <remap from="estimate" to="odom"/>
+    <remap from="waypoint" to="high_level_command"/>
   </node>
 
   <!-- Estimator -->

@@ -27,6 +27,7 @@
   <!-- Control -->
   <node name="controller" pkg="roscopter" type="controller" output="screen">
     <remap from="estimate" to="multirotor/truth/NED"/>
+    <remap from="waypoint" to="high_level_command"/>
   </node>
 
   <!-- Waypoint Management -->
