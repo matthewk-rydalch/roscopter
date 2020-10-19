@@ -27,7 +27,8 @@ void Vel_Cntrl::computeVelocityControl(double dt)
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
     if(use_feed_forward_)
     {
-      addFeedForward();
+      std::cout << "in add feed forward term \n";
+      addFeedForwardTerm();
     }
     control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
     computeControl(dt);
@@ -50,17 +51,18 @@ double Vel_Cntrl::velocityModel(double xc, double xhat, double Km)
 void Vel_Cntrl::addFeedForwardTerm()
 {
 
-  Eigen::Matrix3d Rphi = Vel_Cntrl::Rroll(base_hat_.phi);
-  Eigen::Matrix3d Rth = Vel_Cntrl::Rpitch(base_hat_.theta);
-  Eigen::Matrix3d Rpsi = Vel_Cntrl::Ryaw(base_hat_.psi + xhat_.psi);
+  Eigen::Matrix3d Rphi = Vel_Cntrl::Rroll(target_hat_.phi);
+  Eigen::Matrix3d Rth = Vel_Cntrl::Rpitch(target_hat_.theta);
+  Eigen::Matrix3d Rpsi = Vel_Cntrl::Ryaw(target_hat_.psi + xhat_.psi);
 
-  Eigen::Vector3d base_velocity_body_frame(base_hat_.u, base_hat_.v, base_hat_.w);
+  Eigen::Vector3d base_velocity_body_frame(target_hat_.u, target_hat_.v, target_hat_.w);
 
   Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);
 
-  xc_.x_dot = xc_.x_dot + base_velocity_rover_v1_frame[0]; //feed forward the base velocity
-  xc_.y_dot = xc_.y_dot + base_velocity_rover_v1_frame[1];
-  xc_.z_dot = xc_.z_dot + base_velocity_rover_v1_frame[2];
+  std::cout << "rover velocity before ff = " << xc_.x_dot << ", " << xc_.y_dot << std::endl;
+  xc_.x_dot += base_velocity_rover_v1_frame[0]; //feed forward the base velocity
+  xc_.y_dot += base_velocity_rover_v1_frame[1];
+  std::cout << "base velocity to add in = " << base_velocity_rover_v1_frame[0] << ", " << base_velocity_rover_v1_frame[1] << std::endl;
 }
 
 Eigen::Matrix3d Vel_Cntrl::Rroll(double phi)

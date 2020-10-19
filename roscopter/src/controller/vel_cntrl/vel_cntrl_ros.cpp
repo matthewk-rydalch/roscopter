@@ -22,10 +22,11 @@ Vel_Cntrl_Ros::Vel_Cntrl_Ros() :
   is_flying_sub_ = nh_.subscribe("is_flying", 1, &Vel_Cntrl_Ros::isFlyingCallback, this);
   cmd_sub_ = nh_.subscribe("waypoint", 1, &Vel_Cntrl_Ros::cmdCallback, this);
   status_sub_ = nh_.subscribe("status", 1, &Vel_Cntrl_Ros::statusCallback, this);
-  if(control.feed_forward_velocity_)
-  {
-    target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Vel_Cntrl_Ros::targetEstimateCallback, this);
-  }
+
+  use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Vel_Cntrl_Ros::useFeedForwardCallback, this);
+  is_landing_sub_ = nh_.subscribe("is_landing", 1, &Vel_Cntrl_Ros::isLandingCallback, this);
+  landed_sub_ = nh_.subscribe("landed", 1, &Vel_Cntrl_Ros::landedCallback, this);
+  target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Vel_Cntrl_Ros::targetEstimateCallback, this);
 }
 
 void Vel_Cntrl_Ros::init_controller()
@@ -207,7 +208,7 @@ void Vel_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   control.resetIntegrators();
 }
 
-void VelCntrlRos::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
+void Vel_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
 
   // // Convert Quaternion to RPY
@@ -227,17 +228,17 @@ void VelCntrlRos::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 
 }
 
-void VelCntrlRos::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
+void Vel_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.use_feed_forward_ = msg->data;
 }
 
-void VelCntrlRos::isLandingCallback(const std_msgs::BoolConstPtr &msg)
+void Vel_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.is_landing_ = msg->data;
 }
 
-void VelCntrlRos::landedCallback(const std_msgs::BoolConstPtr &msg)
+void Vel_Cntrl_Ros::landedCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.landed_ = msg->data;
 }
