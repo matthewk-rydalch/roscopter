@@ -1,9 +1,9 @@
-
+#!/usr/bin/env python3
 
 import numpy as np
 
 
-class Mocap2Ublox():
+class Pose2Ublox():
     
 
     def __init__(self, Ts, gha, gva, gsa, rha, rva, rsa, no, rl, srp, srv, srr, sbp, sbv, lo, A, B):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import rospy
@@ -8,7 +8,7 @@ from ublox.msg import PosVelEcef
 from ublox.msg import RelPos
 from rosflight_msgs.msg import GNSS
 
-from mocap2ublox import Mocap2Ublox
+from pose2ublox import Pose2Ublox
 
 
 class Mocap2UbloxROS():
@@ -17,7 +17,7 @@ class Mocap2UbloxROS():
 
         self.load_set_parameters()
 
-        self.m2u = Mocap2Ublox(self.Ts, self.global_horizontal_accuracy, \
+        self.m2u = Pose2Ublox(self.Ts, self.global_horizontal_accuracy, \
             self.global_vertical_accuracy, self.global_speed_accuracy, \
             self.relative_horizontal_accuracy, self.relative_vertical_accuracy, \
             self.relative_speed_accuracy, self.noise_on, self.ref_lla, self.sigma_rover_pos, \
