@@ -16,6 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(GTest REQUIRED)
+#can possibly add these required packages above
+
 find_package(inertial_sense QUIET)
 
 if (${inertial_sense_FOUND})
@@ -54,6 +57,7 @@ add_definitions(-DROSCOPTER_DIR="${CMAKE_CURRENT_LIST_DIR}")
 include_directories(include
   ${EIGEN3_INCLUDE_DIRS} 
   ${catkin_INCLUDE_DIRS}
+  ${GTEST_INCLUDE_DIRS}
   )
 message (STATUS "catkin include dirs" ${catkin_INCLUDE_DIRS})
 
@@ -66,20 +70,6 @@ add_executable(controller
 add_dependencies(controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(controller ${catkin_LIBRARIES})
 
-add_library(ekf
-  src/ekf/state.cpp
-  src/ekf/dynamics.cpp
-  src/ekf/ekf.cpp
-  src/ekf/meas.cpp
-  src/ekf/log.cpp
-)
-target_include_directories(ekf PUBLIC include ${catkin_INCLUDE_DIRS})
-target_link_libraries(ekf ${YAML_CPP_LIBRARIES} stdc++fs)
-
-add_library(ekf_ros src/ekf/ekf_ros.cpp)
-target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
-add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
-
 add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
@@ -87,3 +77,27 @@ add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
 add_executable(ekf_rosbag src/ekf/ekf_rosbag.cpp)
 target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_rosbag ${catkin_EXPORTED_TARGETS})
+
+add_executable(rtk_compassing_test 
+  # tests/rtk_compassing/state_test.cpp
+  tests/rtk_compassing/covariance_test.cpp
+  tests/rtk_compassing/compassing_utilities.cpp
+  tests/ros_test_setup/compassing_setup.cpp
+  include/tests/rtk_compassing_test.h
+  )
+target_link_libraries(rtk_compassing_test ekf_ros ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+
+add_library(ekf
+  src/ekf/state.cpp
+  src/ekf/dynamics.cpp
+  src/ekf/ekf.cpp
+  src/ekf/meas.cpp
+  src/ekf/log.cpp
+  src/ekf/sensors.cpp
+)
+target_include_directories(ekf PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(ekf ${YAML_CPP_LIBRARIES} stdc++fs)
+
+add_library(ekf_ros src/ekf/ekf_ros.cpp)
+target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
+add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})

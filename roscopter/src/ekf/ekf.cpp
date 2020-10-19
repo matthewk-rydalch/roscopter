@@ -54,6 +54,7 @@ void EKF::load(const std::string &filename)
   get_yaml_node("use_gnss", filename, use_gnss_);
   get_yaml_node("use_baro", filename, use_baro_);
   get_yaml_node("use_range", filename, use_range_);
+  get_yaml_node("use_compassing", filename, use_compassing_);
   get_yaml_node("use_zero_vel", filename, use_zero_vel_);
 
   // Armed Check
@@ -274,8 +275,6 @@ meas::MeasSet::iterator EKF::getOldestNewMeas()
 //called by EKF::zeroVelUpdate, EKF::baroUpdate, EKF::gnssUpdate
 bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
 {
-
-  ///////////PART OF ALGORITHM /////////////
   int size = res.rows();
   auto K = K_.leftCols(size);
 
@@ -304,9 +303,6 @@ bool EKF::measUpdate(const VectorXd &res, const MatrixXd &R, const MatrixXd &H)
 
   CHECK_NAN(P());
   return true;
-
-  ///////////END OF ALGORITHM SECTION/////////////
-
 }
 
 ///// Sets is flying if flying, calls propagation function, and creates logs

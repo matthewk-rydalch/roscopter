@@ -27,6 +27,7 @@ struct Base
         IMU,
         BARO,
         RANGE,
+        COMPASS,
         MOCAP,
         ZERO_VEL
     };
@@ -75,6 +76,14 @@ struct Range : public Base
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Range(double _t, const double& _z, const double& _R);
+    Eigen::Matrix<double, 1, 1> z;
+    Eigen::Matrix<double, 1, 1> R;
+};
+
+struct Compass : public Base
+{
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    Compass(double _t, const double& _z, const double& _R);
     Eigen::Matrix<double, 1, 1> z;
     Eigen::Matrix<double, 1, 1> R;
 };

@@ -2,7 +2,7 @@
 
 import numpy as np
 import rospy
-from IPython.core.debugger import set_trace
+# from IPython.core.debugger import set_trace
 
 
 from std_msgs.msg import Bool
@@ -113,9 +113,9 @@ class WaypointManager():
         antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
                 
         #flip to NEU and add antenna offset
-        self.plt_pos[0] = msg.point.x + self.drone_odom[0] + antenna_offset[0]
-        self.plt_pos[1] = msg.point.y + self.drone_odom[1] + antenna_offset[1]
-        self.plt_pos[2] = -msg.point.z - self.drone_odom[2] - antenna_offset[2]   
+        self.plt_pos[0] = msg.point.x + self.drone_odom[0] - antenna_offset[0]
+        self.plt_pos[1] = msg.point.y + self.drone_odom[1] - antenna_offset[1]
+        self.plt_pos[2] = -msg.point.z - self.drone_odom[2] + antenna_offset[2]   
         
 
     def baseOdomCallback(self, msg):
