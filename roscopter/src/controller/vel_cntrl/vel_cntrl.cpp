@@ -27,7 +27,7 @@ void Vel_Cntrl::computeVelocityControl(double dt)
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
     if(use_feed_forward_)
     {
-      std::cout << "in add feed forward term \n";
+      // std::cout << "in add feed forward term \n";
       addFeedForwardTerm();
     }
     control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
@@ -61,7 +61,7 @@ void Vel_Cntrl::addFeedForwardTerm()
 
   std::cout << "rover velocity before ff = " << xc_.x_dot << ", " << xc_.y_dot << std::endl;
   xc_.x_dot += base_velocity_rover_v1_frame[0]; //feed forward the base velocity
-  xc_.y_dot += base_velocity_rover_v1_frame[1];
+  xc_.y_dot -= base_velocity_rover_v1_frame[1];
   std::cout << "base velocity to add in = " << base_velocity_rover_v1_frame[0] << ", " << base_velocity_rover_v1_frame[1] << std::endl;
 }
 
