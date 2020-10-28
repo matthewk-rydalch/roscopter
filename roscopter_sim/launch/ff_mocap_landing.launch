@@ -93,8 +93,8 @@
     <node pkg="rostopic" type="rostopic" name="status_pub" args="pub -r 1 status rosflight_msgs/Status '{armed: true, failsafe: false, rc_override: false, offboard: true, error_code: 0, num_errors: 0, loop_time_us: 1}'"/>
 
     <!-- PID Position Controller -->
-    <node name="controller" pkg="roscopter" type="controller_node" output="screen">
-      <remap from="base_odom" to="/platform/odom"/>
+    <node name="controller" pkg="roscopter" type="vel_cntrl_node" output="screen">
+      <remap from="target_estimate" to="/platform/odom"/>
       <remap from="estimate" to="odom"/>
       <remap from="waypoint" to="high_level_command"/>
     </node>
@@ -124,7 +124,7 @@
 
   <!--Throttle ground truth for use in the estimator. Estimator cant handle 1000hz-->
   <node name="truth_throttler" type="throttle" pkg="topic_tools" args="messages /$(arg drone_name)/ground_truth/odometry/NED 100 /$(arg drone_name)/ground_truth/odometry/NED_throttled" />
-
+  <node name="platform_throttler" type="throttle" pkg="topic_tools" args="messages /platform/odom 20 /platform/odom_throttled" />
   <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/boatLanding_sim/sim.bag --all"/>
 
 </launch>

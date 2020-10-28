@@ -50,7 +50,7 @@ private:
     std::string status_topic_;
     std::string imu_topic_;
     std::string baro_topic_;
-    std::string range_topic_;
+    // std::string range_topic_;
     std::string pose_topic_;
     std::string odom_topic_;
     std::string gnss_topic_;

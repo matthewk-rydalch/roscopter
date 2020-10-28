@@ -97,9 +97,9 @@ class WaypointManager():
         # relativePose_msg.F = current_position[2]
         # self.relPose_pub_.publish(relativePose_msg)
         
-        if self.mission_state == 1:
+        if self.mission_state == 1 or self.mission_state == 2:
             self.rendevous(current_position_neu)
-        elif self.mission_state == 2:
+        elif self.mission_state == 10:
             self.descend(current_position_neu)
         elif self.mission_state == 3:
             self.land(current_position_neu)
@@ -263,7 +263,6 @@ class WaypointManager():
 
     
     def load_set_parameters(self):
-        
         try:
             self.waypoint_list = rospy.get_param('~waypoints') #params are loaded in launch file
         except KeyError:
@@ -282,6 +281,7 @@ class WaypointManager():
         self.antenna_offset = rospy.get_param('~antenna_offset', [0.36, -0.36, -0.12])
         base_yaw0_deg = rospy.get_param('~base_yaw0', 0.0)
         self.base_yaw0 = base_yaw0_deg*np.pi/180.0
+        print('waypoints = ', self.waypoint_list)
 
         #calculate parameters
         self.len_wps = len(self.waypoint_list)

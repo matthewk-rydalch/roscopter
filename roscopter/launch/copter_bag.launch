@@ -20,6 +20,7 @@
   <node name="controller" pkg="roscopter" type="controller">
     <remap from="base_velocity" to="base_vel"/>
     <remap from="estimate" to="odom"/>
+    <remap from="waypoint" to="high_level_command"/>
   </node>
 
   <!-- Estimator -->
@@ -34,6 +35,7 @@
   </node>
 
   <!-- Waypoint Manager -->
+  <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
