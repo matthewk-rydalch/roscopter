@@ -1,20 +1,3 @@
-## Post-Process Information
-# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/groot_sensors_stationary.bag"
-# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/groot_sensors_triangle.bag"
-# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_walkpath.bag"
-# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_north_eastfirst.bag"
-# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_parkinglot_south_eastfirst.bag"
-# bag_name: "/home/mmmfarrell/magicc/roscopter_ws/src/bags/rock_canyon_updown.bag"
-# status_topic: "/status"
-# imu_topic: "/imu/data"
-# baro_topic: "/serial/baro"
-# range_topic: "/serial/laser"
-# pose_topic: ""
-# odom_topic: ""
-# gnss_topic: ""
-# ublox_gnss_topic: ""
-# inertial_sense_gnss_topic: "/ins/gps"
-
 start_time: 0
 duration: 1000
 
@@ -23,13 +6,11 @@ enable_arm_check: false # require armed before checking for is_flying
 is_flying_threshold: 10.5 # if accel measurement exceed this magnitude, set is_flying
 update_baro_velocity_threshold: 0.5
 
-## Logging
+# Logging
 log_prefix: "/tmp/roscopter/ekf/"
 enable_log: true
 
 ## Measurement Processing
-enable_partial_update: false
-enable_out_of_order: false # TODO this isnt fully implemented
 use_mocap: false
 use_gnss: true
 use_baro: false
@@ -57,17 +38,6 @@ Qx: [0.000, 0.000, 0.000,       # pos
      0.0001, 0.0001, 0.0001,    # gyro bias
      0.000001,                    # baro bias
      1.0]                       # reference altitude
-
-## Lambda (Partial Update)
-# 1.0 = use full update
-# 0.0 = do not update at all
-lambda: [1.0, 1.0, 1.0,       # pos
-         1.0, 1.0, 1.0,       # att
-         1.0, 1.0, 1.0,       # vel
-         0.1, 0.1, 0.1,       # accel bias
-         0.1, 0.1, 0.1,       # gyro bias
-         0.5,                 # baro bias
-         0.3]                 # reference altitude
 
 # Constant Parameters
 p_b2g: [0, 0, 0] # position from body frame to gps frame

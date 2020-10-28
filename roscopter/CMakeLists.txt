@@ -74,7 +74,7 @@ add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
 
-add_executable(ekf_rosbag src/ekf/ekf_rosbag.cpp)
+add_executable(ekf_rosbag src/ekf/ros/ekf_rosbag.cpp)
 target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_rosbag ${catkin_EXPORTED_TARGETS})
 
@@ -119,6 +119,13 @@ add_library(vel_cntrl_ros src/controller/vel_cntrl/vel_cntrl_ros.cpp)
 target_link_libraries(vel_cntrl_ros vel_cntrl ${catkin_LIBRARIES})
 add_dependencies(vel_cntrl_ros ${catkin_EXPORTED_TARGETS})
 
+add_library(ekf_ros
+  src/ekf/ros/ekf_ros.cpp
+  src/ekf/ros/ekf_cb_ros.cpp
+  )
+target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
+add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
+
 add_library(ekf
   src/ekf/state.cpp
   src/ekf/dynamics.cpp
@@ -129,7 +136,3 @@ add_library(ekf
 )
 target_include_directories(ekf PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(ekf ${YAML_CPP_LIBRARIES} stdc++fs)
-
-add_library(ekf_ros src/ekf/ekf_ros.cpp)
-target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
-add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
