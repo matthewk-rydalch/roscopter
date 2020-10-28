@@ -18,18 +18,18 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
     return;
   }
 
+    //TODO: Need to inherit from simplePID and change the calculatiion to include an lpf on the integrator
   if(control_mode_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
   {
-    double pndot_c = velocityModel(xc_.pn,xhat_.pn,Km_n_);
-    double pedot_c = velocityModel(xc_.pe,xhat_.pe,Km_e_);
-    xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
-    xc_.r = velocityModel(xc_.psi,xhat_.psi,Km_psi_);
-    rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
-    if(use_feed_forward_)
-    {
-      addFeedForwardTerm();
-    }
+    calcFfXposYposYawLoops(dt);
     control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+  }
+
+  if(control_mode_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
+  {
+    calcFfXvelYvelAltLoops(dt);
+    mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
+    control_mode_ = MODE_XACC_YACC_YAWRATE_AZ_;
     computeControl(dt);
     control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
   }
@@ -39,27 +39,61 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
   }
 }
 
-double Ff_Cntrl::velocityModel(double xc, double xhat, double Km)
+void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
 {
-  if (debug_velocityModel_)
-    std::cout << "In Ff_Contrl::velocityModel!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  double velocity_command = Km*atan(xc-xhat);
-  return velocity_command;
+    double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
+    double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
+    xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
+    xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
+    rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
+
+    if(use_feed_forward_)
+    {
+      Eigen::Vector3d base_velocity_rover_v1_frame{getBoatVelocity()};
+      xc_.x_dot += Kff_x_*base_velocity_rover_v1_frame[0];
+      xc_.y_dot -= Kff_y_*base_velocity_rover_v1_frame[1];//TODO why does this have to be negative?  Frames?
+    }
 }
 
-void Ff_Cntrl::addFeedForwardTerm()
+void Ff_Cntrl::calcFfXvelYvelAltLoops(double dt)
 {
+          // Rotate body frame velocities to vehicle 1 frame velocities
+    double sinp = sin(xhat_.phi);
+    double cosp = cos(xhat_.phi);
+    double sint = sin(xhat_.theta);
+    double cost = cos(xhat_.theta);
+    double pxdot =
+        cost * xhat_.u + sinp * sint * xhat_.v + cosp * sint * xhat_.w;
+    double pydot = cosp * xhat_.v - sinp * xhat_.w;
+    double pzdot =
+        -sint * xhat_.u + sinp * cost * xhat_.v + cosp * cost * xhat_.w;
 
+    // TODO: Rotate boat body frame velocities into drone vehicle 1 frame velocities
+    // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
+    xc_.z_dot = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pzdot);
+    xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
+    xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
+    if(use_feed_forward_)
+    {
+      //These gains need to try to be equal to the drag coefficient b.
+      xc_.ax += Kff_u_*xc_.x_dot;
+      xc_.ay += Kff_v_*xc_.y_dot;
+    }
+
+    // Nested Loop for Altitude
+    xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
+}
+
+Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
+{
   Eigen::Matrix3d Rphi = Ff_Cntrl::Rroll(target_hat_.phi);
   Eigen::Matrix3d Rth = Ff_Cntrl::Rpitch(target_hat_.theta);
   Eigen::Matrix3d Rpsi = Ff_Cntrl::Ryaw(target_hat_.psi + xhat_.psi);
 
   Eigen::Vector3d base_velocity_body_frame(target_hat_.u, target_hat_.v, target_hat_.w);
-
   Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);
 
-  xc_.x_dot += base_velocity_rover_v1_frame[0]; //feed forward the base velocity
-  xc_.y_dot -= base_velocity_rover_v1_frame[1]; //TODO why does this have to be negative?  Frames?
+  return base_velocity_rover_v1_frame;
 }
 
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)

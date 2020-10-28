@@ -17,6 +17,8 @@
 
 class Ff_Cntrl_Ros
 {
+  //TODO: Make this inherit from controller_ros.  Need to make the stateCallback virtual
+  // and overide it with a similar function that calls computeControlFeedForward rather than computecontrol.
 
 public:
 

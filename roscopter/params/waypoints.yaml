@@ -7,7 +7,7 @@ waypoints:
 #  [4.5, -4.5, 4.5, 3.14],
  [0.5, 0, 2.0, 0.]],
 
-threshold: 0.2,
+threshold: 0.5,
 rendevous_threshold: 0.5,
 landing_threshold: 0.3,
 landing_orient_threshold: 10,

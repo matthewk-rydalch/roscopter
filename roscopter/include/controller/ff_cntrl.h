@@ -23,21 +23,22 @@ public:
 
 protected:
 
-    double velocityModel(double xc, double xhat, double Km);
-    double Km_n_{2.0};
-    double Km_e_{2.0};
-    double Km_psi_{1.0};
+    double Kff_x_{1.0};
+    double Kff_y_{1.0};
+    double Kff_u_{0.0};
+    double Kff_v_{0.0};
 
     bool debug_Ff_Cntrl_{false};
     bool debug_computeFeedForwardControl_{false};
-    bool debug_velocityModel_{false};
 
-    void addFeedForwardTerm();
+    Eigen::Vector3d getBoatVelocity();
 
     Eigen::Matrix3d Rroll(double phi);
     Eigen::Matrix3d Rpitch(double theta);
     Eigen::Matrix3d Ryaw(double psi);
 
+    void calcFfXposYposYawLoops(double dt);
+    void calcFfXvelYvelAltLoops(double dt);
 };
 }
 
