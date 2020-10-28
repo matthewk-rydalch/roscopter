@@ -27,7 +27,6 @@ void Vel_Cntrl::computeVelocityControl(double dt)
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
     if(use_feed_forward_)
     {
-      // std::cout << "in add feed forward term \n";
       addFeedForwardTerm();
     }
     control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
@@ -44,7 +43,7 @@ double Vel_Cntrl::velocityModel(double xc, double xhat, double Km)
 {
   if (debug_velocityModel_)
     std::cout << "In Vel_Contrl::velocityModel!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  double velocity_command = Km*(xc-xhat);
+  double velocity_command = Km*atan(xc-xhat);
   return velocity_command;
 }
 
@@ -59,10 +58,8 @@ void Vel_Cntrl::addFeedForwardTerm()
 
   Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);
 
-  std::cout << "rover velocity before ff = " << xc_.x_dot << ", " << xc_.y_dot << std::endl;
   xc_.x_dot += base_velocity_rover_v1_frame[0]; //feed forward the base velocity
-  xc_.y_dot -= base_velocity_rover_v1_frame[1];
-  std::cout << "base velocity to add in = " << base_velocity_rover_v1_frame[0] << ", " << base_velocity_rover_v1_frame[1] << std::endl;
+  xc_.y_dot -= base_velocity_rover_v1_frame[1]; //TODO why does this have to be negative?  Frames?
 }
 
 Eigen::Matrix3d Vel_Cntrl::Rroll(double phi)

@@ -46,7 +46,6 @@ void Controller::computeControl(double dt)
 
   if(mode_flag_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
   {
-    std::cout << "rover velocity after ff = " << xc_.x_dot << ", " << xc_.y_dot << std::endl;
     // Rotate body frame velocities to vehicle 1 frame velocities
     double sinp = sin(xhat_.phi);
     double cosp = cos(xhat_.phi);
