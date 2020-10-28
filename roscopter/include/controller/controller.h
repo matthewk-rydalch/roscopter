@@ -1,7 +1,6 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-// #include <ros/ros.h>
 #include <tf/tf.h>
 #include <stdint.h>
 #include <controller/simple_pid.h>
@@ -77,8 +76,8 @@ public:
   uint8_t MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
   uint8_t MODE_XACC_YACC_YAWRATE_AZ_;
 
-  state_t xhat_ = {}; // estimate
-  command_t xc_ = {}; // command
+  state_t xhat_ = {};
+  command_t xc_ = {};
   max_t max_ = {};
   double min_altitude_;
   double throttle_eq_;
@@ -105,7 +104,7 @@ protected:
 
   float throttle_down_ = 0.95;
 
-  bool debug_Controller_{false};
+  bool debug_Controller_{true};
   bool debug_computeControl_{false};
   bool debug_resetIntegrators_{false};
   bool debug_saturate_{false};

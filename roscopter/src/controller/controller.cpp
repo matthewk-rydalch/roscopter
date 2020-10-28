@@ -6,15 +6,10 @@
 
 namespace controller
 {
-Controller::Controller() //:
-  // nh_(ros::NodeHandle()),
-  // nh_private_("~")
+Controller::Controller()
 {
   if (debug_Controller_)
     std::cout << "In Controller::Controller!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
-  // Retrieve global MAV equilibrium throttle. This is the only MAV specific
-  // parameter that is required
-  // ros::NodeHandle nh_mav(ros::this_node::getNamespace());
 }
 
 void Controller::computeControl(double dt)

@@ -3,7 +3,6 @@
 <launch>
   <arg name="drone_name"            value="ragnarok"/>
 
-
   <!-- FCU communication -->
   <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
     <param name="udp" value="false"/>
@@ -17,7 +16,7 @@
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="controller">
+  <node name="controller" pkg="roscopter" type="controller_node">
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
@@ -37,5 +36,10 @@
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
   </node>
+
+  <node name="hlc_cont_ned" pkg="roscopter" type="hlc_continuous_ned.py" output="screen"/>
+  <node name="performance_tracker" pkg="roscopter" type="performance_ros.py" output="screen"/>
+
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/tune --all"/>
 
 </launch>

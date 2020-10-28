@@ -18,7 +18,7 @@
   </include>
 
   <!-- Spawn Model in Gazebo -->
-  <include file="$(find roscopter_sim)/launch/spawn_mav.launch">
+  <include file="$(find roscopter_sim)/launch/spawn/spawn_mav.launch">
     <arg name="mav_name"            value="$(arg mav_name)" />
     <arg name="model"               value="$(find roscopter_sim)/xacro/$(arg mav_name).urdf.xacro" />
     <arg name="x"                   value="$(arg x)"/>

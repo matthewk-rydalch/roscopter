@@ -6,10 +6,6 @@ Vel_Cntrl_Ros::Vel_Cntrl_Ros() :
   if (debug_Vel_Cntrl_Ros_)
     std::cout << "In Vel_Cntrl_Ros::Vel_Cntrl_Ros!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 
-  // //sets a variable to the parameter file path and name
-  // std::string roscopter_path = ros::package::getPath("roscopter");
-  // std::string parameter_filename = nh_private_.param<std::string>("param_filename", roscopter_path + "/params/ragnarok.yaml");
-  // control.load(parameter_filename);
   init_controller();
 
   _func = boost::bind(&Vel_Cntrl_Ros::reconfigure_callback, this, _1, _2);
@@ -210,22 +206,9 @@ void Vel_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 
 void Vel_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
-
-  // // Convert Quaternion to RPY
-  // tf::Quaternion tf_quat;
-  // tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
-  // tf::Matrix3x3(tf_quat).getRPY(base_hat_.phi, base_hat_.theta, base_hat_.psi);
-  // base_hat_.psi = -base_hat_.psi; //have to negate to go from Counter Clockwise positive rotation to Clockwise;
-
-  // double sinp = sin(base_hat_.psi);
-  // double cosp = cos(base_hat_.psi);
-
   control.target_hat_.u = msg->twist.twist.linear.x;;
   control.target_hat_.v = msg->twist.twist.linear.y;;
   control.target_hat_.w = msg->twist.twist.linear.z;;
-
-  // base_hat_.r = -msg->twist.angular.z; //have to negate to go from Counter Clockwise positive rotation to Clockwise
-
 }
 
 void Vel_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)

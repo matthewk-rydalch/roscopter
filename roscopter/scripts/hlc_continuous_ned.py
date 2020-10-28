@@ -36,10 +36,6 @@ class HlcContinuousNed():
         self.highLevelCommand.F = -msg.F
     
     def hlcRateCallback(self, event):
-<<<<<<< HEAD
-=======
-        
->>>>>>> fb9c954787c5d4ea5b6a88908fa71dba574c9892
         self.highLevelCommand.header.stamp = rospy.Time.now()
         self.hlc_continuous_ned_pub_.publish(self.highLevelCommand)
 

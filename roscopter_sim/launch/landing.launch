@@ -22,7 +22,7 @@
   </include>
 
   <!-- Spawn Platform and Multirotor Models in Gazebo -->
-  <include file="$(find roscopter_sim)/launch/spawn_target.launch">
+  <include file="$(find roscopter_sim)/launch/spawn/spawn_target.launch">
     <arg name="target_name"         value="$(arg target_name)" />
     <arg name="model"               value="$(find roscopter_sim)/xacro/$(arg target_name).urdf.xacro" />
     <arg name="x"                   value="$(arg target_x)"/>
@@ -32,7 +32,7 @@
     <arg name="color"               value="Black"/>
   </include>
 
-  <include file="$(find roscopter_sim)/launch/spawn_mav.launch">
+  <include file="$(find roscopter_sim)/launch/spawn/spawn_mav.launch">
     <arg name="mav_name"            value="$(arg mav_name)" />
     <arg name="model"               value="$(find roscopter_sim)/xacro/$(arg mav_name).urdf.xacro" />
     <arg name="x"                   value="$(arg x)"/>
@@ -84,7 +84,7 @@
     <node pkg="rostopic" type="rostopic" name="status_pub" args="pub -r 1 status rosflight_msgs/Status '{armed: true, failsafe: false, rc_override: false, offboard: true, error_code: 0, num_errors: 0, loop_time_us: 1}'"/>
 
     <!-- PID Position Controller -->
-    <node name="controller" pkg="roscopter" type="controller" output="screen">
+    <node name="controller" pkg="roscopter" type="controller_node" output="screen">
       <remap from="base_velocity" to="base_vel"/>
       <remap from="estimate" to="odom"/>
       <remap from="waypoint" to="high_level_command"/>

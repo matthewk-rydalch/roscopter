@@ -16,17 +16,10 @@ from geometry_msgs.msg import PointStamped
 
 
 class WaypointManager():
-
-
     def __init__(self):
 
         #load parameters
         self.load_set_parameters()
-
-        # Services
-        self.add_waypoint_service = rospy.Service('add_waypoint', AddWaypoint, self.addWaypointCallback)
-        self.remove_waypoint_service = rospy.Service('remove_waypoint', RemoveWaypoint, self.addWaypointCallback)
-        self.set_waypoint_from_file_service = rospy.Service('set_waypoints_from_file', SetWaypointsFromFile, self.addWaypointCallback)
 
         # Publishers
         self.waypoint_pub_ = rospy.Publisher('high_level_command', Command, queue_size=5, latch=True)
@@ -51,22 +44,6 @@ class WaypointManager():
         while not rospy.is_shutdown():
             rospy.spin()
 
-
-    #TODO: Need to set up these services
-    def addWaypointCallback(req):
-        print("addwaypoints")
-        
-
-    def removeWaypointCallback(self, req):
-        #TODO
-        print("[waypoint_manager] remove Waypoints (NOT IMPLEMENTED)")
-
-
-    def setWaypointsFromFile(self, req):
-        #TODO
-        print("[waypoint_manager] set Waypoints from File (NOT IMPLEMENTED)")
-
-
     def odometryCallback(self, msg):
         
         # Get error between waypoint and current state
@@ -77,25 +54,6 @@ class WaypointManager():
         current_position_neu = np.array([msg.pose.pose.position.x,
                                      msg.pose.pose.position.y,
                                      -msg.pose.pose.position.z])
-        
-        #not using orientation right now
-        # current_orient = [msg.pose.pose.orientation.x,
-        #                     msg.pose.pose.orientation.y,
-        #                     msg.pose.pose.orientation.z,
-        #                     msg.pose.pose.orientation.w]
-        # # yaw from quaternion
-        # qx = current_orient[0]
-        # qy = current_orient[1]
-        # qz = current_orient[2]
-        # qw = current_orient[3]
-        # y = np.arctan2(2*(qw*qz + qx*qy), 1 - 2*(qy**2 + qz**2))
-        # #publish the relative pose estimate
-        # relativePose_msg = RelativePose()
-        # relativePose_msg.x = current_position[0]
-        # relativePose_msg.y = current_position[1]
-        # relativePose_msg.z = y
-        # relativePose_msg.F = current_position[2]
-        # self.relPose_pub_.publish(relativePose_msg)
         
         if self.mission_state == 1 or self.mission_state == 2:
             self.rendevous(current_position_neu)
@@ -233,14 +191,7 @@ class WaypointManager():
         self.cmd_msg.mode = Command.MODE_XPOS_YPOS_YAW_ALTITUDE
         self.waypoint_pub_.publish(self.cmd_msg)
 
-        # rospy.sleep(10)
-
-
-    # def droneOdomCallback(self, msg):
-    #     self.drone_odom = np.array([msg.pose.pose.position.x,
-    #                                 msg.pose.pose.position.y,
-    #                                 msg.pose.pose.position.z])        
-
+        # rospy.sleep(10)    
 
     def publish_error(self, current_position, current_waypoint):
         error_msg = Pose()
