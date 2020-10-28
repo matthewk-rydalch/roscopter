@@ -53,6 +53,7 @@ protected:
   void isFlyingCallback(const std_msgs::BoolConstPtr &msg);
   void cmdCallback(const rosflight_msgs::CommandConstPtr &msg);
   void statusCallback(const rosflight_msgs::StatusConstPtr &msg);
+  void fillEstimates(const nav_msgs::OdometryConstPtr &msg);
   void publishCommand();
 
   double prev_time_;
