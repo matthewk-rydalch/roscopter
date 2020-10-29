@@ -102,6 +102,14 @@ Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
   return base_velocity_rover_v1_frame;
 }
 
+void Ff_Cntrl::switchControllers()
+{
+  int a = 1;
+  //I let off right here.  Need to hook up these gains.
+  // setPIDN(P, I, D, tau);
+  // setPIDE(P, I, D, tau);
+}
+
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)
 {
   double cp = cos(phi);

@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 
 #include "controller/controller.h"
+#include "controller/pd_i_lpf.h"
 
 namespace controller
 {
@@ -15,6 +16,7 @@ class Ff_Cntrl : public controller::Controller
 public:
     Ff_Cntrl();
     void computeFeedForwardControl(double dt);
+    void switchControllers();
 
     state_t target_hat_;
     bool use_feed_forward_{false};
@@ -39,6 +41,15 @@ protected:
 
     void calcFfXposYposYawLoops(double dt);
     void calcFfXvelYvelAltLoops(double dt);
+
+      // PID Controllers
+    controller::PdILpf PdILpf_x_dot_;
+    controller::PdILpf PdILpf_y_dot_;
+    controller::PdILpf PdILpf_z_dot_;
+    controller::PdILpf PdILpf_n_;
+    controller::PdILpf PdILpf_e_;
+    controller::PdILpf PdILpf_d_;
+    controller::PdILpf PdILpf_psi_;
 };
 }
 

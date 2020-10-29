@@ -214,6 +214,7 @@ void Ff_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.use_feed_forward_ = msg->data;
+  control.switchControllers();
 }
 
 void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)

@@ -134,7 +134,9 @@ add_dependencies(vel_cntrl_ros ${catkin_EXPORTED_TARGETS})
 
 add_library(ff_cntrl
   src/controller/feed_forward_cntrl/ff_cntrl.cpp
+  src/controller/feed_forward_cntrl/pd_i_lpf.cpp
   include/controller/ff_cntrl.h
+  include/controller/pd_i_lpf.h
 )
 target_link_libraries(ff_cntrl controller ${catkin_LIBRARIES})
 add_dependencies(ff_cntrl ${catkin_EXPORTED_TARGETS})
