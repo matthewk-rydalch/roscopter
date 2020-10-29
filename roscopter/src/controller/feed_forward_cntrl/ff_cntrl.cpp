@@ -4,6 +4,7 @@ namespace controller
 {
 Ff_Cntrl::Ff_Cntrl()
 {
+  //TODO: clear integrator
     if (debug_Ff_Cntrl_)
       std::cout << "In Ff_Contrl::Ff_Cntrl!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
 }
@@ -20,25 +21,38 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
 
   if(use_feed_forward_)
   {
-      //TODO: Need to inherit from simplePID and change the calculatiion to include an lpf on the integrator
-    if(control_mode_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
-    {
-      calcFfXposYposYawLoops(dt);
-      control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
-    }
-
-    if(control_mode_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
-    {
-      calcFfXvelYvelAltLoops(dt);
-      mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
-      control_mode_ = MODE_XACC_YACC_YAWRATE_AZ_;
-      computeControl(dt);
-      control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
-    }
-    else
-    {
-      computeControl(dt);
-    }
+    // if (is_landing_)
+    // {
+    //   if (xc_.throttle <= 0.1)
+    //   {  
+    //     xc_.throttle = 0.0;
+    //   }
+    //   else
+    //   {
+    //     xc_.throttle = ramp_down_term_*xc_.throttle;
+    //   }
+    // }
+    // else
+    // {
+      if(control_mode_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
+      {
+        calcFfXposYposYawLoops(dt);
+        control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+      }
+      if(control_mode_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
+      {
+        calcFfXvelYvelAltLoops(dt);
+        mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
+        control_mode_ = MODE_XACC_YACC_YAWRATE_AZ_;
+        computeControl(dt);
+        control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
+      }
+      else
+      {
+        std::cout << "computing control \n";
+        computeControl(dt); 
+      }
+    // }
   }
   else
   {

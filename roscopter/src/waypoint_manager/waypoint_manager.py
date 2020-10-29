@@ -59,9 +59,9 @@ class WaypointManager():
             self.rendevous(current_position_neu)
         elif self.mission_state == 2:
             self.center(current_position_neu)
-        elif self.mission_state == 3:
+        elif self.mission_state == 3 or self.mission_state == 4:
             self.descend(current_position_neu)
-        elif self.mission_state == 4:
+        elif self.mission_state == 10:
             self.land(current_position_neu)
         else:
             self.mission(current_position_neu)   
@@ -73,12 +73,15 @@ class WaypointManager():
         antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
                 
         #flip to NEU and add antenna offset
-        self.plt_pos[0] = msg.point.x + self.drone_odom[0] - antenna_offset[0]
-        self.plt_pos[1] = msg.point.y + self.drone_odom[1] - antenna_offset[1]
-        self.plt_pos[2] = -msg.point.z - self.drone_odom[2] + antenna_offset[2]   
+        # self.plt_pos[0] = msg.point.x + self.drone_odom[0] - antenna_offset[0]
+        # self.plt_pos[1] = msg.point.y + self.drone_odom[1] - antenna_offset[1]
+        # self.plt_pos[2] = -msg.point.z - self.drone_odom[2] + antenna_offset[2]   
         
 
     def baseOdomCallback(self, msg):
+        self.plt_pos[0] = msg.pose.pose.position.x
+        self.plt_pos[1] = -msg.pose.pose.position.y
+        self.plt_pos[2] = msg.pose.pose.position.z
 
         # yaw from quaternion
         qw = msg.pose.pose.orientation.w
@@ -169,8 +172,9 @@ class WaypointManager():
         base_pitch = self.base_orient[1]
 
         if error < self.landing_threshold and base_roll < self.landing_orient_threshold and base_pitch < self.landing_orient_threshold:
-            self.mission_state = 3 #switch to land state
-            print('land state')
+            self.mission_state = 4 #switch to land state
+            self.is_landing_pub_.publish(True)
+            # print('land state')
 
 
     def land(self, current_position):
@@ -179,7 +183,7 @@ class WaypointManager():
         if self.is_landing == 0:
             self.new_waypoint(waypoint)
             self.is_landing = 1
-            self.is_landing_pub_.publish(True) #this will signal the controller to ramp down motors
+            # self.is_landing_pub_.publish(True)
 
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)

@@ -206,9 +206,9 @@ void Ff_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 
 void Ff_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
-  control.target_hat_.u = msg->twist.twist.linear.x;;
-  control.target_hat_.v = msg->twist.twist.linear.y;;
-  control.target_hat_.w = msg->twist.twist.linear.z;;
+  control.target_hat_.u = msg->twist.twist.linear.x;
+  control.target_hat_.v = msg->twist.twist.linear.y;
+  control.target_hat_.w = msg->twist.twist.linear.z;
 }
 
 void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
@@ -227,6 +227,7 @@ void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
 
 void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
 {
+  std::cout << "in is landing callback \n";
   control.is_landing_ = msg->data;
 }
 
