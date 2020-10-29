@@ -75,9 +75,16 @@ void Ff_Cntrl::calcFfXvelYvelAltLoops(double dt)
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
     if(use_feed_forward_)
     {
+      // std::cout << "xc_.x_dot = " << xc_.x_dot << std::endl;
+      // std::cout << "xc_.ax before = " << xc_.ax << std::endl;
       //These gains need to try to be equal to the drag coefficient b.
+      // double xcax = xc_.ax + Kff_u_*xc_.x_dot;
       xc_.ax += Kff_u_*xc_.x_dot;
+      // std::cout << "xc_.ax after = " << xcax << std::endl;
+      // std::cout << "xc_.y_dot = " << xc_.y_dot << std::endl;
+      // std::cout << "xc_.ay before = " << xc_.ay << std::endl;
       xc_.ay += Kff_v_*xc_.y_dot;
+      // std::cout << "xc_.ay after = " << xc_.ay << std::endl;
     }
 
     // Nested Loop for Altitude
