@@ -16,7 +16,7 @@ class Ff_Cntrl : public controller::Controller
 public:
     Ff_Cntrl();
     void computeFeedForwardControl(double dt);
-    void switchControllers();
+    void switchControllers(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau, double sigma);
 
     state_t target_hat_;
     bool use_feed_forward_{false};
@@ -43,13 +43,8 @@ protected:
     void calcFfXvelYvelAltLoops(double dt);
 
       // PID Controllers
-    controller::PdILpf PdILpf_x_dot_;
-    controller::PdILpf PdILpf_y_dot_;
-    controller::PdILpf PdILpf_z_dot_;
     controller::PdILpf PdILpf_n_;
     controller::PdILpf PdILpf_e_;
-    controller::PdILpf PdILpf_d_;
-    controller::PdILpf PdILpf_psi_;
 };
 }
 

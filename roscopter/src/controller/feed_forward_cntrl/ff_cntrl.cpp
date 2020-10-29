@@ -48,8 +48,8 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
 
 void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
 {
-    double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
-    double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
+    double pndot_c = PdILpf_n_.computePdILpf(xc_.pn, xhat_.pn, dt);
+    double pedot_c = PdILpf_e_.computePdILpf(xc_.pe, xhat_.pe, dt);
     xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
     xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
@@ -102,12 +102,10 @@ Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
   return base_velocity_rover_v1_frame;
 }
 
-void Ff_Cntrl::switchControllers()
+void Ff_Cntrl::switchControllers(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau, double sigma)
 {
-  int a = 1;
-  //I let off right here.  Need to hook up these gains.
-  // setPIDN(P, I, D, tau);
-  // setPIDE(P, I, D, tau);
+  PdILpf_n_.setGains(Pn, In, Dn, tau, sigma, max_.n_dot, -max_.n_dot);
+  PdILpf_e_.setGains(Pe, Ie, De, tau, sigma, max_.n_dot, -max_.n_dot);
 }
 
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)
