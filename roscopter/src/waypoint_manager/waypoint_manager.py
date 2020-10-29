@@ -138,8 +138,6 @@ class WaypointManager():
 
         self.new_waypoint(waypoint)
 
-        print('error = ', error)
-        print('rendevous threshold = ', self.rendevous_threshold)
         if error < self.rendevous_threshold:
             self.mission_state = 2 #switch to center state
             print('center state')
