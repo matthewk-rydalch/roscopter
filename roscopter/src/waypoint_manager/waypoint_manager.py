@@ -25,6 +25,7 @@ class WaypointManager():
         self.waypoint_pub_ = rospy.Publisher('high_level_command', Command, queue_size=5, latch=True)
         self.use_feed_forward_pub_ = rospy.Publisher('use_base_feed_forward_vel', Bool, queue_size=5, latch=True)
         self.is_landing_pub_ = rospy.Publisher('is_landing', Bool, queue_size=5, latch=True)
+        self.add_integrator_pub_ = rospy.Publisher('add_integrator_landing', Bool, queue_size=5, latch=True)
         self.landed_pub_ = rospy.Publisher('landed', Bool, queue_size=5, latch=True)
         self.error_pub_ = rospy.Publisher('error', Pose, queue_size=5, latch=True)
 
@@ -134,6 +135,7 @@ class WaypointManager():
             self.new_waypoint(next_waypoint)
 
     def rendevous(self, current_position):
+        self.use_feed_forward_pub_.publish(True) #this will signal a switch to the ff controller
 
         waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_descent_height])
         error = np.linalg.norm(current_position - waypoint)
@@ -146,8 +148,7 @@ class WaypointManager():
             print('center state')
 
     def center(self, current_position):
-
-        self.use_feed_forward_pub_.publish(True) #this will signal a switch to the ff controller
+        self.add_integrator_pub_.publish(True)
 
         waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_descent_height])
         error = np.linalg.norm(current_position - waypoint)

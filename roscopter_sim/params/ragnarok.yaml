@@ -91,7 +91,7 @@ inclination: 1.14316156541
 gps: {
 
 noise_on: true,
-rate: 5.0, #actual rate for rtk
+rate: 100.0, #actual rate for rtk
 topic: gps/data,
 north_stdev: 0.0135, #rtk #rostopic takes the worst of north and east stdev and uses that as the horizontal accuracy
 east_stdev: 0.0135, #rtk

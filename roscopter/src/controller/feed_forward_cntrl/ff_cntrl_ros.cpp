@@ -21,6 +21,7 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
 
   use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Ff_Cntrl_Ros::useFeedForwardCallback, this);
   is_landing_sub_ = nh_.subscribe("is_landing", 1, &Ff_Cntrl_Ros::isLandingCallback, this);
+  add_integrator_sub_ = nh_.subscribe("add_integrator", 1, &Ff_Cntrl_Ros::addIntegratorCallback, this);
   landed_sub_ = nh_.subscribe("landed", 1, &Ff_Cntrl_Ros::landedCallback, this);
   target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Ff_Cntrl_Ros::targetEstimateCallback, this);
 }
@@ -214,14 +215,14 @@ void Ff_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.use_feed_forward_ = msg->data;
-  double Pn_ff_{1.5};
-  double In_ff_{0.5};
-  double Dn_ff_{0.6};
-  double Pe_ff_{1.5};
-  double Ie_ff_{0.5};
-  double De_ff_{0.6};
+  double Pn_ff_{0.5};
+  double In_ff_{0.05};
+  double Dn_ff_{0.1};
+  double Pe_ff_{0.5};
+  double Ie_ff_{0.05};
+  double De_ff_{0.1};
   double tau_ff_{0.05};
-  double sigma_ff_{3.0};
+  double sigma_ff_{2.0};
   control.switchControllers(Pn_ff_,In_ff_,Dn_ff_,Pe_ff_,Ie_ff_,De_ff_,tau_ff_,sigma_ff_);
 }
 
@@ -229,6 +230,11 @@ void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
 {
   std::cout << "in is landing callback \n";
   control.is_landing_ = msg->data;
+}
+
+void Ff_Cntrl_Ros::addIntegratorCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.add_integrator_ = msg->data;
 }
 
 void Ff_Cntrl_Ros::landedCallback(const std_msgs::BoolConstPtr &msg)
