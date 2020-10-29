@@ -57,9 +57,9 @@ class WaypointManager():
  
         if self.mission_state == 1:
             self.rendevous(current_position_neu)
-        elif self.mission_state == 2 or self.mission_state == 3:
+        elif self.mission_state == 2:
             self.center(current_position_neu)
-        elif self.mission_state == 10:
+        elif self.mission_state == 3:
             self.descend(current_position_neu)
         elif self.mission_state == 4:
             self.land(current_position_neu)
@@ -179,7 +179,7 @@ class WaypointManager():
         if self.is_landing == 0:
             self.new_waypoint(waypoint)
             self.is_landing = 1
-            self.is_landing_pub_.publish(True) #this will signal the controller to include the velocity feed forward term from the barge
+            self.is_landing_pub_.publish(True) #this will signal the controller to ramp down motors
 
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)

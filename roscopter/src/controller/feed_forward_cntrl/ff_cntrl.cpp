@@ -104,8 +104,13 @@ Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
 
 void Ff_Cntrl::switchControllers(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau, double sigma)
 {
-  PdILpf_n_.setGains(Pn, In, Dn, tau, sigma, max_.n_dot, -max_.n_dot);
-  PdILpf_e_.setGains(Pe, Ie, De, tau, sigma, max_.n_dot, -max_.n_dot);
+  if(switched_controller_ == false)
+  {
+    std::cout << "in switch controller" << std::endl;
+    PdILpf_n_.setGains(Pn, In, Dn, tau, sigma, max_.n_dot, -max_.n_dot);
+    PdILpf_e_.setGains(Pe, Ie, De, tau, sigma, max_.n_dot, -max_.n_dot);
+    switched_controller_ = true;
+  }
 }
 
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)

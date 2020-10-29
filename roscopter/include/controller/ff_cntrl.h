@@ -32,6 +32,7 @@ protected:
 
     bool debug_Ff_Cntrl_{false};
     bool debug_computeFeedForwardControl_{false};
+    bool switched_controller_{false};
 
     Eigen::Vector3d getBoatVelocity();
 

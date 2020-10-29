@@ -87,6 +87,7 @@ double PdILpf::computePdILpf(double desired, double current, double dt, double x
     double error_lpf = lowPassFilter(error, dt);
     integrator_ += dt / 2 * (error_lpf + last_error_lpf_); // (trapezoidal rule)
     i_term = ki_ * integrator_;
+    last_error_lpf_ = error_lpf;
   }
 
   // Save off this state for next loop
