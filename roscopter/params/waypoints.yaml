@@ -8,7 +8,9 @@ waypoints:
  [0.5, 0, 2.0, 0.]],
 
 threshold: 0.5,
-rendevous_threshold: 0.5,
+#TODO: need to come up with a better way to have a threshold.  Should be a function of velocity or something.
+rendevous_threshold: 2.0,
+center_threshold: 0.3,
 landing_threshold: 0.3,
 landing_orient_threshold: 10,
 cycle: False,

@@ -18,20 +18,27 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
     return;
   }
 
-    //TODO: Need to inherit from simplePID and change the calculatiion to include an lpf on the integrator
-  if(control_mode_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
+  if(use_feed_forward_)
   {
-    calcFfXposYposYawLoops(dt);
-    control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
-  }
+      //TODO: Need to inherit from simplePID and change the calculatiion to include an lpf on the integrator
+    if(control_mode_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
+    {
+      calcFfXposYposYawLoops(dt);
+      control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+    }
 
-  if(control_mode_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
-  {
-    calcFfXvelYvelAltLoops(dt);
-    mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
-    control_mode_ = MODE_XACC_YACC_YAWRATE_AZ_;
-    computeControl(dt);
-    control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
+    if(control_mode_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
+    {
+      calcFfXvelYvelAltLoops(dt);
+      mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
+      control_mode_ = MODE_XACC_YACC_YAWRATE_AZ_;
+      computeControl(dt);
+      control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
+    }
+    else
+    {
+      computeControl(dt);
+    }
   }
   else
   {
@@ -75,16 +82,8 @@ void Ff_Cntrl::calcFfXvelYvelAltLoops(double dt)
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
     if(use_feed_forward_)
     {
-      // std::cout << "xc_.x_dot = " << xc_.x_dot << std::endl;
-      // std::cout << "xc_.ax before = " << xc_.ax << std::endl;
-      //These gains need to try to be equal to the drag coefficient b.
-      // double xcax = xc_.ax + Kff_u_*xc_.x_dot;
       xc_.ax += Kff_u_*xc_.x_dot;
-      // std::cout << "xc_.ax after = " << xcax << std::endl;
-      // std::cout << "xc_.y_dot = " << xc_.y_dot << std::endl;
-      // std::cout << "xc_.ay before = " << xc_.ay << std::endl;
       xc_.ay += Kff_v_*xc_.y_dot;
-      // std::cout << "xc_.ay after = " << xc_.ay << std::endl;
     }
 
     // Nested Loop for Altitude
