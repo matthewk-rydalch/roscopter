@@ -29,10 +29,6 @@ protected:
     double Kff_y_{1.0};
     double Kff_u_{0.07};
     double Kff_v_{0.07};
-    //   double Kff_x_{0.0};
-    // double Kff_y_{0.0};
-    // double Kff_u_{0.0};
-    // double Kff_v_{0.0};
     double ramp_down_term_{0.90};
 
     bool debug_Ff_Cntrl_{false};

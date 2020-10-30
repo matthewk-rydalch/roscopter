@@ -61,10 +61,8 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
 
 void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
 {
-    // double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
-    double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
     double pndot_c = pd_cond_i_n_.computePDConditionalI(xc_.pn, xhat_.pn, dt);
-    // double pedot_c = pd_cond_i_e_.computePDConditionalI(xc_.pe, xhat_.pe, dt);
+    double pedot_c = pd_cond_i_e_.computePDConditionalI(xc_.pe, xhat_.pe, dt);
     xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
     xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
@@ -74,6 +72,7 @@ void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
       Eigen::Vector3d base_velocity_rover_v1_frame{getBoatVelocity()};
       xc_.x_dot += Kff_x_*base_velocity_rover_v1_frame[0];
       xc_.y_dot -= Kff_y_*base_velocity_rover_v1_frame[1];//TODO why does this have to be negative?  Frames?
+      // May need to saturate at this level.
     }
 }
 
@@ -119,8 +118,8 @@ Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
 
 void Ff_Cntrl::setPDCondIGains(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau)
 {
-    pd_cond_i_n_.setGains(Pn, In, Dn, max_.n_dot, -max_.n_dot, tau);
-    pd_cond_i_e_.setGains(Pe, Ie, De, max_.n_dot, -max_.n_dot, tau);
+    pd_cond_i_n_.setGains(Pn, In, Dn, tau, max_.n_dot, -max_.n_dot);
+    pd_cond_i_e_.setGains(Pe, Ie, De, tau, max_.e_dot, -max_.e_dot);
 }
 
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)

@@ -38,36 +38,36 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
     double u = p_term + i_term - d_term;
     std::cout << "integrator = " << integrator_ << std::endl;
     // if integrator_on_ ?????
-    std::cout << "p term = " << p_term << std::endl;
-    std::cout << "d term = " << d_term << std::endl;
-    std::cout << "i term = " << i_term << std::endl;
-    std::cout << "ki = " << ki_ << std::endl;
+    std::cout << "min = " << min_ << std::endl;
+    std::cout << "max = " << max_ << std::endl;
+    std::cout << "u = " << u << std::endl;
     double u_sat = compute_anti_windup(u, p_term, i_term, d_term);
-    std::cout << "integrator_anti_windup = " << integrator_ << std::endl; 
+    if (u!=u_sat)
+      std::cout << "saturating \n";
     return u_sat;
 }
 
 double PDConditionalI::getConditionalI(double dt, double error)
 {
-    // if (last_error_ < 0)
-    // {
-    //   std::cout << "11111111111111111111 \n";
-    //   if (error < last_error_+conditional_integrator_threshold_)
-    //     integrator_on_ = true;
-    //   else
-    //     integrator_on_ = false;
-    //   std::cout << "integrator on = " << integrator_on_ << std::endl;
-    // }
-    // else
-    // {
-    //   std::cout << "2222222222222222222222222 \n";
-    //   if (error > last_error_ - conditional_integrator_threshold_)
-    //     integrator_on_ = true;
-    //   else
-    //     integrator_on_ = false;
-    //   std::cout << "integrator on = " << integrator_on_ << std::endl;
-    // }
-    integrator_on_ = true;
+    if (last_error_ < 0)
+    {
+      std::cout << "11111111111111111111 \n";
+      if (error < last_error_+conditional_integrator_threshold_)
+        integrator_on_ = true;
+      else
+        integrator_on_ = false;
+      std::cout << "integrator on = " << integrator_on_ << std::endl;
+    }
+    else
+    {
+      std::cout << "2222222222222222222222222 \n";
+      if (error > last_error_ - conditional_integrator_threshold_)
+        integrator_on_ = true;
+      else
+        integrator_on_ = false;
+      std::cout << "integrator on = " << integrator_on_ << std::endl;
+    }
+
     if (integrator_on_)
       integrator_ += dt / 2 * (error + last_error_); // (trapezoidal rule)
     return ki_ * integrator_;

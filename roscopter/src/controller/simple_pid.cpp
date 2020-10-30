@@ -118,20 +118,12 @@ double SimplePID::getIntegralTerm(double dt, double error)
 
 double SimplePID::compute_anti_windup(double u, double p_term, double i_term, double d_term)
 {
-    // std::cout << "u = " << u << std::endl;
-    // std::cout << "min = " << min_ << std::endl;
-    // std::cout << "max = " << max_ << std::endl;
-    // std::cout << "p term = " << p_term << std::endl;
-    // std::cout << "d term = " << d_term << std::endl;
-    // std::cout << "i term = " << i_term << std::endl;
-    // std::cout << "ki = " << ki_ << std::endl;
-
     double u_sat = saturate(u, min_, max_);
-    if (u != u_sat && std::fabs(i_term) > fabs(u_sat - p_term + d_term))
-    {
-      integrator_ = (u_sat - p_term + d_term) / ki_;
-    }
-    // std::cout << "u_sat = " << u_sat << std::endl;
+    // if (u != u_sat && std::fabs(i_term) > fabs(u_sat - p_term + d_term))
+    // {
+    //   integrator_ = (u_sat - p_term + d_term) / ki_;
+    // }
+
     return u_sat;
 }
 
