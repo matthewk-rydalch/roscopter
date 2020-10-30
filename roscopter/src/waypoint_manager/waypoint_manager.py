@@ -31,7 +31,6 @@ class WaypointManager():
 
         #Subscribers
         self.xhat_sub_ = rospy.Subscriber('state', Odometry, self.odometryCallback, queue_size=5)
-        self.plt_relPos_sub_ = rospy.Subscriber('base_relative_pos', PointStamped, self.pltRelPosCallback, queue_size=5)
         self.base_odom_sub_ = rospy.Subscriber('base_odom', Odometry, self.baseOdomCallback, queue_size=5)
         
         # Wait a second before we publish the first waypoint
@@ -66,23 +65,14 @@ class WaypointManager():
             self.land(current_position_neu)
         else:
             self.mission(current_position_neu)   
-
-
-    def pltRelPosCallback(self, msg):
-        #TODO: implement time for the plt_relPos message?
-
-        antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
-                
-        #flip to NEU and add antenna offset
-        # self.plt_pos[0] = msg.point.x + self.drone_odom[0] - antenna_offset[0]
-        # self.plt_pos[1] = msg.point.y + self.drone_odom[1] - antenna_offset[1]
-        # self.plt_pos[2] = -msg.point.z - self.drone_odom[2] + antenna_offset[2]   
         
 
     def baseOdomCallback(self, msg):
-        self.plt_pos[0] = msg.pose.pose.position.x
-        self.plt_pos[1] = -msg.pose.pose.position.y
-        self.plt_pos[2] = msg.pose.pose.position.z
+        antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
+
+        self.plt_pos[0] = msg.pose.pose.position.x - antenna_offset[0]
+        self.plt_pos[1] = -msg.pose.pose.position.y - antenna_offset[1]
+        self.plt_pos[2] = msg.pose.pose.position.z - antenna_offset[2]
 
         # yaw from quaternion
         qw = msg.pose.pose.orientation.w
