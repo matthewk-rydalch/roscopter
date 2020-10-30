@@ -38,8 +38,12 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
     double u = p_term + i_term - d_term;
     std::cout << "integrator = " << integrator_ << std::endl;
     // if integrator_on_ ?????
+    std::cout << "p term = " << p_term << std::endl;
+    std::cout << "d term = " << d_term << std::endl;
+    std::cout << "i term = " << i_term << std::endl;
+    std::cout << "ki = " << ki_ << std::endl;
     double u_sat = compute_anti_windup(u, p_term, i_term, d_term);
-    std::cout << "integrator_sat = " << integrator_ << std::endl; 
+    std::cout << "integrator_anti_windup = " << integrator_ << std::endl; 
     return u_sat;
 }
 
@@ -64,9 +68,6 @@ double PDConditionalI::getConditionalI(double dt, double error)
     //   std::cout << "integrator on = " << integrator_on_ << std::endl;
     // }
     integrator_on_ = true;
-    std::cout << "integrator before = " << integrator_ << std::endl;
-    std::cout << "error = " << error << std::endl;
-    std::cout << "last_error = " << last_error_ << std::endl; 
     if (integrator_on_)
       integrator_ += dt / 2 * (error + last_error_); // (trapezoidal rule)
     return ki_ * integrator_;

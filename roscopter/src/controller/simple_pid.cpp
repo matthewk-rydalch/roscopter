@@ -127,7 +127,7 @@ double SimplePID::compute_anti_windup(double u, double p_term, double i_term, do
     // std::cout << "ki = " << ki_ << std::endl;
 
     double u_sat = saturate(u, min_, max_);
-    if (u != u_sat && std::fabs(i_term) > fabs(u - p_term + d_term))
+    if (u != u_sat && std::fabs(i_term) > fabs(u_sat - p_term + d_term))
     {
       integrator_ = (u_sat - p_term + d_term) / ki_;
     }
