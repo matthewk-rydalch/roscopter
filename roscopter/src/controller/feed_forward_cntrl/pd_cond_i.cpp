@@ -37,6 +37,7 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
 
     double u = p_term + i_term - d_term;
     std::cout << "integrator = " << integrator_ << std::endl;
+    // if integrator_on_ ?????
     double u_sat = compute_anti_windup(u, p_term, i_term, d_term);
     std::cout << "integrator_sat = " << integrator_ << std::endl; 
     return u_sat;
