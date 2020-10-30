@@ -222,13 +222,12 @@ void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
   double Ie_ff_{0.05};
   double De_ff_{0.1};
   double tau_ff_{0.05};
-  double sigma_ff_{2.0};
+  double sigma_ff_{0.0};
   control.switchControllers(Pn_ff_,In_ff_,Dn_ff_,Pe_ff_,Ie_ff_,De_ff_,tau_ff_,sigma_ff_);
 }
 
 void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
 {
-  std::cout << "in is landing callback \n";
   control.is_landing_ = msg->data;
 }
 

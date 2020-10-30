@@ -40,7 +40,6 @@ PdILpf::PdILpf(double p, double i, double d, double max, double min, double tau,
 double PdILpf::computePdILpf(double desired, double current, double dt, double x_dot)
 {
   double error = desired - current;
-  std::cout << "error = " << error << std::endl;
 
   // Don't do stupid things (like divide by nearly zero, gigantic control jumps)
   if (dt < 0.00001 || std::abs(error) > 9999999)
@@ -87,6 +86,7 @@ double PdILpf::computePdILpf(double desired, double current, double dt, double x
   {
     double error_lpf = lowPassFilter(error, dt);
     integrator_ += dt / 2 * (error_lpf + last_error_lpf_); // (trapezoidal rule)
+    std::cout << "integrator = " << integrator_ << std::endl;
     i_term = ki_ * integrator_;
     last_error_lpf_ = error_lpf;
   }
