@@ -11,10 +11,10 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
   _func = boost::bind(&Ff_Cntrl_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
 
-  double Pn_ff_{0.5};
+  double Pn_ff_{1.0};
   double In_ff_{0.05};
   double Dn_ff_{0.1};
-  double Pe_ff_{0.5};
+  double Pe_ff_{1.0};
   double Ie_ff_{0.05};
   double De_ff_{0.1};
   double tau_ff_{0.05};

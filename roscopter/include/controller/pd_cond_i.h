@@ -17,7 +17,7 @@ public:
 
 protected:
   bool integrator_on_{false};
-  double conditional_integrator_threshold_{0.1};
+  double conditional_integrator_threshold_{0.5};
 
   double getConditionalI(double dt, double error);
 };

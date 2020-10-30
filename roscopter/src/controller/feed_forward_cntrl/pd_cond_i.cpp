@@ -44,23 +44,36 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
 
 double PDConditionalI::getConditionalI(double dt, double error)
 {
-    if (last_error_ < 0)
-    {
-      if (error < last_error_+conditional_integrator_threshold_)
-        integrator_on_ = true;
-      else
-        integrator_on_ = false;
-    }
+    double de_dt = (abs(error)-abs(last_error_))/dt;
+    std::cout << "de_dt = " << de_dt << std::endl;
+
+    if (de_dt > -conditional_integrator_threshold_)
+      integrator_on_ = true;
     else
-    {
-      if (error > last_error_ - conditional_integrator_threshold_)
-        integrator_on_ = true;
-      else
-        integrator_on_ = false;
-    }
+      integrator_on_ = false;
+    std::cout << "integrator on ? " << integrator_on_ << std::endl;
+      
+
+    // if (last_error_ < 0)
+    // {
+    //   if (error < last_error_+conditional_integrator_threshold_)
+    //     integrator_on_ = true;
+    //   else
+    //     integrator_on_ = false;
+    //   std::cout << "behind and on ? " << integrator_on_ << std::endl;
+    // }
+    // else
+    // {
+    //   if (error > last_error_ - conditional_integrator_threshold_)
+    //     integrator_on_ = true;
+    //   else
+    //     integrator_on_ = false;
+    //   std::cout << "ahead and on ? " << integrator_on_ << std::endl;
+    // }
 
     if (integrator_on_)
       integrator_ += dt / 2 * (error + last_error_); // (trapezoidal rule)
+    std::cout << "integrator = " << integrator_ << std::endl;
     return ki_ * integrator_;
 }
 
