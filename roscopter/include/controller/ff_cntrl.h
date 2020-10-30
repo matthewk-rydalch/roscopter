@@ -6,7 +6,7 @@
 #include <Eigen/Dense>
 
 #include "controller/controller.h"
-#include "controller/pd_i_lpf.h"
+#include "controller/pd_cond_i.h"
 
 namespace controller
 {
@@ -16,7 +16,7 @@ class Ff_Cntrl : public controller::Controller
 public:
     Ff_Cntrl();
     void computeFeedForwardControl(double dt);
-    void switchControllers(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau, double sigma);
+    void setPDCondIGains(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau);
 
     state_t target_hat_;
     bool use_feed_forward_{false};
@@ -25,11 +25,14 @@ public:
     bool landed_{false};
 
 protected:
-
-    double Kff_x_{1.0};
-    double Kff_y_{1.0};
-    double Kff_u_{0.07};
-    double Kff_v_{0.07};
+    // double Kff_x_{1.0};
+    // double Kff_y_{1.0};
+    // double Kff_u_{0.07};
+    // double Kff_v_{0.07};
+      double Kff_x_{0.0};
+    double Kff_y_{0.0};
+    double Kff_u_{0.0};
+    double Kff_v_{0.0};
     double ramp_down_term_{0.90};
 
     bool debug_Ff_Cntrl_{false};
@@ -46,8 +49,8 @@ protected:
     void calcFfXvelYvelAltLoops(double dt);
 
       // PID Controllers
-    controller::PdILpf PdILpf_n_;
-    controller::PdILpf PdILpf_e_;
+    controller::PDConditionalI pd_cond_i_n_;
+    controller::PDConditionalI pd_cond_i_e_;
 };
 }
 

@@ -11,6 +11,15 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
   _func = boost::bind(&Ff_Cntrl_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
 
+  double Pn_ff_{0.5};
+  double In_ff_{0.05};
+  double Dn_ff_{0.1};
+  double Pe_ff_{0.5};
+  double Ie_ff_{0.05};
+  double De_ff_{0.1};
+  double tau_ff_{0.05};
+  control.setPDCondIGains(Pn_ff_,In_ff_,Dn_ff_,Pe_ff_,Ie_ff_,De_ff_,tau_ff_);
+
   // Set up Publishers and Subscriber
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
 
@@ -215,15 +224,6 @@ void Ff_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.use_feed_forward_ = msg->data;
-  double Pn_ff_{0.5};
-  double In_ff_{0.05};
-  double Dn_ff_{0.1};
-  double Pe_ff_{0.5};
-  double Ie_ff_{0.05};
-  double De_ff_{0.1};
-  double tau_ff_{0.05};
-  double sigma_ff_{0.0};
-  control.switchControllers(Pn_ff_,In_ff_,Dn_ff_,Pe_ff_,Ie_ff_,De_ff_,tau_ff_,sigma_ff_);
 }
 
 void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)

@@ -18,6 +18,12 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
     // This messes up the derivative calculation in the PID controllers
     return;
   }
+  mode_flag_ = control_mode_;
+  if(mode_flag_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
+  {
+    calcFfXposYposYawLoops(dt);
+    mode_flag_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+  }
 
   if(use_feed_forward_)
   {
@@ -34,22 +40,15 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
     // }
     // else
     // {
-      if(control_mode_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
-      {
-        calcFfXposYposYawLoops(dt);
-        control_mode_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
-      }
-      if(control_mode_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
+
+      if(mode_flag_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
       {
         calcFfXvelYvelAltLoops(dt);
         mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
-        control_mode_ = MODE_XACC_YACC_YAWRATE_AZ_;
         computeControl(dt);
-        control_mode_ = MODE_XPOS_YPOS_YAW_ALTITUDE_;
       }
       else
       {
-        std::cout << "computing control \n";
         computeControl(dt); 
       }
     // }
@@ -62,8 +61,10 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
 
 void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
 {
-    double pndot_c = PdILpf_n_.computePdILpf(xc_.pn, xhat_.pn, dt);
-    double pedot_c = PdILpf_e_.computePdILpf(xc_.pe, xhat_.pe, dt);
+    // double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
+    double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
+    double pndot_c = pd_cond_i_n_.computePDConditionalI(xc_.pn, xhat_.pn, dt);
+    // double pedot_c = pd_cond_i_e_.computePDConditionalI(xc_.pe, xhat_.pe, dt);
     xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
     xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
@@ -116,15 +117,10 @@ Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
   return base_velocity_rover_v1_frame;
 }
 
-void Ff_Cntrl::switchControllers(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau, double sigma)
+void Ff_Cntrl::setPDCondIGains(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau)
 {
-  if(switched_controller_ == false)
-  {
-    std::cout << "in switch controller" << std::endl;
-    PdILpf_n_.setGains(Pn, In, Dn, tau, sigma, max_.n_dot, -max_.n_dot);
-    PdILpf_e_.setGains(Pe, Ie, De, tau, sigma, max_.n_dot, -max_.n_dot);
-    switched_controller_ = true;
-  }
+    pd_cond_i_n_.setGains(Pn, In, Dn, max_.n_dot, -max_.n_dot, tau);
+    pd_cond_i_e_.setGains(Pe, Ie, De, max_.n_dot, -max_.n_dot, tau);
 }
 
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)

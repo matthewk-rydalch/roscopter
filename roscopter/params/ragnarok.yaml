@@ -14,11 +14,11 @@ z_dot_I: 0.25,
 z_dot_D: 0.1,
 
 north_P: 1.5,
-north_I: 0.0, #1.0, #0.1,
+north_I: 0.1, #1.0, #0.1,
 north_D: 0.6,
 
 east_P: 1.5,
-east_I: 0.0, #1.0, #0.1,
+east_I: 0.1, #1.0, #0.1,
 east_D: 0.6,
 
 down_P: 1.0,
