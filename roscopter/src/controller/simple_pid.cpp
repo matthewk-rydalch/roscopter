@@ -119,10 +119,11 @@ double SimplePID::getIntegralTerm(double dt, double error)
 double SimplePID::compute_anti_windup(double u, double p_term, double i_term, double d_term)
 {
     double u_sat = saturate(u, min_, max_);
-    // if (u != u_sat && std::fabs(i_term) > fabs(u_sat - p_term + d_term))
-    // {
-    //   integrator_ = (u_sat - p_term + d_term) / ki_;
-    // }
+    //TODO:: I switched this from "fabs(u... to fabs(u_sat..."  Need to make sure that is right.
+    if (u != u_sat && std::fabs(i_term) > fabs(u_sat - p_term + d_term))
+    {
+      integrator_ = (u_sat - p_term + d_term) / ki_;
+    }
 
     return u_sat;
 }
@@ -149,7 +150,6 @@ inline double SimplePID::saturate(double val, double &min, double &max)
 
 void SimplePID::clearIntegrator()
 {
-  std::cout << "clearIntegrator!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   integrator_ = 0.0;
 }
 

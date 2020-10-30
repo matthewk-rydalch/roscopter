@@ -15,49 +15,40 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
     std::cout << "In Ff_Cntrl::computeFeedForwardControl!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   if(dt <= 0.0000001)
   {
-    // This messes up the derivative calculation in the PID controllers
     return;
   }
+
   mode_flag_ = control_mode_;
   if(mode_flag_ == MODE_XPOS_YPOS_YAW_ALTITUDE_)
   {
     calcFfXposYposYawLoops(dt);
     mode_flag_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
-    control_mode_ = mode_flag_;
   }
-
-  if(use_feed_forward_)
+  if(mode_flag_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
   {
-    // if (is_landing_)
-    // {
-    //   if (xc_.throttle <= 0.1)
-    //   {  
-    //     xc_.throttle = 0.0;
-    //   }
-    //   else
-    //   {
-    //     xc_.throttle = ramp_down_term_*xc_.throttle;
-    //   }
-    // }
-    // else
-    // {
-
-      if(mode_flag_ == MODE_XVEL_YVEL_YAWRATE_ALTITUDE_)
-      {
-        calcFfXvelYvelAltLoops(dt);
-        mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
-        control_mode_ = mode_flag_;
-        computeControl(dt);
-      }
-      else
-      {
-        computeControl(dt); 
-      }
-    // }
+    if (use_feed_forward_)
+      calcFfXvelYvelAltLoops(dt);
+    else
+      calcXvelYvelAltLoops(dt);
+    mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
   }
-  else
+  if(mode_flag_ == MODE_XACC_YACC_YAWRATE_AZ_)
   {
-    computeControl(dt);
+    calcXaccYaccAzLoops(dt);
+    mode_flag_ = MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
+  }
+  if(mode_flag_ == MODE_ROLL_PITCH_YAWRATE_THROTTLE_)
+  {
+    xc_.throttle = saturate(xc_.throttle, max_.throttle, 0.0);
+    xc_.phi = saturate(xc_.phi, max_.roll, -max_.roll);
+    xc_.theta = saturate(xc_.theta, max_.pitch, -max_.pitch);
+    xc_.r = saturate(xc_.r, max_.yaw_rate, -max_.yaw_rate);
+    if (-xhat_.pd < min_altitude_)
+    {
+      xc_.phi = 0.;
+      xc_.theta = 0.;
+      xc_.r = 0.;
+    }
   }
 }
 
@@ -72,9 +63,7 @@ void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
     if(use_feed_forward_)
     {
       Eigen::Vector3d base_velocity_rover_v1_frame{getBoatVelocity()};
-      std::cout << "xdot before = " << xc_.x_dot << std::endl;
       xc_.x_dot += Kff_x_*base_velocity_rover_v1_frame[0];
-      std::cout << "xdot after = " << xc_.x_dot << std::endl;
       xc_.y_dot -= Kff_y_*base_velocity_rover_v1_frame[1];//TODO why does this have to be negative?  Frames?
       // May need to saturate at this level.
     }

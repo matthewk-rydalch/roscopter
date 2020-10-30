@@ -9,6 +9,7 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
 
     if (dt < 0.00001 || std::abs(error) > 9999999)
     {
+      std::cout << "dt small or error big";
       return 0.0;
     }
 
@@ -36,36 +37,26 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
     last_state_ = current;
 
     double u = p_term + i_term - d_term;
-    std::cout << "integrator = " << integrator_ << std::endl;
+
     // if integrator_on_ ?????
-    std::cout << "min = " << min_ << std::endl;
-    std::cout << "max = " << max_ << std::endl;
-    std::cout << "u = " << u << std::endl;
-    double u_sat = compute_anti_windup(u, p_term, i_term, d_term);
-    if (u!=u_sat)
-      std::cout << "saturating \n";
-    return u_sat;
+    return compute_anti_windup(u, p_term, i_term, d_term);;
 }
 
 double PDConditionalI::getConditionalI(double dt, double error)
 {
     if (last_error_ < 0)
     {
-      std::cout << "11111111111111111111 \n";
       if (error < last_error_+conditional_integrator_threshold_)
         integrator_on_ = true;
       else
         integrator_on_ = false;
-      std::cout << "integrator on = " << integrator_on_ << std::endl;
     }
     else
     {
-      std::cout << "2222222222222222222222222 \n";
       if (error > last_error_ - conditional_integrator_threshold_)
         integrator_on_ = true;
       else
         integrator_on_ = false;
-      std::cout << "integrator on = " << integrator_on_ << std::endl;
     }
 
     if (integrator_on_)
