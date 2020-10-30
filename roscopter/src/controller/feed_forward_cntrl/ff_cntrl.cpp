@@ -23,6 +23,7 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
   {
     calcFfXposYposYawLoops(dt);
     mode_flag_ = MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+    control_mode_ = mode_flag_;
   }
 
   if(use_feed_forward_)
@@ -45,6 +46,7 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
       {
         calcFfXvelYvelAltLoops(dt);
         mode_flag_ = MODE_XACC_YACC_YAWRATE_AZ_;
+        control_mode_ = mode_flag_;
         computeControl(dt);
       }
       else
@@ -70,7 +72,9 @@ void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
     if(use_feed_forward_)
     {
       Eigen::Vector3d base_velocity_rover_v1_frame{getBoatVelocity()};
+      std::cout << "xdot before = " << xc_.x_dot << std::endl;
       xc_.x_dot += Kff_x_*base_velocity_rover_v1_frame[0];
+      std::cout << "xdot after = " << xc_.x_dot << std::endl;
       xc_.y_dot -= Kff_y_*base_velocity_rover_v1_frame[1];//TODO why does this have to be negative?  Frames?
       // May need to saturate at this level.
     }

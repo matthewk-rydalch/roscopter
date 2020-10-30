@@ -12,10 +12,10 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
   _server.setCallback(_func);
 
   double Pn_ff_{0.5};
-  double In_ff_{0.5};
+  double In_ff_{0.05};
   double Dn_ff_{0.1};
   double Pe_ff_{0.5};
-  double Ie_ff_{0.5};
+  double Ie_ff_{0.05};
   double De_ff_{0.1};
   double tau_ff_{0.05};
   control.setPDCondIGains(Pn_ff_,In_ff_,Dn_ff_,Pe_ff_,Ie_ff_,De_ff_,tau_ff_);
