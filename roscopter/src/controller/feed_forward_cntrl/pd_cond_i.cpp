@@ -2,6 +2,18 @@
 
 namespace controller
 {
+PDConditionalI::PDConditionalI() :
+  SimplePID()
+{}
+
+PDConditionalI::PDConditionalI(double p, double i, double d, double max, double min, double tau, double conditional_integrator_threshold) :
+  SimplePID(p, i, d, max, min, tau), conditional_integrator_threshold_(conditional_integrator_threshold)
+{
+  integrator_ = 0.0;
+  differentiator_ = 0.0;
+  last_error_ = 0.0;
+  last_state_ = 0.0;
+}
 
 double PDConditionalI::computePDConditionalI(double desired, double current, double dt, double x_dot)
 {
@@ -45,18 +57,27 @@ double PDConditionalI::computePDConditionalI(double desired, double current, dou
 double PDConditionalI::getConditionalI(double dt, double error)
 {
     double de_dt = (abs(error)-abs(last_error_))/dt;
-    std::cout << "de_dt = " << de_dt << std::endl;
 
     if (de_dt > -conditional_integrator_threshold_)
       integrator_on_ = true;
     else
       integrator_on_ = false;
-    std::cout << "integrator on ? " << integrator_on_ << std::endl;
 
     if (integrator_on_)
       integrator_ += dt / 2 * (error + last_error_); // (trapezoidal rule)
-    std::cout << "integrator = " << integrator_ << std::endl;
     return ki_ * integrator_;
+}
+
+void PDConditionalI::setGains(double p, double i, double d, double tau, double max_u, double min_u, double conditional_integrator_threshold)
+{
+    //! \todo Should we really be zeroing this while we are gain tuning?
+    kp_ = p;
+    ki_ = i;
+    kd_ = d;
+    tau_ = tau;
+    max_ = max_u;
+    min_ = min_u;
+    conditional_integrator_threshold_ = conditional_integrator_threshold;
 }
 
 }

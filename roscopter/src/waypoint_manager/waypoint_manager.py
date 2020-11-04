@@ -59,9 +59,9 @@ class WaypointManager():
             self.rendevous(current_position_neu)
         elif self.mission_state == 2:
             self.center(current_position_neu)
-        elif self.mission_state == 3 or self.mission_state == 4:
+        elif self.mission_state == 3:
             self.descend(current_position_neu)
-        elif self.mission_state == 10:
+        elif self.mission_state == 4:
             self.land(current_position_neu)
         else:
             self.mission(current_position_neu)   
@@ -165,7 +165,7 @@ class WaypointManager():
         if error < self.landing_threshold and base_roll < self.landing_orient_threshold and base_pitch < self.landing_orient_threshold:
             self.mission_state = 4 #switch to land state
             self.is_landing_pub_.publish(True)
-            # print('land state')
+            print('land state')
 
 
     def land(self, current_position):
