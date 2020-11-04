@@ -11,7 +11,6 @@ Controller_Ros::Controller_Ros() :
   _func = boost::bind(&Controller_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
 
-  // Set up Publishers and Subscriber
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
 
   state_sub_ = nh_.subscribe("estimate", 1, &Controller_Ros::stateCallback, this);
@@ -182,7 +181,6 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 
 void Controller_Ros::fillEstimates(const nav_msgs::OdometryConstPtr &msg)
 {
-  // This should already be coming in NED
   control.xhat_.pn = msg->pose.pose.position.x;
   control.xhat_.pe = msg->pose.pose.position.y;
   control.xhat_.pd = msg->pose.pose.position.z;
@@ -191,7 +189,6 @@ void Controller_Ros::fillEstimates(const nav_msgs::OdometryConstPtr &msg)
   control.xhat_.v = msg->twist.twist.linear.y;
   control.xhat_.w = msg->twist.twist.linear.z;
 
-  // Convert Quaternion to RPY
   tf::Quaternion tf_quat;
   tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
   tf::Matrix3x3(tf_quat).getRPY(control.xhat_.phi, control.xhat_.theta, control.xhat_.psi);

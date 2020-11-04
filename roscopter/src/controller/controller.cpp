@@ -55,11 +55,8 @@ void Controller::computeControl(double dt)
 
 void Controller::calcXposYposYawLoops(double dt)
 {
-    // Figure out desired velocities (in inertial frame)
-  // By running the position controllers
   double pndot_c = PID_n_.computePID(xc_.pn, xhat_.pn, dt);
   double pedot_c = PID_e_.computePID(xc_.pe, xhat_.pe, dt);
-  // Calculate desired yaw rate
   xc_.psi = determineShortestDirectionPsi(xc_.psi,xhat_.psi);
 
   xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
@@ -68,7 +65,6 @@ void Controller::calcXposYposYawLoops(double dt)
 
 void Controller::calcXvelYvelAltLoops(double dt)
 {
-    // Rotate body frame velocities to vehicle 1 frame velocities
   double sinp = sin(xhat_.phi);
   double cosp = cos(xhat_.phi);
   double sint = sin(xhat_.theta);
@@ -79,13 +75,11 @@ void Controller::calcXvelYvelAltLoops(double dt)
   double pzdot =
       -sint * xhat_.u + sinp * cost * xhat_.v + cosp * cost * xhat_.w;
 
-  // TODO: Rotate boat body frame velocities into drone vehicle 1 frame velocities
   // Compute desired accelerations (in terms of g's) in the vehicle 1 frame
   xc_.z_dot = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pzdot);
   xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
   xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
 
-  // Nested Loop for Altitude
   xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
 }
 
@@ -104,8 +98,6 @@ void Controller::calcXaccYaccAzLoops(double dt)
       xc_.phi = 0;
       xc_.theta = 0;
     }
-
-    // Compute desired thrust based on current pose
     double cosp = cos(xhat_.phi);
     double cost = cos(xhat_.theta);
     xc_.throttle = (1.0 - xc_.az) * throttle_eq_ / cosp / cost;

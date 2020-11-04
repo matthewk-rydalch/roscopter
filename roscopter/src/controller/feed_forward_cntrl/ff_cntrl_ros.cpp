@@ -50,7 +50,6 @@ void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
     return;
   }
 
-  // Calculate time
   double now = msg->header.stamp.toSec();
   double dt = now - prev_time;
   prev_time = now;
@@ -58,7 +57,6 @@ void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
   if(dt <= 0)
     return;
 
-  // This should already be coming in NED
   control.xhat_.pn = msg->pose.pose.position.x;
   control.xhat_.pe = msg->pose.pose.position.y;
   control.xhat_.pd = msg->pose.pose.position.z;
@@ -67,7 +65,6 @@ void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
   control.xhat_.v = msg->twist.twist.linear.y;
   control.xhat_.w = msg->twist.twist.linear.z;
 
-  // Convert Quaternion to RPY
   tf::Quaternion tf_quat;
   tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
   tf::Matrix3x3(tf_quat).getRPY(control.xhat_.phi, control.xhat_.theta, control.xhat_.psi);
