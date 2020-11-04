@@ -104,7 +104,7 @@ protected:
 
   float throttle_down_ = 0.95;
 
-  bool debug_Controller_{true};
+  bool debug_Controller_{false};
   bool debug_computeControl_{false};
   bool debug_resetIntegrators_{false};
   bool debug_saturate_{false};

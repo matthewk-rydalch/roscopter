@@ -31,7 +31,7 @@
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="controller">
+  <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
     <remap from="target_estimate" to="boat/odom"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>

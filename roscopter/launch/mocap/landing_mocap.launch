@@ -16,7 +16,7 @@
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="controller_node">
+  <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
     <!--platform virtual odom comes from base_landing.launch-->
     <remap from="target_estimate" to="/multirotor/platform_virtual_odom"/>
     <remap from="estimate" to="odom"/>
