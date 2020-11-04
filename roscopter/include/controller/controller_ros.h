@@ -23,19 +23,16 @@ public:
   Controller_Ros();
 
 protected:
-  // Node handles, publishers, subscribers
   ros::NodeHandle nh_;
   ros::NodeHandle nh_private_;
 
   controller::Controller control;
 
-    // Dynamic Reconfigure Hooks
   dynamic_reconfigure::Server<roscopter::ControllerConfig> _server;
   dynamic_reconfigure::Server<roscopter::ControllerConfig>::CallbackType _func;
   void reconfigure_callback(roscopter::ControllerConfig& config,
                             uint32_t level);
 
-  // Publishers and Subscribers
   ros::Subscriber state_sub_;
   ros::Subscriber is_flying_sub_;
   ros::Subscriber cmd_sub_;
@@ -47,7 +44,6 @@ protected:
   
   ros::Publisher command_pub_;
 
-  //functions
   void init_controller();
   void stateCallback(const nav_msgs::OdometryConstPtr &msg);
   void isFlyingCallback(const std_msgs::BoolConstPtr &msg);

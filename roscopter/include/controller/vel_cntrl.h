@@ -4,7 +4,6 @@
 #include <iostream>
 #include <math.h>
 #include <Eigen/Dense>
-
 #include "controller/controller.h"
 
 namespace controller
