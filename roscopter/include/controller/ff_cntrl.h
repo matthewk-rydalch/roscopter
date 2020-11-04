@@ -16,7 +16,8 @@ class Ff_Cntrl : public controller::Controller
 public:
     Ff_Cntrl();
     void computeFeedForwardControl(double dt);
-    void setPDCondIGains(double Pn, double In, double Dn, double Pe, double Ie, double De, double tau);
+    void setPDConditionalIN(double P, double I, double D, double tau);
+    void setPDConditionalIE(double P, double I, double D, double tau);
 
     state_t target_hat_;
     bool use_feed_forward_{false};
@@ -24,12 +25,14 @@ public:
     bool add_integrator_{false};
     bool landed_{false};
 
+    double Kff_x_;
+    double Kff_y_;
+    double Kff_u_;
+    double Kff_v_;
+    double ramp_down_gain_;
+    double conditional_integrator_threshold_;
+
 protected:
-    double Kff_x_{1.0};
-    double Kff_y_{1.0};
-    double Kff_u_{0.07};
-    double Kff_v_{0.07};
-    double ramp_down_term_{0.90};
 
     bool debug_Ff_Cntrl_{false};
     bool debug_computeFeedForwardControl_{false};
@@ -44,7 +47,6 @@ protected:
     void calcFfXposYposYawLoops(double dt);
     void calcFfXvelYvelAltLoops(double dt);
 
-      // PID Controllers
     controller::PDConditionalI pd_cond_i_n_;
     controller::PDConditionalI pd_cond_i_e_;
 };

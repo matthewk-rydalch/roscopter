@@ -11,16 +11,6 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
   _func = boost::bind(&Ff_Cntrl_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
 
-  double Pn_ff_{1.0};
-  double In_ff_{0.05};
-  double Dn_ff_{0.1};
-  double Pe_ff_{1.0};
-  double Ie_ff_{0.05};
-  double De_ff_{0.1};
-  double tau_ff_{0.05};
-  control.setPDCondIGains(Pn_ff_,In_ff_,Dn_ff_,Pe_ff_,Ie_ff_,De_ff_,tau_ff_);
-
-  // Set up Publishers and Subscriber
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
 
   state_sub_ = nh_.subscribe("estimate", 1, &Ff_Cntrl_Ros::stateCallback, this);
@@ -162,6 +152,13 @@ void Ff_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   control.max_.yaw_rate = config.max_yaw_rate;
   control.max_.throttle = config.max_throttle;
 
+  control.Kff_x_ = config.Kff_x;
+  control.Kff_y_ = config.Kff_y;
+  control.Kff_u_ = config.Kff_u;
+  control.Kff_v_ = config.Kff_v;
+  control.ramp_down_gain_ = config.ramp_down_gain;
+  control.conditional_integrator_threshold_ = config.conditional_integrator_threshold;
+
   control.min_altitude_ = config.min_altitude;
 
   control.throttle_eq_ = config.equilibrium_throttle;
@@ -190,13 +187,13 @@ void Ff_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   I = config.north_I;
   D = config.north_D;
   control.max_.n_dot = config.max_n_dot;
-  control.setPIDN(P, I, D, tau);
+  control.setPDConditionalIN(P, I, D, tau);
 
   P = config.east_P;
   I = config.east_I;
   D = config.east_D;
   control.max_.e_dot = config.max_e_dot;
-  control.setPIDE(P, I, D, tau);
+  control.setPDConditionalIE(P, I, D, tau);
 
   P = config.down_P;
   I = config.down_I;

@@ -13,13 +13,13 @@ z_dot_P: 0.6,
 z_dot_I: 0.25,
 z_dot_D: 0.1,
 
-north_P: 1.5,
-north_I: 0.0, #1.0, #0.1,
-north_D: 0.6,
+north_P: 1.0,
+north_I: 0.05, #1.0, #0.1,
+north_D: 0.1,
 
-east_P: 1.5,
-east_I: 0.0, #1.0, #0.1,
-east_D: 0.6,
+east_P: 1.0,
+east_I: 0.05, #1.0, #0.1,
+east_D: 0.1,
 
 down_P: 1.0,
 down_I: 0.0,
@@ -28,6 +28,13 @@ down_D: 0.0,
 psi_P: 2.0,
 psi_I: 0.0,
 psi_D: 0.0,
+
+Kff_x: 1.0,
+Kff_y: 1.0,
+Kff_u: 0.07,
+Kff_v: 0.07,
+ramp_down_gain: 0.90,
+conditional_integrator_threshold: 0.5,
 
 tau: 0.05,
 

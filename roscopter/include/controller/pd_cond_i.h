@@ -18,6 +18,7 @@ public:
 protected:
   bool integrator_on_{false};
   double conditional_integrator_threshold_{0.5};
+  //TODO need to get this from ff_cntrl
 
   double getConditionalI(double dt, double error);
 };

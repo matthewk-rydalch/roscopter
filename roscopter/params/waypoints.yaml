@@ -11,7 +11,7 @@ threshold: 0.5,
 #TODO: need to come up with a better way to have a threshold.  Should be a function of velocity or something.
 rendevous_threshold: 5.0,
 center_threshold: 0.3,
-landing_threshold: 0.1,
+landing_threshold: 0.05,
 landing_orient_threshold: 10,
 cycle: False,
 auto_land: True,
