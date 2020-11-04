@@ -151,10 +151,8 @@ namespace roscopter::ekf
   {
     int size = res.rows();
     auto K = K_.leftCols(size);
-
     ///TODO: perform covariance gating
     MatrixXd innov = (H*P()*H.T + R).inverse();
-
     CHECK_NAN(H); CHECK_NAN(R); CHECK_NAN(P());
     K = P() * H.T * innov;
     CHECK_NAN(K);

@@ -84,7 +84,7 @@
     <!-- PID Position Controller -->
     <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
       <remap from="target_estimate" to="/platform/odom"/>
-      <remap from="estimate" to="ground_truth/odometry/NED_throttled"/>
+      <remap from="estimate" to="odom"/>
       <remap from="waypoint" to="high_level_command"/>
     </node>
 
