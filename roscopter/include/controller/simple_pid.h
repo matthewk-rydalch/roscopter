@@ -43,66 +43,17 @@
 
 namespace controller
 {
-/*!
- * \brief The simplePID class is a basic, tried and true PID controller.  Only P (proportional) gains are
- *  necessary, the I (integral) and D (derivative) default to zero. The I control is computed using a
- *  first-order numerical integral of the error, the derivative is the numerical first-order derivative
- *  of the error.  Due to these crude integration techniques, it is best if the control be computed fast
- *  (i.e. small dt).
- */
+
 class SimplePID
 {
 public:
-  /*!
-   * \brief SimplePID is the basic initializer;
-   */
   SimplePID();
-
-  /*!
-   * \brief SimplePID initializes the class.
-   * \param p the proportional controller gain (required)
-   * \param i the integral controller gain (defaults to zero)
-   * \param d the derivative controller gain (defaults to zero)
-   * \param imin the min value accepted in the output of the integral control
-   * \param imax the max value accepted in the output of the integral control (saturation for integrator windup)
-   * \param tau band limited differentiator to reduce noise
-   */
   SimplePID(double p, double i = 0.0, double d = 0.0, double max = DBL_MAX, double min = -DBL_MAX, double tau = 0.15);
 
-  /*!
-   * \brief computePID computes the PID control for the given error and timestep (since the last control was computed!)
-   * \param p_error is the "position" error (or whatever variable you are controlling)
-   * \param dt is the timestep since the last control was computed.
-   * \param x_dot derivative of current state (optional)
-   * \return the control command
-   */
   double computePID(double desired, double current, double dt, double x_dot = INFINITY);
-
-  /*!
-   * \brief setgains is used to set the gains for a controller after it's been initialized.  It will rewrite
-   *  whatever is already there!
-   * \param p the proportional controller gain (required)
-   * \param i the integral controller gain (defaults to zero)
-   * \param d the derivative controller gain (defaults to zero)
-   * \param tau band limited differentiator to reduce noise
-   */
   void setGains(double p, double i = 0.0, double d = 0.0, double tau = 0.15, double max_u = DBL_MAX, double min_u = -DBL_MAX);
-
-  /*!
-   * \brief setgains is used to set the gains for a controller after it's been initialized.  It will rewrite
-   *  whatever is already there!
-   * \param max the largest output allowed (integrator anti-windup will kick in at this value as well)
-   * \param min the smallest output allowed (also activates integrator anti-windup
-   */
   void setLimits(double max, double min);
-
-  /*!
-   * \brief clearIntegrator allows you to clear the integrator, in case of integrator windup.
-   */
-  void clearIntegrator()
-  {
-    integrator_ = 0.0;
-  }
+  void clearIntegrator();
 
 protected:
   double kp_;              //!< the proportional gain
@@ -116,22 +67,11 @@ protected:
   double max_;             //!< Maximum Output
   double min_;             //!< Minimum Output
 
-  /*!
-   * \brief saturate saturates the variable val
-   * \param val the parameter to saturate (makes a copy)
-   * \param min the minimum value
-   * \param max the max value
-   * \return the saturated (if necessary) value
-   */
-  inline double saturate(double val, double &min, double &max)
-  {
-    if (val > max)
-      val = max;
-    else if (val < min)
-      val = min;
-    return val;
-  }
+  double getDerivativeTerm(double current, double dt, double xdot);
+  double getIntegralTerm(double dt, double error);
+  double compute_anti_windup(double u, double p_term, double i_term, double d_term);
+  inline double saturate(double val, double &min, double &max);
 };
 }
 
-#endif  // ROTOR_CONTROLLER_SIMPLE_PID_H
+#endif

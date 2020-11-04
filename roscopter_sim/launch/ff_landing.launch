@@ -42,28 +42,17 @@
     <arg name="color"               value="$(arg color)"/>
   </include>
 
+ <!-- <param name="param_filename" value="$(find roscopter_sim)/params/ekf.yaml"/> -->
   <!-- simulation specific ros handling -->
   <group ns="sim">
-    <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
-    <node name="mocap_sim_manager" pkg="roscopter_sim" type="mocap_sim_ros.py" output="screen">
-      <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
+    <node name="sim_manager" pkg="roscopter_sim" type="sim_ros.py" output="screen">
       <!-- Inputs -->
       <remap from="drone_odom" to="/$(arg mav_name)/ground_truth/odometry/NWU"/>  
       <remap from="platform_odom" to="/$(arg target_name)/odom"/> 
+      <remap from="gnss" to="/$(arg mav_name)/gps/data"/>
+      <!-- <remap from="gnss_raw" to="/$(arg mav_name)/" -->
     </node>
   </group>
-
-
-  <group ns="m2u"> <!--m2u = motion capture to ublox conversion-->
-    <!-- Load common parameters -->
-    <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
-    <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen">
-      <remap from="rover_mocap" to="/sim/rover_mocap"/>
-      <remap from="base_mocap" to="/sim/base_mocap"/>
-    </node>
-  </group>
-
-
   <!-- Platform Movement-->
   <group ns="$(arg target_name)">
     <!-- Load common parameters -->
@@ -95,27 +84,25 @@
     <!-- PID Position Controller -->
     <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
       <remap from="target_estimate" to="/platform/odom"/>
-      <remap from="estimate" to="odom"/>
+      <remap from="estimate" to="ground_truth/odometry/NED_throttled"/>
       <remap from="waypoint" to="high_level_command"/>
     </node>
 
     <!-- Waypoint Manager -->
     <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
     <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
-      <remap from="state" to="odom"/>
-      <remap from="base_relative_pos" to="base_relPos"/>
+      <remap from="state" to="ground_truth/odometry/NED_throttled"/>
       <remap from="base_odom" to="/platform/odom"/>
     </node>
 
     <!--Estimator-->
     <node name="estimator" pkg="roscopter" type="ekf_node" output="screen">
-      <param name="param_filename" value="$(find roscopter_sim)/params/ekf.yaml"/>
       <!--Inputs-->
       <remap from="imu" to="imu/data"/>
-      <!-- <remap from="reference" to="ground_truth/odometry/NED_throttled"/> -->
+      <remap from="reference" to="ground_truth/odometry/NED_throttled"/>
       <!-- <remap from="gnss" to="gps/data"/> -->
-      <remap from="ublox_gnss" to="/m2u/rover_PosVelEcef"/>
-      <remap from="ublox_relpos" to="/m2u/rover_relpos"/>
+      <!-- <remap from="ublox_gnss" to="/sim/rover_PosVelEcef"/-->
+      <remap from="ublox_relpos" to="/sim/rover_relpos"/>
       <!-- <remap from="ublox_base_posvelecef" to="/m2u/base_PosVelEcef"/> -->
       <!--Outputs-->
       <remap from="is_flying" to="not_for_sim"/>
@@ -123,7 +110,7 @@
   </group>
 
   <!--Throttle ground truth for use in the estimator. Estimator cant handle 1000hz-->
-  <node name="truth_throttler" type="throttle" pkg="topic_tools" args="messages /$(arg drone_name)/ground_truth/odometry/NED 100 /$(arg drone_name)/ground_truth/odometry/NED_throttled" />
+  <node name="truth_throttler" type="throttle" pkg="topic_tools" args="messages /multirotor/ground_truth/odometry/NED 40 /multirotor/ground_truth/odometry/NED_throttled" />
   <node name="platform_throttler" type="throttle" pkg="topic_tools" args="messages /platform/odom 20 /platform/odom_throttled" />
   <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/boatLanding_sim/sim.bag --all"/>
 

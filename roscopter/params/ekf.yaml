@@ -11,8 +11,8 @@ log_prefix: "/tmp/roscopter/ekf/"
 enable_log: true
 
 ## Measurement Processing
-use_mocap: false
-use_gnss: true
+use_mocap: true
+use_gnss: false
 use_baro: false
 use_range: false
 use_compassing: true

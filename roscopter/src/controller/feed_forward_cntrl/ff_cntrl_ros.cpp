@@ -1,28 +1,34 @@
-#include <controller/controller_ros.h>
+#include <controller/ff_cntrl_ros.h>
 
-Controller_Ros::Controller_Ros() :
+Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
   nh_(ros::NodeHandle()), nh_private_("~")
 {
-  if (debug_Controller_Ros_)
-    std::cout << "In Controller_Ros::Controller_Ros!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+  if (debug_Ff_Cntrl_Ros_)
+    std::cout << "In Ff_Cntrl_Ros::Ff_Cntrl_Ros!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 
   init_controller();
 
-  _func = boost::bind(&Controller_Ros::reconfigure_callback, this, _1, _2);
+  _func = boost::bind(&Ff_Cntrl_Ros::reconfigure_callback, this, _1, _2);
   _server.setCallback(_func);
 
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
 
-  state_sub_ = nh_.subscribe("estimate", 1, &Controller_Ros::stateCallback, this);
-  is_flying_sub_ = nh_.subscribe("is_flying", 1, &Controller_Ros::isFlyingCallback, this);
-  cmd_sub_ = nh_.subscribe("waypoint", 1, &Controller_Ros::cmdCallback, this);
-  status_sub_ = nh_.subscribe("status", 1, &Controller_Ros::statusCallback, this);
+  state_sub_ = nh_.subscribe("estimate", 1, &Ff_Cntrl_Ros::stateCallback, this);
+  is_flying_sub_ = nh_.subscribe("is_flying", 1, &Ff_Cntrl_Ros::isFlyingCallback, this);
+  cmd_sub_ = nh_.subscribe("waypoint", 1, &Ff_Cntrl_Ros::cmdCallback, this);
+  status_sub_ = nh_.subscribe("status", 1, &Ff_Cntrl_Ros::statusCallback, this);
+
+  use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Ff_Cntrl_Ros::useFeedForwardCallback, this);
+  is_landing_sub_ = nh_.subscribe("is_landing", 1, &Ff_Cntrl_Ros::isLandingCallback, this);
+  add_integrator_sub_ = nh_.subscribe("add_integrator", 1, &Ff_Cntrl_Ros::addIntegratorCallback, this);
+  landed_sub_ = nh_.subscribe("landed", 1, &Ff_Cntrl_Ros::landedCallback, this);
+  target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Ff_Cntrl_Ros::targetEstimateCallback, this);
 }
 
-void Controller_Ros::init_controller()
+void Ff_Cntrl_Ros::init_controller()
 {
   if (debug_init_controller_)
-    std::cout << "In Controller_Ros::init_controller!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::init_controller!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   control.MODE_PASS_THROUGH_ = rosflight_msgs::Command::MODE_PASS_THROUGH;
   control.MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_ = rosflight_msgs::Command::MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE;
   control.MODE_ROLL_PITCH_YAWRATE_THROTTLE_ = rosflight_msgs::Command::MODE_ROLL_PITCH_YAWRATE_THROTTLE;
@@ -32,10 +38,10 @@ void Controller_Ros::init_controller()
   control.MODE_XACC_YACC_YAWRATE_AZ_ = rosflight_msgs::Command::MODE_XACC_YACC_YAWRATE_AZ;
 }
 
-void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
+void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
   if (debug_stateCallback_)
-    std::cout << "In Controller_Ros::stateCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::stateCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
 
   static double prev_time = 0;
   if(prev_time == 0)
@@ -43,18 +49,34 @@ void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
     prev_time = msg->header.stamp.toSec();
     return;
   }
+
   double now = msg->header.stamp.toSec();
   double dt = now - prev_time;
   prev_time = now;
+
   if(dt <= 0)
     return;
 
-  fillEstimates(msg);
+  control.xhat_.pn = msg->pose.pose.position.x;
+  control.xhat_.pe = msg->pose.pose.position.y;
+  control.xhat_.pd = msg->pose.pose.position.z;
+
+  control.xhat_.u = msg->twist.twist.linear.x;
+  control.xhat_.v = msg->twist.twist.linear.y;
+  control.xhat_.w = msg->twist.twist.linear.z;
+
+  tf::Quaternion tf_quat;
+  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
+  tf::Matrix3x3(tf_quat).getRPY(control.xhat_.phi, control.xhat_.theta, control.xhat_.psi);
+
+  control.xhat_.p = msg->twist.twist.angular.x;
+  control.xhat_.q = msg->twist.twist.angular.y;
+  control.xhat_.r = msg->twist.twist.angular.z;
   
   if(is_flying_ && armed_ && received_cmd_)
   {
     ROS_WARN_ONCE("CONTROLLER ACTIVE");
-    control.computeControl(dt);
+    control.computeFeedForwardControl(dt);
     publishCommand();
   }
   else
@@ -64,24 +86,24 @@ void Controller_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
   }
 }
 
-void Controller_Ros::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
+void Ff_Cntrl_Ros::isFlyingCallback(const std_msgs::BoolConstPtr &msg)
 {
   if (debug_isFlyingCallback_)
-    std::cout << "In Controller_Ros::isFlyingCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::isFlyingCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   is_flying_ = msg->data;
 }
 
-void Controller_Ros::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
+void Ff_Cntrl_Ros::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
 {
   if (debug_statusCallback_)
-    std::cout << "In Controller_Ros::statusCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::statusCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   armed_ = msg->armed;
 }
 
-void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
+void Ff_Cntrl_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
 {
   if (debug_cmdCallback_)
-    std::cout << "In Controller_Ros::cmdCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::cmdCallback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
 
   switch(msg->mode)
   {
@@ -116,16 +138,23 @@ void Controller_Ros::cmdCallback(const rosflight_msgs::CommandConstPtr &msg)
     received_cmd_ = true;
 }
 
-void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
+void Ff_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
                                       uint32_t level)
 {
   if (debug_reconfigure_callback_)
-    std::cout << "In Controller_Ros::reconfigure_callback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::reconfigure_callback!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   
   control.max_.roll = config.max_roll;
   control.max_.pitch = config.max_pitch;
   control.max_.yaw_rate = config.max_yaw_rate;
   control.max_.throttle = config.max_throttle;
+
+  control.Kff_x_ = config.Kff_x;
+  control.Kff_y_ = config.Kff_y;
+  control.Kff_u_ = config.Kff_u;
+  control.Kff_v_ = config.Kff_v;
+  control.ramp_down_gain_ = config.ramp_down_gain;
+  control.conditional_integrator_threshold_ = config.conditional_integrator_threshold;
 
   control.min_altitude_ = config.min_altitude;
 
@@ -155,13 +184,13 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   I = config.north_I;
   D = config.north_D;
   control.max_.n_dot = config.max_n_dot;
-  control.setPIDN(P, I, D, tau);
+  control.setPDConditionalIN(P, I, D, tau);
 
   P = config.east_P;
   I = config.east_I;
   D = config.east_D;
   control.max_.e_dot = config.max_e_dot;
-  control.setPIDE(P, I, D, tau);
+  control.setPDConditionalIE(P, I, D, tau);
 
   P = config.down_P;
   I = config.down_I;
@@ -179,29 +208,37 @@ void Controller_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
   control.resetIntegrators();
 }
 
-void Controller_Ros::fillEstimates(const nav_msgs::OdometryConstPtr &msg)
+void Ff_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
-  control.xhat_.pn = msg->pose.pose.position.x;
-  control.xhat_.pe = msg->pose.pose.position.y;
-  control.xhat_.pd = msg->pose.pose.position.z;
-
-  control.xhat_.u = msg->twist.twist.linear.x;
-  control.xhat_.v = msg->twist.twist.linear.y;
-  control.xhat_.w = msg->twist.twist.linear.z;
-
-  tf::Quaternion tf_quat;
-  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
-  tf::Matrix3x3(tf_quat).getRPY(control.xhat_.phi, control.xhat_.theta, control.xhat_.psi);
-
-  control.xhat_.p = msg->twist.twist.angular.x;
-  control.xhat_.q = msg->twist.twist.angular.y;
-  control.xhat_.r = msg->twist.twist.angular.z;
+  control.target_hat_.u = msg->twist.twist.linear.x;
+  control.target_hat_.v = msg->twist.twist.linear.y;
+  control.target_hat_.w = msg->twist.twist.linear.z;
 }
 
-void Controller_Ros::publishCommand()
+void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.use_feed_forward_ = msg->data;
+}
+
+void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.is_landing_ = msg->data;
+}
+
+void Ff_Cntrl_Ros::addIntegratorCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.add_integrator_ = msg->data;
+}
+
+void Ff_Cntrl_Ros::landedCallback(const std_msgs::BoolConstPtr &msg)
+{
+  control.landed_ = msg->data;
+}
+
+void Ff_Cntrl_Ros::publishCommand()
 {
   if (debug_publishCommand_)
-    std::cout << "In Controller_Ros::publishCommand!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    std::cout << "In Ff_Cntrl_Ros::publishCommand!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
   command_.header.stamp = ros::Time::now();
   command_.mode = control.mode_flag_;
   command_.F = control.xc_.throttle;

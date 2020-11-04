@@ -15,7 +15,7 @@
 
   <!-- Start Simulator -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="paused" value="true"/>
+    <arg name="paused" value="false"/>
     <arg name="gui" value="true"/>
     <arg name="verbose" value="false"/>
     <arg name="debug" value="$(arg debug)"/>
@@ -93,7 +93,7 @@
     <node pkg="rostopic" type="rostopic" name="status_pub" args="pub -r 1 status rosflight_msgs/Status '{armed: true, failsafe: false, rc_override: false, offboard: true, error_code: 0, num_errors: 0, loop_time_us: 1}'"/>
 
     <!-- PID Position Controller -->
-    <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
+    <node name="controller" pkg="roscopter" type="vel_cntrl_node" output="screen">
       <remap from="target_estimate" to="/platform/odom"/>
       <remap from="estimate" to="odom"/>
       <remap from="waypoint" to="high_level_command"/>

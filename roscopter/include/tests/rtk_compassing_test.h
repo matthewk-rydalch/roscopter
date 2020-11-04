@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #define private public //not the best practise.  This may cause problems
+#define protected public
 #include "ekf/ekf_ros.h"
 
 struct Quaternion

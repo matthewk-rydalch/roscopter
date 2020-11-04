@@ -123,6 +123,10 @@ protected:
   double determineShortestDirectionPsi(double psi_c, double psi_hat);
   void rotateVelocityCommandsToVehicle1Frame(double pndot_c, double pedot_c);
 
+  void calcXposYposYawLoops(double dt);
+  void calcXvelYvelAltLoops(double dt);
+  void calcXaccYaccAzLoops(double dt);
+
 };
 } //namespace controller
 
