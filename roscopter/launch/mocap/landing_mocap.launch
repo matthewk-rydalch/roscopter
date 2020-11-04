@@ -11,22 +11,23 @@
   </node>
 
   <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
-  
+
   <!-- Load common parameters -->
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
   <node name="controller" pkg="roscopter" type="controller_node">
-    <remap from="platform_odom" to="/multirotor/platform_virtual_odom"/>
+    <!--platform virtual odom comes from base_landing.launch-->
+    <remap from="target_estimate" to="/multirotor/platform_virtual_odom"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
 
   <!-- Estimator -->
-  <rosparam command="load" file="$(find roscopter)/params/ekf.yaml" ns="estimator"/>
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
     <remap from="imu" to="/imu/data"/>
     <remap from="pose" to="/$(arg drone_name)_ned"/>
+    <!--Can't estimate heading here.  w/o relpos.  Maybe need to write a node to do this?-->
   </node>
 
   <!-- Waypoint Manager -->
@@ -34,6 +35,7 @@
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
+    <!-- This will probably throw an error.  There is no callback for a pose message.  just an odom message-->
     <remap from="platform_pose" to="/$(arg target_name)_ned"/>
   </node>
 
