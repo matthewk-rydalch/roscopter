@@ -3,11 +3,11 @@ controller: {
 
 x_dot_P: 0.5,
 x_dot_I: 0.0,
-x_dot_D: 0.05,
+x_dot_D: 0.13,
 
 y_dot_P: 0.5,
 y_dot_I: 0.0,
-y_dot_D: 0.05,
+y_dot_D: 0.13,
 
 z_dot_P: 0.6,
 z_dot_I: 0.25,
@@ -15,11 +15,11 @@ z_dot_D: 0.1,
 
 north_P: 1.0,
 north_I: 0.05, #1.0, #0.1,
-north_D: 0.1,
+north_D: 0.6,
 
 east_P: 1.0,
 east_I: 0.05, #1.0, #0.1,
-east_D: 0.1,
+east_D: 0.6,
 
 down_P: 1.0,
 down_I: 0.0,
