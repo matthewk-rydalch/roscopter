@@ -59,8 +59,8 @@ protected:
   double kp_;              //!< the proportional gain
   double ki_;              //!< the integral gain (zero if you don't want integral control)
   double kd_;              //!< the derivative gain (zero if you don't want derivative control)
-  double integrator_;      //!< the integral of p_error
   double differentiator_;  //!< used for noise reduced differentiation
+  double integrator_;      //!< the integral of p_error
   double last_error_;      //!< the last p_error, for computing the derivative;
   double last_state_;      //!< the last state, for computing the derivative;
   double tau_;             //!< the noise reduction term for the derivative

@@ -15,6 +15,8 @@
 #include <iostream>
 #include <controller/ff_cntrl.h>
 
+#include <std_msgs/Float32.h>
+
 class Ff_Cntrl_Ros
 {
   //TODO: Make this inherit from controller_ros.  Need to make the stateCallback virtual
@@ -46,6 +48,7 @@ protected:
   ros::Subscriber landed_sub_;
   
   ros::Publisher command_pub_;
+  ros::Publisher integrator_pub_;
 
   void init_controller();
   void stateCallback(const nav_msgs::OdometryConstPtr &msg);

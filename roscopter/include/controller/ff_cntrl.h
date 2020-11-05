@@ -17,6 +17,7 @@ public:
     void computeFeedForwardControl(double dt);
     void setPDConditionalIN(double P, double I, double D, double tau);
     void setPDConditionalIE(double P, double I, double D, double tau);
+    double getIntegrator(bool get_x_not_y);
 
     state_t target_hat_;
     bool use_feed_forward_{false};

@@ -132,6 +132,19 @@ void Ff_Cntrl::setPDConditionalIE(double P, double I, double D, double tau)
   pd_cond_i_e_.setGains(P, I, D, tau, max_.e_dot, -max_.e_dot, conditional_integrator_threshold_);
 }
 
+double Ff_Cntrl::getIntegrator(bool get_x_not_y)
+{
+  if (get_x_not_y)
+  {
+    return pd_cond_i_n_.getIntegrator();
+  }
+  else
+  {
+    return pd_cond_i_e_.getIntegrator();
+  }
+  
+}
+
 Eigen::Matrix3d Ff_Cntrl::Rroll(double phi)
 {
   double cp = cos(phi);

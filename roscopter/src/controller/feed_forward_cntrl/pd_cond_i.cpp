@@ -80,4 +80,17 @@ void PDConditionalI::setGains(double p, double i, double d, double tau, double m
     conditional_integrator_threshold_ = conditional_integrator_threshold;
 }
 
+double PDConditionalI::getIntegrator()
+{
+    if (integrator_on_)
+    {
+      return integrator_;
+    }
+    else
+    {
+      return 0.0;
+    }
+    
+}
+
 }

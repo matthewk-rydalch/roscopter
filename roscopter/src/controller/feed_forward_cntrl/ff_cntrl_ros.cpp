@@ -12,6 +12,7 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
   _server.setCallback(_func);
 
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
+  integrator_pub_ = nh_.advertise<std_msgs::Float32>("integrator", 1);
 
   state_sub_ = nh_.subscribe("estimate", 1, &Ff_Cntrl_Ros::stateCallback, this);
   is_flying_sub_ = nh_.subscribe("is_flying", 1, &Ff_Cntrl_Ros::isFlyingCallback, this);
@@ -78,6 +79,13 @@ void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
     ROS_WARN_ONCE("CONTROLLER ACTIVE");
     control.computeFeedForwardControl(dt);
     publishCommand();
+    std_msgs::Float32 integrator;
+    bool get_x_not_y{false};
+    integrator.data = control.getIntegrator(false);
+    if (integrator.data != 0.0)
+    {
+      integrator_pub_.publish(integrator);
+    }
   }
   else
   {
