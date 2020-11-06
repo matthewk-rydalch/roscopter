@@ -112,6 +112,13 @@ namespace roscopter::ekf
     }
   }
 
+  void EKF_ROS::commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr &msg)
+  {
+    Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
+    ekf_.setRefLla(ref_lla);
+  }
+
+
   void EKF_ROS::gnssCallback(const rosflight_msgs::GNSSConstPtr &msg)
   {
 
@@ -158,6 +165,11 @@ namespace roscopter::ekf
       // Convert radians to degrees
       ref_lla.head<2>() *= 180. / M_PI;
       ekf_.setRefLla(ref_lla);
+      rosflight_msgs::GNSS common_ref_lla;
+      common_ref_lla.position[0] = ref_lla[0];
+      common_ref_lla.position[1] = ref_lla[1];
+      common_ref_lla.position[2] = ref_lla[2];
+      ref_lla_pub_.publish(common_ref_lla);
     }
 
     if (start_time_.sec == 0)

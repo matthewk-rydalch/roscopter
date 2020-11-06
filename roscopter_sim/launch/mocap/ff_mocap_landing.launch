@@ -2,7 +2,7 @@
 <launch>
   <arg name="drone_name"          default="ragnarok"/>
   <arg name="mav_name"            default="multirotor"/>
-  <arg name="target_name"         default="platform"/>
+  <arg name="target_name"         default="boat"/>
   <arg name="target_x"            default="0.0"/>
   <arg name="target_y"            default="0.0"/>
   <arg name="target_z"            default="0.1"/>
@@ -58,13 +58,12 @@
     <!-- Load common parameters -->
     <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
     <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen">
+      <!-- inputs -->
       <remap from="rover_mocap" to="/sim/rover_mocap"/>
       <remap from="base_mocap" to="/sim/base_mocap"/>
     </node>
   </group>
 
-
-  <!-- Platform Movement-->
   <group ns="$(arg target_name)">
     <!-- Load common parameters -->
     <rosparam command="load" file="$(find roscopter_sim)/params/$(arg target_name).yaml"/>
@@ -76,7 +75,6 @@
       <remap from="odom" to="/odom"/>
       <remap from="drone_odom" to="/$(arg drone_name)/odom"/>
     </node> -->
-  
   </group>
 
   <!-- Controller -->

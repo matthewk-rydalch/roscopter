@@ -46,6 +46,7 @@ namespace roscopter::ekf
     get_yaml_node("manual_ref_lla", filename, manual_ref_lla);
     if (manual_ref_lla)
     {
+      std::cout << "common ref lla won't work with manual ref lla" << std::endl;
       Vector3d ref_lla;
       get_yaml_eigen("ref_lla", filename, ref_lla);
       std::cout << "Set ref lla: " << ref_lla.transpose() << std::endl;
@@ -167,8 +168,8 @@ namespace roscopter::ekf
 
   void EKF::setRefLla(Vector3d ref_lla)
   {
-    if (ref_lla_set_)
-      return;
+    // if (ref_lla_set_)
+    //   return;
 
     std::cout << "Set ref lla: " << ref_lla.transpose() << std::endl;
     ref_lla.head<2>() *= M_PI/180.0; // convert to rad

@@ -51,6 +51,7 @@
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/PointStamped.h>
 #include <std_msgs/Bool.h>
+#include <sensor_msgs/NavSatFix.h>
 
 #ifdef UBLOX
 #include "ublox/PosVelEcef.h"
@@ -80,6 +81,8 @@ public:
   void mocapCallback(const ros::Time& time, const xform::Xformd &z);
   void compassingCallback(const ros::Time &time, const double &z);
   void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
+  void commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr& msg);
+
 
   #ifdef UBLOX
     void gnssCallbackUblox(const ublox::PosVelEcefConstPtr& msg);
@@ -106,12 +109,14 @@ protected:
   ros::Subscriber odom_sub_;
   ros::Subscriber gnss_sub_;
   ros::Subscriber status_sub_;
+  ros::Subscriber common_ref_lla_sub_;
 
   ros::Publisher odometry_pub_;
   ros::Publisher euler_rad_pub_;
   ros::Publisher euler_deg_pub_;
   ros::Publisher imu_bias_pub_;
   ros::Publisher is_flying_pub_;
+  ros::Publisher ref_lla_pub_;
 
   #ifdef UBLOX
     ros::Subscriber ublox_gnss_sub_;
