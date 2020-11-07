@@ -13,13 +13,13 @@ z_dot_P: 0.6,
 z_dot_I: 0.25,
 z_dot_D: 0.1,
 
-north_P: 1.5,
+north_P: 1.2,
 north_I: 0.1, #1.0, #0.1,
-north_D: 0.2,
+north_D: 0.4,
 
-east_P: 1.5,
+east_P: 1.2,
 east_I: 0.1, #1.0, #0.1,
-east_D: 0.2,
+east_D: 0.4,
 
 down_P: 1.0,
 down_I: 0.0,
@@ -44,8 +44,8 @@ max_roll: 0.3,
 max_pitch: 0.3,
 max_yaw_rate: 0.785,
 max_throttle: 0.85,
-max_n_dot: 4.0,
-max_e_dot: 4.0,
+max_n_dot: 3.0,
+max_e_dot: 3.0,
 max_d_dot: 0.5,
 
 # Below this altitude, zero roll, pitch, yawrate will be commanded
