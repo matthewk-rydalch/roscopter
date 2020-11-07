@@ -13,6 +13,7 @@ class MocapOdom():
 		self.x_prev = 0.0
 		self.y_prev = 0.0
 		self.z_prev = 0.0
+		self.tau = 0.05
 
 		self.first_message = True
 
@@ -52,7 +53,7 @@ class MocapOdom():
 
 	def calc_velocity(self,pos,pos_prev,vel_prev,dt):
 		dx = pos - pos_prev
-        vel = (2.0 * self.tau - dt) / (2.0 * self.tau + dt) * vel_prev + 2.0 / (2.0 * self.tau + dt) * dx
+		vel = (2.0 * self.tau - dt) / (2.0 * self.tau + dt) * vel_prev + 2.0 / (2.0 * self.tau + dt) * dx
 		return vel
 
 if __name__ == '__main__':

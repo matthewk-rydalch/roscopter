@@ -46,7 +46,7 @@
     <remap from="platform_odom" to="/$(arg target_name)_odom"/>
   </node>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../rosbags/mocap_flight/landing_mocap --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/landing_mocap --all"/>
 
 
 </launch>
