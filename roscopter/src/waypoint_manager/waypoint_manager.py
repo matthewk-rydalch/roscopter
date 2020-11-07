@@ -71,7 +71,7 @@ class WaypointManager():
         antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
 
         self.plt_pos[0] = msg.pose.pose.position.x - antenna_offset[0]
-        self.plt_pos[1] = -msg.pose.pose.position.y - antenna_offset[1]
+        self.plt_pos[1] = msg.pose.pose.position.y - antenna_offset[1]
         self.plt_pos[2] = msg.pose.pose.position.z - antenna_offset[2]
 
         # yaw from quaternion
