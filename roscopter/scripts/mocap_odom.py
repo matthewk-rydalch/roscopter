@@ -35,15 +35,15 @@ class MocapOdom():
 			u_prev = self.odom.twist.twist.linear.x
 			v_prev = self.odom.twist.twist.linear.y
 			w_prev = self.odom.twist.twist.linear.z
-			self.odom.twist.twist.linear.x = self.calc_velocity(msg.pose.x,self.x_prev,u_prev,dt)
-			self.odom.twist.twist.linear.y = self.calc_velocity(msg.pose.y,self.y_prev,v_prev,dt)
-			self.odom.twist.twist.linear.z = self.calc_velocity(msg.pose.z,self.z_prev,w_prev,dt)
+			self.odom.twist.twist.linear.x = self.calc_velocity(msg.pose.position.x,self.x_prev,u_prev,dt)
+			self.odom.twist.twist.linear.y = self.calc_velocity(msg.pose.position.y,self.y_prev,v_prev,dt)
+			self.odom.twist.twist.linear.z = self.calc_velocity(msg.pose.position.z,self.z_prev,w_prev,dt)
 			self.mocap_odom_pub_.publish(self.odom)
 
 		self.time_prev = msg.header.stamp.secs+msg.header.stamp.nsecs*1E-9
-		self.x_prev = msg.pose.x
-		self.y_prev = msg.pose.y
-		self.z_prev = msg.pose.z
+		self.x_prev = msg.pose.position.x
+		self.y_prev = msg.pose.position.y
+		self.z_prev = msg.pose.position.z
 
 	def get_dt(self):
 		time = self.odom.header.stamp.secs+self.odom.header.stamp.nsecs*1E-9
