@@ -12,13 +12,21 @@
 
   <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
 
+  <!-- Convert mocap pose data of boat to Odom data. i.e. add velocity-->
+  <node name="mocap_odom" pkg="roscopter" type="mocap_odom.py" output="screen">
+    <!-- Inputs -->
+    <remap from="pose" to="$(arg target_name)_ned"/>
+    <!-- Outputs -->
+    <remap from="mocap_odom" to="$(arg target_name)_odom"/>
+  </node>
+
   <!-- Load common parameters -->
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
   <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
     <!--platform virtual odom comes from base_landing.launch-->
-    <remap from="target_estimate" to="/multirotor/platform_virtual_odom"/>
+    <remap from="target_estimate" to="/$(arg target_name)_odom"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
@@ -35,11 +43,10 @@
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
-    <!-- This will probably throw an error.  There is no callback for a pose message.  just an odom message-->
-    <remap from="platform_pose" to="/$(arg target_name)_ned"/>
+    <remap from="platform_odom" to="/$(arg target_name)_odom"/>
   </node>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../rosbags/mocap_flight/flight --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../rosbags/mocap_flight/landing_mocap --all"/>
 
 
 </launch>

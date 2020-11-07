@@ -37,6 +37,6 @@
   <node name="hlc_cont_ned" pkg="roscopter" type="hlc_continuous_ned.py" output="screen"/>
   <node name="performance_tracker" pkg="roscopter" type="performance_ros.py" output="screen"/>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/tune --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/tune --all"/>
 
 </launch>

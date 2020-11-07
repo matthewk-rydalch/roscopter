@@ -17,7 +17,7 @@
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="controller_node">
+  <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
@@ -34,6 +34,6 @@
     <remap from="state" to="odom"/>
   </node>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap/mocap.bag --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/mocap.bag --all"/>
 
 </launch>

@@ -7,16 +7,16 @@ waypoints:
 #  [4.5, -4.5, 4.5, 3.14],
  [0.0, 0, 2.0, 0.]],
 
-threshold: 0.5,
+threshold: 0.3,
 #TODO: need to come up with a better way to have a threshold.  Should be a function of velocity or something.
-rendevous_threshold: 1.0,
-center_threshold: 0.3,
-landing_threshold: 0.05,
+rendevous_threshold: 0.3,
+center_threshold: 0.1,
+landing_threshold: 0.1,
 landing_orient_threshold: 10,
-cycle: False,
-auto_land: True,
+cycle: True,
+auto_land: False,
 begin_descent_height: 2.0,
-begin_landing_height: 0.2,
+begin_landing_height: 0.3,
 antenna_offset: [0.0, 0.0, 0.0],
 # antenna_offset: [0.8, 0.65, -0.25],
 }
