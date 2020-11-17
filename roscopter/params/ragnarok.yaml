@@ -23,7 +23,7 @@ east_D: 0.4,
 
 down_P: 1.0,
 down_I: 0.0,
-down_D: 0.0,
+down_D: 0.4,
 
 psi_P: 2.0,
 psi_I: 0.0,
