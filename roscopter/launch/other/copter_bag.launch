@@ -4,41 +4,42 @@
 
   <arg name="drone_name"            value="ragnarok"/>
   <arg name="target_name"         value="boat_landing_platform"/>
-  <arg name="bag"                 value="../data/debug/old_odom2.bag"/>
+  <arg name="bag"                 value="../data/trimmed_base6.bag"/>
   
   <!-- play rosbag -->
   <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(arg bag)"/>
 
 
   <!-- virtual velocity, use only until ublox velocity issue is figured out -->
-  <node name="virtual_velocity" pkg="roscopter" type="virtual_velocity.py" output="screen"/>
+  <!-- <node name="virtual_velocity" pkg="roscopter" type="virtual_velocity.py" output="screen"/> -->
 
   <!-- Load common parameters -->
-  <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
+  <!-- <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/> -->
 
   <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="controller">
+  <!-- <node name="controller" pkg="roscopter" type="controller">
     <remap from="target_estimate" to="boat/odom"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
-  </node>
+  </node> -->
 
   <!-- Estimator -->
   <!-- Be sure to remap to /PosVelEcef after velocity issue is figured out in ublox -->
-  <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
-    <remap from="imu" to="/imu/data"/>
-    <!-- <remap from="baro" to="/baro"/> -->
-    <remap from="ublox_gnss" to="/virtual_PosVelEcef"/>
-    <remap from="ublox_relpos" to="/RelPos"/>
-  </node>
+  <group ns="boat">
+    <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
+      <remap from="imu" to="imu"/>
+      <remap from="ublox_gnss" to="PosVelEcef"/>
+      <remap from="ublox_relpos" to="compass/RelPos"/>
+    </node>
+  </group>
 
   <!-- Waypoint Manager -->
-  <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
+  <!-- <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
     <remap from="base_odom" to="boat/odom"/>
-  </node>
+  </node> -->
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/debug/debug.bag --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/debug.bag --all"/>
 </launch>

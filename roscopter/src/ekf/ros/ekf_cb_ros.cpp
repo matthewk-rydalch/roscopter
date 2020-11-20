@@ -179,6 +179,14 @@ namespace roscopter::ekf
     ekf_.gnssCallback(t, z, Sigma_ecef);
   }
 
+  double EKF_ROS::wrap(double psi, double wrapAngle)
+  {
+    double psiWrapped{std::fmod(psi,2.0*M_PI)};
+    if (psiWrapped > wrapAngle)
+        psiWrapped = -(2.0*M_PI-psiWrapped);
+    return psiWrapped;
+  }
+
   #ifdef UBLOX
   void EKF_ROS::gnssCallbackUblox(const ublox::PosVelEcefConstPtr &msg)
   {
@@ -220,7 +228,8 @@ namespace roscopter::ekf
     {
       compassing_R_ = accHeading * accHeading;
     }
-    double z = msg->relPosHeading;
+    double z = wrap(msg->relPosHeading, M_PI);
+    
 
     //make some of these variables scoped to this function only.
 
