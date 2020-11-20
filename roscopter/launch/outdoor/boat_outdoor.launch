@@ -7,8 +7,7 @@
   <!-- <arg name="need_ref_lla" value="true"/> -->
   <arg name="base_serial_port" default="/dev/ttyACM0"/>
   <arg name="compass_serial_port" default="/dev/ttyACM1"/>
-  <arg name="base_host" default="localhost"/>
-  <arg name="compass_host" default="localhost"/>
+  <arg name="base_host" default="192.168.0.143"/>
   <arg name="rover_host" default="192.168.0.84"/>
 
   <group ns="boat">
@@ -42,22 +41,20 @@
     <node name="inertial_sense" type="inertial_sense_node" pkg="inertial_sense" output="screen"/>
 	  
       <!-- GPS Node-->
-      <group ns="base">
-        <node name="f9p" pkg="ublox" type="ublox_ros">
-          <param name="serial_port" value="$(arg base_serial_port)"/>
-          <param name="local_host" value="$(arg base_host)"/>
-          <param name="local_port" value="16140"/>
-          <param name="rover_host" value="$(arg rover_host)"/>
-          <param name="rover_port" value="16140"/>
-          <param name="local_host2" value="$(arg base_host)"/>
-          <param name="local_port2" value="16145"/>
-          <param name="rover_host2" value="$(arg base_host)"/>
-          <param name="rover_port2" value="16150"/>
-          <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
-          <param name="rover_quantity" value="2"/>
-          <param name="base_type" value="moving"/>
-        </node>
-      </group>
+      <node name="f9p" pkg="ublox" type="ublox_ros">
+        <param name="serial_port" value="$(arg base_serial_port)"/>
+        <param name="local_host" value="$(arg base_host)"/>
+        <param name="local_port" value="16140"/>
+        <param name="rover_host" value="$(arg rover_host)"/>
+        <param name="rover_port" value="16140"/>
+        <param name="local_host2" value="$(arg base_host)"/>
+        <param name="local_port2" value="16145"/>
+        <param name="rover_host2" value="$(arg base_host)"/>
+        <param name="rover_port2" value="16150"/>
+        <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
+        <param name="rover_quantity" value="2"/>
+        <param name="base_type" value="moving"/>
+      </node>
 
       <group ns="compass">
         <node name="f9p" pkg="ublox" type="ublox_ros">
@@ -69,6 +66,7 @@
           <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
           <param name="rover_quantity" value="0"/>
           <param name="base_type" value="moving"/>
+          <param name="message_rate" value="5"/>
         </node>
       </group>
 
@@ -76,8 +74,8 @@
     <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
       <remap from="imu" to="imu"/> <!--need to figure out the right topic here-->
       <remap from="baro" to="dummy_topic"/>
-      <remap from="ublox_gnss" to="/m2u/base_PosVelEcef"/>
-      <remap from="ublox_relpos" to="/m2u/base2_relpos"/>
+      <remap from="ublox_gnss" to="PosVelEcef"/>
+      <remap from="ublox_relpos" to="compass/RelPos"/>
       <remap from="common_ref_lla" to="/ref_lla"/>
     </node>
 
@@ -85,6 +83,6 @@
 
   </group>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/base dash-all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/base --all"/>
 
 </launch>
