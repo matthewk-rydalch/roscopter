@@ -199,7 +199,7 @@ class WaypointManager():
         self.cmd_msg.mode = Command.MODE_XPOS_YPOS_YAW_ALTITUDE
         self.waypoint_pub_.publish(self.cmd_msg)
 
-        # rospy.sleep(10)    
+        #rospy.sleep(20)    
 
     def publish_error(self, current_position, current_waypoint):
         error_msg = Pose()

@@ -4,9 +4,9 @@
 
   <arg name="drone_name"            value="ragnarok"/>
   <arg name="target_name"         value="boat_landing_platform"/>
-  <arg name="f4_serial_port" default="/dev/ttyACM0"/>
-  <arg name="rover_serial_port" default="/dev/ttyACM1"/>
-  <arg name="base_host" default="192.168.0.111"/>
+  <arg name="f4_serial_port" default="/dev/ttyACM1"/>
+  <arg name="rover_serial_port" default="/dev/ttyACM0"/>
+  <arg name="base_host" default="192.168.0.143"/>
   <arg name="rover_host" default="192.168.0.84"/>
 
   <!-- FCU communication -->
@@ -21,7 +21,7 @@
     <param name="local_host" value="$(arg rover_host)"/>
     <param name="local_port" value="16140"/>
     <param name="base_host" value="$(arg base_host)"/>
-    <param name="base_port" value="16140"/>
+    <param name="base_port" value="16145"/>
     <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
     <param name="rover_quantity" value="0"/>
     <param name="base_type" value="moving"/>
@@ -32,7 +32,7 @@
 
   <!-- PID Position Controller -->
   <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
-    <remap from="target_estimate" to="boat/odom"/>
+    <remap from="target_estimate" to="/boat/odom"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
@@ -51,7 +51,7 @@
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
-    <remap from="boat_odom" to="boat/odom"/>
+    <remap from="base_odom" to="/boat/odom"/>
   </node>
 
   <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/outdoor --all"/>

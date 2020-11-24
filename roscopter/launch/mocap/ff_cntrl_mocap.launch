@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="drone_name"            value="ragnarok"/>
+
+
+  <!-- FCU communication -->
+  <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
+    <param name="udp" value="false"/>
+    <param name="port" value="/dev/ttyACM0"/>
+  </node>
+
+  <!-- Motion Capture Node-->
+  <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
+
+  <!-- Load common parameters -->
+  <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
+
+  <!-- PID Position Controller -->
+  <node name="controller" pkg="roscopter" type="ff_cntrl_node">
+    <remap from="estimate" to="odom"/>
+    <remap from="waypoint" to="high_level_command"/>
+  </node>
+
+  <!-- Estimator -->
+  <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
+    <remap from="imu" to="/imu/data"/>
+    <remap from="pose" to="/$(arg drone_name)_ned"/>
+  </node>
+
+  <!-- Waypoint Manager -->
+  <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
+  <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
+    <remap from="state" to="odom"/>
+  </node>
+
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/mocap.bag --all"/>
+
+</launch>

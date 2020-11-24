@@ -4,7 +4,7 @@
 
   <arg name="drone_name"            value="ragnarok"/>
   <arg name="target_name"         value="boat_landing_platform"/>
-  <arg name="f4_serial_port" default="/dev/ttyACM1"/>
+  <arg name="f4_serial_port" default="/dev/ttyACM0"/>
 
    <!-- FCU communication -->
   <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
