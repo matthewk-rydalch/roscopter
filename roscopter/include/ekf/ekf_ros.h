@@ -34,6 +34,7 @@
 
 #include "ekf.h"
 
+#include <cmath>
 #include <mutex>
 #include <deque>
 #include <vector>
@@ -167,6 +168,7 @@ protected:
   double gps_speed_stdev_;
 
   void publishEstimates(const sensor_msgs::ImuConstPtr &msg);
+  double wrap(double psi, double wrapAngle);
 };
 
 }
