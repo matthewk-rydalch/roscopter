@@ -58,10 +58,8 @@ class WaypointManager():
         if self.mission_state == 1:
             self.rendevous(current_position_neu)
         elif self.mission_state == 2:
-            self.center(current_position_neu)
-        elif self.mission_state == 3:
             self.descend(current_position_neu)
-        elif self.mission_state == 4:
+        elif self.mission_state == 3:
             self.land(current_position_neu)
         else:
             self.mission(current_position_neu)   
@@ -134,22 +132,8 @@ class WaypointManager():
         self.new_waypoint(waypoint)
 
         if error < self.rendevous_threshold:
-            self.mission_state = 2 #switch to center state
-            print('center state')
-
-    def center(self, current_position):
-        self.add_integrator_pub_.publish(True)
-
-        waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_descent_height])
-        error = np.linalg.norm(current_position - waypoint)
-        self.publish_error(current_position, waypoint)
-
-        self.new_waypoint(waypoint)
-
-        if error < self.center_threshold:
-            self.mission_state = 3 #switch to descent state
+            self.mission_state = 2
             print('descend state')
-
 
     def descend(self, current_position):
 
@@ -163,7 +147,7 @@ class WaypointManager():
         base_pitch = self.base_orient[1]
 
         if error < self.landing_threshold and base_roll < self.landing_orient_threshold and base_pitch < self.landing_orient_threshold:
-            self.mission_state = 4 #switch to land state
+            self.mission_state = 3
             self.is_landing_pub_.publish(True)
             print('land state')
 
@@ -230,7 +214,6 @@ class WaypointManager():
         self.threshold = rospy.get_param('~threshold', 0.5)
         self.landing_threshold = rospy.get_param('~landing_threshold', 0.2)
         self.rendevous_threshold = rospy.get_param('~rendevous_threshold', 0.5)
-        self.center_threshold = rospy.get_param('~center_threshold', 0.3)
         landing_orient_threshold = rospy.get_param('~landing_orient_threshold', 10)
         self.landing_orient_threshold = landing_orient_threshold*np.pi/180.0
         self.begin_descent_height = rospy.get_param('~begin_descent_height', 2)
