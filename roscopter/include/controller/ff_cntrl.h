@@ -22,7 +22,6 @@ public:
     state_t target_hat_;
     bool use_feed_forward_{false};
     bool is_landing_{false};
-    bool add_integrator_{false};
 
     double Kff_x_;
     double Kff_y_;

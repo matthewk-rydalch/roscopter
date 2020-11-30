@@ -21,7 +21,6 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
 
   use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Ff_Cntrl_Ros::useFeedForwardCallback, this);
   is_landing_sub_ = nh_.subscribe("is_landing", 1, &Ff_Cntrl_Ros::isLandingCallback, this);
-  add_integrator_sub_ = nh_.subscribe("add_integrator", 1, &Ff_Cntrl_Ros::addIntegratorCallback, this);
   target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Ff_Cntrl_Ros::targetEstimateCallback, this);
 }
 
@@ -230,11 +229,6 @@ void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)
 void Ff_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.is_landing_ = msg->data;
-}
-
-void Ff_Cntrl_Ros::addIntegratorCallback(const std_msgs::BoolConstPtr &msg)
-{
-  control.add_integrator_ = msg->data;
 }
 
 void Ff_Cntrl_Ros::publishCommand()

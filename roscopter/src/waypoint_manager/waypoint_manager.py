@@ -25,7 +25,6 @@ class WaypointManager():
         self.waypoint_pub_ = rospy.Publisher('high_level_command', Command, queue_size=5, latch=True)
         self.use_feed_forward_pub_ = rospy.Publisher('use_base_feed_forward_vel', Bool, queue_size=5, latch=True)
         self.is_landing_pub_ = rospy.Publisher('is_landing', Bool, queue_size=5, latch=True)
-        self.add_integrator_pub_ = rospy.Publisher('add_integrator_landing', Bool, queue_size=5, latch=True)
         self.error_pub_ = rospy.Publisher('error', Pose, queue_size=5, latch=True)
 
         #Subscribers

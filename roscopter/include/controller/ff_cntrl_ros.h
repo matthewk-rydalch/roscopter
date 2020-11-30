@@ -43,7 +43,6 @@ protected:
   ros::Subscriber status_sub_;
   ros::Subscriber target_estimate_sub_;
   ros::Subscriber is_landing_sub_;
-  ros::Subscriber add_integrator_sub_;
   ros::Subscriber use_feed_forward_sub_;
   
   ros::Publisher command_pub_;
