@@ -45,7 +45,6 @@ protected:
   ros::Subscriber is_landing_sub_;
   ros::Subscriber add_integrator_sub_;
   ros::Subscriber use_feed_forward_sub_;
-  // ros::Subscriber landed_sub_;
   
   ros::Publisher command_pub_;
   ros::Publisher integrator_pub_;
@@ -59,7 +58,6 @@ protected:
   void useFeedForwardCallback(const std_msgs::BoolConstPtr &msg);
   void isLandingCallback(const std_msgs::BoolConstPtr &msg);
   void addIntegratorCallback(const std_msgs::BoolConstPtr &msg);
-  // void landedCallback(const std_msgs::BoolConstPtr &msg);
 
   void publishCommand();
 

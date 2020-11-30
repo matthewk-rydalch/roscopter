@@ -21,7 +21,6 @@ Vel_Cntrl_Ros::Vel_Cntrl_Ros() :
 
   use_feed_forward_sub_ = nh_.subscribe("use_base_feed_forward_vel", 1, &Vel_Cntrl_Ros::useFeedForwardCallback, this);
   is_landing_sub_ = nh_.subscribe("is_landing", 1, &Vel_Cntrl_Ros::isLandingCallback, this);
-  // landed_sub_ = nh_.subscribe("landed", 1, &Vel_Cntrl_Ros::landedCallback, this);
   target_estimate_sub_ = nh_.subscribe("target_estimate", 1, &Vel_Cntrl_Ros::targetEstimateCallback, this);
 }
 
@@ -220,11 +219,6 @@ void Vel_Cntrl_Ros::isLandingCallback(const std_msgs::BoolConstPtr &msg)
 {
   control.is_landing_ = msg->data;
 }
-
-// void Vel_Cntrl_Ros::landedCallback(const std_msgs::BoolConstPtr &msg)
-// {
-//   control.landed_ = msg->data;
-// }
 
 void Vel_Cntrl_Ros::publishCommand()
 {

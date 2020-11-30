@@ -43,7 +43,6 @@ protected:
   ros::Subscriber target_estimate_sub_;
   ros::Subscriber is_landing_sub_;
   ros::Subscriber use_feed_forward_sub_;
-  // ros::Subscriber landed_sub_;
   
   ros::Publisher command_pub_;
 
@@ -56,7 +55,6 @@ protected:
   void targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg);
   void useFeedForwardCallback(const std_msgs::BoolConstPtr &msg);
   void isLandingCallback(const std_msgs::BoolConstPtr &msg);
-  // void landedCallback(const std_msgs::BoolConstPtr &msg);
 
   void publishCommand();
 
