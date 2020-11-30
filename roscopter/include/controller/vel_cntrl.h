@@ -18,7 +18,7 @@ public:
     state_t target_hat_;
     bool use_feed_forward_{false};
     bool is_landing_{false};
-    bool landed_{false};
+    // bool landed_{false};
 
 protected:
 

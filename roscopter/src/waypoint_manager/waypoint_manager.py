@@ -26,7 +26,7 @@ class WaypointManager():
         self.use_feed_forward_pub_ = rospy.Publisher('use_base_feed_forward_vel', Bool, queue_size=5, latch=True)
         self.is_landing_pub_ = rospy.Publisher('is_landing', Bool, queue_size=5, latch=True)
         self.add_integrator_pub_ = rospy.Publisher('add_integrator_landing', Bool, queue_size=5, latch=True)
-        self.landed_pub_ = rospy.Publisher('landed', Bool, queue_size=5, latch=True)
+        # self.landed_pub_ = rospy.Publisher('landed', Bool, queue_size=5, latch=True)
         self.error_pub_ = rospy.Publisher('error', Pose, queue_size=5, latch=True)
 
         #Subscribers
@@ -154,17 +154,18 @@ class WaypointManager():
 
     def land(self, current_position):
 
+        # make sure this works without the following logic, but I don't think it is used.
         waypoint =self.plt_pos
-        if self.is_landing == 0:
-            self.new_waypoint(waypoint)
-            self.is_landing = 1
-            # self.is_landing_pub_.publish(True)
+        # if self.is_landing == 0:
+        #     self.new_waypoint(waypoint)
+        #     self.is_landing = 1
+        #     # self.is_landing_pub_.publish(True)
 
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)
         alt_error = current_position[2]-waypoint[2]
         if alt_error < self.landing_threshold:
-            self.landed_pub_.publish(True)
+            # self.landed_pub_.publish(True)
             #TODO find a way to disarm after reaching the waypoint
 
 

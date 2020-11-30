@@ -23,7 +23,7 @@ public:
     bool use_feed_forward_{false};
     bool is_landing_{false};
     bool add_integrator_{false};
-    bool landed_{false};
+    // bool landed_{false};
 
     double Kff_x_;
     double Kff_y_;
