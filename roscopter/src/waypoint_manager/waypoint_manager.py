@@ -8,12 +8,7 @@ import rospy
 from std_msgs.msg import Bool
 from nav_msgs.msg import Odometry
 from rosflight_msgs.msg import Command
-from roscopter_msgs.msg import RelativePose
-from roscopter_msgs.srv import AddWaypoint, RemoveWaypoint, SetWaypointsFromFile
-from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
-from geometry_msgs.msg import PointStamped
-
 
 class WaypointManager():
     def __init__(self):
@@ -43,12 +38,6 @@ class WaypointManager():
             rospy.spin()
 
     def odometryCallback(self, msg):
-        
-        # Get error between waypoint and current state
-        self.drone_odom = np.array([msg.pose.pose.position.x,
-                                    msg.pose.pose.position.y,
-                                    msg.pose.pose.position.z])
-        #waypoints are in neu
         current_position_neu = np.array([msg.pose.pose.position.x,
                                      msg.pose.pose.position.y,
                                      -msg.pose.pose.position.z])
@@ -99,7 +88,7 @@ class WaypointManager():
         self.publish_error(current_position, current_waypoint)
         error = np.linalg.norm(current_position - current_waypoint[0:3])
 
-        if error < self.threshold:
+        if error < self.mission_threshold:
             print('reached waypoint ', self.current_waypoint_index + 1)
             self.current_waypoint_index += 1
             if self.current_waypoint_index == len(self.waypoint_list) and self.auto_land == True:
@@ -140,12 +129,9 @@ class WaypointManager():
 
     def land(self, current_position):
 
-        waypoint =self.plt_pos
-
-        error = np.linalg.norm(current_position - waypoint)
+        waypoint = self.plt_pos
+        self.new_waypoint(waypoint)
         self.publish_error(current_position, waypoint)
-        alt_error = current_position[2]-waypoint[2]
-
 
     def new_waypoint(self, waypoint):
 
@@ -173,14 +159,11 @@ class WaypointManager():
 
     
     def Rz(self, theta):
-
         c_th = np.cos(theta)
         s_th = np.sin(theta)
-
         Rot_z = np.array([[c_th, -s_th, 0.0],
                           [s_th, c_th, 0.0],
                           [0.0, 0.0, 1.0]])
-
         return Rot_z
 
     
@@ -190,27 +173,19 @@ class WaypointManager():
         except KeyError:
             rospy.logfatal('waypoints not set')
             rospy.signal_shutdown('Parameters not set')
-        self.threshold = rospy.get_param('~threshold', 0.5)
-        self.landing_threshold = rospy.get_param('~landing_threshold', 0.2)
+        self.cyclical_path = rospy.get_param('~cycle', False)
+        self.auto_land = rospy.get_param('~auto_land', False)
+        self.mission_threshold = rospy.get_param('~mission_threshold', 0.5)
         self.rendevous_threshold = rospy.get_param('~rendevous_threshold', 0.5)
+        self.landing_threshold = rospy.get_param('~landing_threshold', 0.2)
         landing_orient_threshold_deg = rospy.get_param('~landing_orient_threshold_deg', 10)
         self.landing_orient_threshold = landing_orient_threshold_deg*np.pi/180.0
         self.begin_descent_height = rospy.get_param('~begin_descent_height', 2)
         self.begin_landing_height = rospy.get_param('~begin_landing_height', 0.2)
-        self.cyclical_path = rospy.get_param('~cycle', False)
-        self.auto_land = rospy.get_param('~auto_land', False)
-        self.print_wp_reached = rospy.get_param('~print_wp_reached', True)
         self.antenna_offset = rospy.get_param('~antenna_offset', [0.36, -0.36, -0.12])
-        base_yaw0_deg = rospy.get_param('~base_yaw0', 0.0)
-        self.base_yaw0 = base_yaw0_deg*np.pi/180.0
         print('waypoints = ', self.waypoint_list)
 
-        #calculate parameters
-        self.len_wps = len(self.waypoint_list)
-        self.prev_time = rospy.Time.now()
-
         #other variables and arrays
-        self.drone_odom = np.zeros(3)
         self.plt_pos = np.zeros(3)
         self.base_orient = np.zeros(3)
         self.current_waypoint_index = 0
@@ -218,10 +193,6 @@ class WaypointManager():
                                #1: rendevous
                                #2: descend
                                #3: land
-        self.plt_prev_time = 0.0
-        self.is_landing = 0
-        self.current_waypoint_index = 0
-
         #message types
         self.cmd_msg = Command()
 
