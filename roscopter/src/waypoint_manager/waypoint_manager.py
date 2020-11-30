@@ -80,7 +80,7 @@ class WaypointManager():
 
         self.base_orient[0] = roll
         self.base_orient[1] = pitch
-        self.base_orient[2] = yaw + self.base_yaw0  
+        self.base_orient[2] = yaw 
 
 
     #this function works in ipython
