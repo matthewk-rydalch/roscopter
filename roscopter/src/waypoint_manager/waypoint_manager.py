@@ -76,7 +76,7 @@ class WaypointManager():
         qy = msg.pose.pose.orientation.y
         qz = msg.pose.pose.orientation.z
 
-        [roll, pitch, yaw] = self.get_euler(qw, qx, qy, qz)
+        [roll, pitch, yaw] = self.get_euler_radians(qw, qx, qy, qz)
 
         self.base_orient[0] = roll
         self.base_orient[1] = pitch
@@ -84,8 +84,7 @@ class WaypointManager():
 
 
     #this function works in ipython
-    def get_euler(self, qw, qx, qy, qz):                       
-        
+    def get_euler_radians(self, qw, qx, qy, qz):                       
         euler = np.array([np.arctan2(2.0*(qw*qx+qy*qz),1.0-2.0*(qx**2+qy**2)),
                           np.arcsin(2.0*(qw*qy-qz*qx)),
                           np.arctan2(2.0*(qw*qz+qx*qy),1.0-2.0*(qy**2+qz**2))])                                                       
@@ -99,16 +98,12 @@ class WaypointManager():
 
         self.publish_error(current_position, current_waypoint)
         error = np.linalg.norm(current_position - current_waypoint[0:3])
-        
-        #may want to implement heading error at some point
-        # heading_error = np.abs(self.wrap(current_waypoint[3] - y))
 
         if error < self.threshold:
             print('reached waypoint ', self.current_waypoint_index + 1)
-            # Get new waypoint index
             self.current_waypoint_index += 1
             if self.current_waypoint_index == len(self.waypoint_list) and self.auto_land == True:
-                self.mission_state = 1 #switch to rendevous state
+                self.mission_state = 1
                 print('rendevous state')
                 return
 
@@ -121,12 +116,10 @@ class WaypointManager():
             self.new_waypoint(next_waypoint)
 
     def rendevous(self, current_position):
-        self.use_feed_forward_pub_.publish(True) #this will signal a switch to the ff controller
-
+        self.use_feed_forward_pub_.publish(True)
         waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_descent_height])
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)
-
         self.new_waypoint(waypoint)
 
         if error < self.rendevous_threshold:
@@ -134,17 +127,12 @@ class WaypointManager():
             print('descend state')
 
     def descend(self, current_position):
-
         waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_landing_height])
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)
-
         self.new_waypoint(waypoint)
 
-        base_roll = self.base_orient[0]
-        base_pitch = self.base_orient[1]
-
-        if error < self.landing_threshold and base_roll < self.landing_orient_threshold and base_pitch < self.landing_orient_threshold:
+        if error < self.landing_threshold and self.base_orient[0] < self.landing_orient_threshold and self.base_orient[1] < self.landing_orient_threshold:
             self.mission_state = 3
             self.is_landing_pub_.publish(True)
             print('land state')
@@ -205,8 +193,8 @@ class WaypointManager():
         self.threshold = rospy.get_param('~threshold', 0.5)
         self.landing_threshold = rospy.get_param('~landing_threshold', 0.2)
         self.rendevous_threshold = rospy.get_param('~rendevous_threshold', 0.5)
-        landing_orient_threshold = rospy.get_param('~landing_orient_threshold', 10)
-        self.landing_orient_threshold = landing_orient_threshold*np.pi/180.0
+        landing_orient_threshold_deg = rospy.get_param('~landing_orient_threshold_deg', 10)
+        self.landing_orient_threshold = landing_orient_threshold_deg*np.pi/180.0
         self.begin_descent_height = rospy.get_param('~begin_descent_height', 2)
         self.begin_landing_height = rospy.get_param('~begin_landing_height', 0.2)
         self.cyclical_path = rospy.get_param('~cycle', False)
