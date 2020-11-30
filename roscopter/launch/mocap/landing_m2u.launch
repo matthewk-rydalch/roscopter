@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="drone_name"            value="ragnarok"/>
+  <arg name="target_name"         value="boat_landing_platform"/>
+  <arg name="f4_serial_port" default="/dev/ttyACM0"/>
+
+   <!-- FCU communication -->
+  <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
+    <param name="udp" value="false"/>
+    <param name="port" value="$(arg f4_serial_port)"/>
+  </node>
+
+  <!-- Motion Capture Node-->
+  <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
+
+  <!-- Mocap2Ublox Node-->
+  <group ns="m2u">
+    <!-- Load common parameters -->
+    <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
+    <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen">
+      <remap from="rover_mocap" to="/$(arg drone_name)_ned"/>
+      <remap from="base_mocap" to="/$(arg target_name)_ned"/>
+    </node>
+  </group>
+
+  <!-- Load common parameters -->
+  <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
+
+  <!-- PID Position Controller -->
+  <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
+    <remap from="target_estimate" to="boat/odom"/>
+    <remap from="estimate" to="odom"/>
+    <remap from="waypoint" to="high_level_command"/>
+  </node>
+
+  <!-- Estimator -->
+  <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
+    <remap from="imu" to="/imu/data"/>
+    <!-- <remap from="baro" to="/baro"/> -->
+    <remap from="ublox_gnss" to="/m2u/rover_PosVelEcef"/>
+    <remap from="ublox_relpos" to="/m2u/rover_relpos"/>
+  </node>
+
+  <!-- Waypoint Manager -->
+  <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
+  <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
+    <remap from="waypoint" to="high_level_command"/>
+    <remap from="state" to="odom"/>
+    <remap from="base_odom" to="boat/odom"/>
+  </node>
+
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/landing_m2u --all"/>
+
+</launch>

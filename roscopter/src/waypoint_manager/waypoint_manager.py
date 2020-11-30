@@ -1,7 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import rospy
+# from IPython.core.debugger import set_trace
+
 
 from std_msgs.msg import Bool
 from nav_msgs.msg import Odometry
@@ -14,27 +16,22 @@ from geometry_msgs.msg import PointStamped
 
 
 class WaypointManager():
-
     def __init__(self):
 
         #load parameters
         self.load_set_parameters()
 
-        # Services
-        self.add_waypoint_service = rospy.Service('add_waypoint', AddWaypoint, self.addWaypointCallback)
-        self.remove_waypoint_service = rospy.Service('remove_waypoint', RemoveWaypoint, self.addWaypointCallback)
-        self.set_waypoint_from_file_service = rospy.Service('set_waypoints_from_file', SetWaypointsFromFile, self.addWaypointCallback)
-
         # Publishers
         self.waypoint_pub_ = rospy.Publisher('high_level_command', Command, queue_size=5, latch=True)
         self.use_feed_forward_pub_ = rospy.Publisher('use_base_feed_forward_vel', Bool, queue_size=5, latch=True)
         self.is_landing_pub_ = rospy.Publisher('is_landing', Bool, queue_size=5, latch=True)
+        self.add_integrator_pub_ = rospy.Publisher('add_integrator_landing', Bool, queue_size=5, latch=True)
         self.landed_pub_ = rospy.Publisher('landed', Bool, queue_size=5, latch=True)
         self.error_pub_ = rospy.Publisher('error', Pose, queue_size=5, latch=True)
 
         #Subscribers
         self.xhat_sub_ = rospy.Subscriber('state', Odometry, self.odometryCallback, queue_size=5)
-        self.plt_relPos_sub_ = rospy.Subscriber('base_relative_pos', PointStamped, self.pltRelPosCallback, queue_size=5)
+        self.base_odom_sub_ = rospy.Subscriber('base_odom', Odometry, self.baseOdomCallback, queue_size=5)
         
         # Wait a second before we publish the first waypoint
         while (rospy.Time.now() < rospy.Time(2.)):
@@ -47,22 +44,6 @@ class WaypointManager():
         while not rospy.is_shutdown():
             rospy.spin()
 
-
-    #TODO: Need to set up these services
-    def addWaypointCallback(req):
-        print("addwaypoints")
-        
-
-    def removeWaypointCallback(self, req):
-        #TODO
-        print("[waypoint_manager] remove Waypoints (NOT IMPLEMENTED)")
-
-
-    def setWaypointsFromFile(self, req):
-        #TODO
-        print("[waypoint_manager] set Waypoints from File (NOT IMPLEMENTED)")
-
-
     def odometryCallback(self, msg):
         
         # Get error between waypoint and current state
@@ -73,34 +54,47 @@ class WaypointManager():
         current_position_neu = np.array([msg.pose.pose.position.x,
                                      msg.pose.pose.position.y,
                                      -msg.pose.pose.position.z])
-        
-        #not using orientation right now
-        # current_orient = [msg.pose.pose.orientation.x,
-        #                     msg.pose.pose.orientation.y,
-        #                     msg.pose.pose.orientation.z,
-        #                     msg.pose.pose.orientation.w]
-        # # yaw from quaternion
-        # qx = current_orient[0]
-        # qy = current_orient[1]
-        # qz = current_orient[2]
-        # qw = current_orient[3]
-        # y = np.arctan2(2*(qw*qz + qx*qy), 1 - 2*(qy**2 + qz**2))
-        # #publish the relative pose estimate
-        # relativePose_msg = RelativePose()
-        # relativePose_msg.x = current_position[0]
-        # relativePose_msg.y = current_position[1]
-        # relativePose_msg.z = y
-        # relativePose_msg.F = current_position[2]
-        # self.relPose_pub_.publish(relativePose_msg)
-
+ 
         if self.mission_state == 1:
             self.rendevous(current_position_neu)
         elif self.mission_state == 2:
-            self.descend(current_position_neu)
+            self.center(current_position_neu)
         elif self.mission_state == 3:
+            self.descend(current_position_neu)
+        elif self.mission_state == 4:
             self.land(current_position_neu)
         else:
-            self.mission(current_position_neu)           
+            self.mission(current_position_neu)   
+        
+
+    def baseOdomCallback(self, msg):
+        antenna_offset = np.matmul(self.Rz(self.base_orient[2]), self.antenna_offset)
+
+        self.plt_pos[0] = msg.pose.pose.position.x - antenna_offset[0]
+        self.plt_pos[1] = msg.pose.pose.position.y - antenna_offset[1]
+        self.plt_pos[2] = msg.pose.pose.position.z - antenna_offset[2]
+
+        # yaw from quaternion
+        qw = msg.pose.pose.orientation.w
+        qx = msg.pose.pose.orientation.x
+        qy = msg.pose.pose.orientation.y
+        qz = msg.pose.pose.orientation.z
+
+        [roll, pitch, yaw] = self.get_euler(qw, qx, qy, qz)
+
+        self.base_orient[0] = roll
+        self.base_orient[1] = pitch
+        self.base_orient[2] = yaw + self.base_yaw0  
+
+
+    #this function works in ipython
+    def get_euler(self, qw, qx, qy, qz):                       
+        
+        euler = np.array([np.arctan2(2.0*(qw*qx+qy*qz),1.0-2.0*(qx**2+qy**2)),
+                          np.arcsin(2.0*(qw*qy-qz*qx)),
+                          np.arctan2(2.0*(qw*qz+qx*qy),1.0-2.0*(qy**2+qz**2))])                                                       
+        
+        return euler     
 
     
     def mission(self, current_position):
@@ -114,7 +108,7 @@ class WaypointManager():
         # heading_error = np.abs(self.wrap(current_waypoint[3] - y))
 
         if error < self.threshold:
-            print'reached waypoint ', self.current_waypoint_index + 1
+            print('reached waypoint ', self.current_waypoint_index + 1)
             # Get new waypoint index
             self.current_waypoint_index += 1
             if self.current_waypoint_index == len(self.waypoint_list) and self.auto_land == True:
@@ -131,8 +125,7 @@ class WaypointManager():
             self.new_waypoint(next_waypoint)
 
     def rendevous(self, current_position):
-
-        self.use_feed_forward_pub_.publish(True) #this will signal the controller to include the velocity feed forward term from the barge
+        self.use_feed_forward_pub_.publish(True) #this will signal a switch to the ff controller
 
         waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_descent_height])
         error = np.linalg.norm(current_position - waypoint)
@@ -140,9 +133,23 @@ class WaypointManager():
 
         self.new_waypoint(waypoint)
 
-        if error < self.landing_threshold:
-            self.mission_state = 2 #switch to descent state
+        if error < self.rendevous_threshold:
+            self.mission_state = 2 #switch to center state
+            print('center state')
+
+    def center(self, current_position):
+        self.add_integrator_pub_.publish(True)
+
+        waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_descent_height])
+        error = np.linalg.norm(current_position - waypoint)
+        self.publish_error(current_position, waypoint)
+
+        self.new_waypoint(waypoint)
+
+        if error < self.center_threshold:
+            self.mission_state = 3 #switch to descent state
             print('descend state')
+
 
     def descend(self, current_position):
 
@@ -152,9 +159,14 @@ class WaypointManager():
 
         self.new_waypoint(waypoint)
 
-        if error < self.landing_threshold:
-            self.mission_state = 3 #switch to land state
+        base_roll = self.base_orient[0]
+        base_pitch = self.base_orient[1]
+
+        if error < self.landing_threshold and base_roll < self.landing_orient_threshold and base_pitch < self.landing_orient_threshold:
+            self.mission_state = 4 #switch to land state
+            self.is_landing_pub_.publish(True)
             print('land state')
+
 
     def land(self, current_position):
 
@@ -162,14 +174,15 @@ class WaypointManager():
         if self.is_landing == 0:
             self.new_waypoint(waypoint)
             self.is_landing = 1
-            self.is_landing_pub_.publish(True) #this will signal the controller to include the velocity feed forward term from the barge
+            # self.is_landing_pub_.publish(True)
 
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)
         alt_error = current_position[2]-waypoint[2]
-        if alt_error < landing_threshold:
+        if alt_error < self.landing_threshold:
             self.landed_pub_.publish(True)
             #TODO find a way to disarm after reaching the waypoint
+
 
     def new_waypoint(self, waypoint):
 
@@ -186,19 +199,7 @@ class WaypointManager():
         self.cmd_msg.mode = Command.MODE_XPOS_YPOS_YAW_ALTITUDE
         self.waypoint_pub_.publish(self.cmd_msg)
 
-
-    def pltRelPosCallback(self, msg):
-        #TODO: implement time for the plt_relPos message?
-
-        #flip to NEU
-        self.plt_pos[0] = msg.point.x + self.drone_odom[0] + self.antenna_offset[0]
-        self.plt_pos[1] = msg.point.y + self.drone_odom[1] + self.antenna_offset[1]
-        self.plt_pos[2] = -msg.point.z - self.drone_odom[2] + self.antenna_offset[2]
-
-    # def droneOdomCallback(self, msg):
-    #     self.drone_odom = np.array([msg.pose.pose.position.x,
-    #                                 msg.pose.pose.position.y,
-    #                                 msg.pose.pose.position.z])        
+        #rospy.sleep(20)    
 
     def publish_error(self, current_position, current_waypoint):
         error_msg = Pose()
@@ -208,21 +209,39 @@ class WaypointManager():
         self.error_pub_.publish(error_msg)
 
     
+    def Rz(self, theta):
+
+        c_th = np.cos(theta)
+        s_th = np.sin(theta)
+
+        Rot_z = np.array([[c_th, -s_th, 0.0],
+                          [s_th, c_th, 0.0],
+                          [0.0, 0.0, 1.0]])
+
+        return Rot_z
+
+    
     def load_set_parameters(self):
-        
         try:
             self.waypoint_list = rospy.get_param('~waypoints') #params are loaded in launch file
         except KeyError:
             rospy.logfatal('waypoints not set')
             rospy.signal_shutdown('Parameters not set')
-        self.threshold = rospy.get_param('~threshold', 5)
-        self.landing_threshold = rospy.get_param('~landing_threshold', 1)
+        self.threshold = rospy.get_param('~threshold', 0.5)
+        self.landing_threshold = rospy.get_param('~landing_threshold', 0.2)
+        self.rendevous_threshold = rospy.get_param('~rendevous_threshold', 0.5)
+        self.center_threshold = rospy.get_param('~center_threshold', 0.3)
+        landing_orient_threshold = rospy.get_param('~landing_orient_threshold', 10)
+        self.landing_orient_threshold = landing_orient_threshold*np.pi/180.0
         self.begin_descent_height = rospy.get_param('~begin_descent_height', 2)
         self.begin_landing_height = rospy.get_param('~begin_landing_height', 0.2)
         self.cyclical_path = rospy.get_param('~cycle', False)
         self.auto_land = rospy.get_param('~auto_land', False)
         self.print_wp_reached = rospy.get_param('~print_wp_reached', True)
         self.antenna_offset = rospy.get_param('~antenna_offset', [0.36, -0.36, -0.12])
+        base_yaw0_deg = rospy.get_param('~base_yaw0', 0.0)
+        self.base_yaw0 = base_yaw0_deg*np.pi/180.0
+        print('waypoints = ', self.waypoint_list)
 
         #calculate parameters
         self.len_wps = len(self.waypoint_list)
@@ -231,6 +250,7 @@ class WaypointManager():
         #other variables and arrays
         self.drone_odom = np.zeros(3)
         self.plt_pos = np.zeros(3)
+        self.base_orient = np.zeros(3)
         self.current_waypoint_index = 0
         self.mission_state = 0 #0: mission
                                #1: rendevous
@@ -242,6 +262,7 @@ class WaypointManager():
 
         #message types
         self.cmd_msg = Command()
+
 
 if __name__ == '__main__':
     rospy.init_node('waypoint_manager', anonymous=True)

@@ -1,17 +1,10 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <ros/ros.h>
-#include <rosflight_msgs/Command.h>
-#include <rosflight_msgs/Status.h>
-#include <controller/simple_pid.h>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <std_msgs/Bool.h>
 #include <tf/tf.h>
 #include <stdint.h>
-#include <dynamic_reconfigure/server.h>
-#include <roscopter/ControllerConfig.h>
+#include <controller/simple_pid.h>
+#include "roscopter_utils/yaml.h"
 
 namespace controller
 {
@@ -71,44 +64,51 @@ typedef struct
 
 class Controller
 {
-
 public:
 
   Controller();
 
-private:
+  uint8_t MODE_PASS_THROUGH_;
+  uint8_t MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE_;
+  uint8_t MODE_ROLL_PITCH_YAWRATE_THROTTLE_;
+  uint8_t MODE_ROLL_PITCH_YAWRATE_ALTITUDE_;
+  uint8_t MODE_XPOS_YPOS_YAW_ALTITUDE_;
+  uint8_t MODE_XVEL_YVEL_YAWRATE_ALTITUDE_;
+  uint8_t MODE_XACC_YACC_YAWRATE_AZ_;
 
-  // Node handles, publishers, subscribers
-  ros::NodeHandle nh_;
-  ros::NodeHandle nh_private_;
-
-  // Publishers and Subscribers
-  ros::Subscriber state_sub_;
-  ros::Subscriber is_flying_sub_;
-  ros::Subscriber cmd_sub_;
-  ros::Subscriber status_sub_;
-  ros::Subscriber base_vel_sub_;
-  ros::Subscriber is_landing_sub_;
-  ros::Subscriber use_feed_forward_sub_;
-  ros::Subscriber landed_sub_;
-
-  ros::Publisher command_pub_;
-
-  // Paramters
+  state_t xhat_ = {};
+  command_t xc_ = {};
+  max_t max_ = {};
+  double min_altitude_;
   double throttle_eq_;
-  double mass_;
-  double max_thrust_;
   double max_accel_xy_;
   double max_accel_z_;
-  double min_altitude_;
-  float throttle_down_ = 0.95;
-  bool is_flying_;
-  bool armed_;
-  bool received_cmd_;
-  bool use_feed_forward_ = false;
-  bool is_landing_ = false;
-  bool landed_ = false;
+  uint8_t mode_flag_;
+  uint8_t control_mode_;
 
+  void computeControl(double dt);
+  void resetIntegrators();
+
+  void setPIDXDot(double P, double I, double D, double tau);
+  void setPIDYDot(double P, double I, double D, double tau);
+  void setPIDZDot(double P, double I, double D, double tau);
+  void setPIDN(double P, double I, double D, double tau);
+  void setPIDE(double P, double I, double D, double tau);
+  void setPIDD(double P, double I, double D, double tau);
+  void setPIDPsi(double P, double I, double D, double tau);
+
+protected:
+
+  double mass_;
+  double max_thrust_;
+
+  float throttle_down_ = 0.95;
+
+  bool debug_Controller_{false};
+  bool debug_computeControl_{false};
+  bool debug_resetIntegrators_{false};
+  bool debug_saturate_{false};
+  bool debug_setGains_{false};
 
   // PID Controllers
   controller::SimplePID PID_x_dot_;
@@ -119,36 +119,15 @@ private:
   controller::SimplePID PID_d_;
   controller::SimplePID PID_psi_;
 
-  // Dynamic Reconfigure Hooks
-  dynamic_reconfigure::Server<roscopter::ControllerConfig> _server;
-  dynamic_reconfigure::Server<roscopter::ControllerConfig>::CallbackType _func;
-  void reconfigure_callback(roscopter::ControllerConfig& config,
-                            uint32_t level);
-
-  // Memory for sharing information between functions
-  state_t xhat_ = {}; // estimate
-  state_t base_hat_ = {}; //base(frame) state
-  max_t max_ = {};
-  rosflight_msgs::Command command_;
-  command_t xc_ = {}; // command
-  double prev_time_;
-  uint8_t control_mode_;
-
-  // Functions
-  void stateCallback(const nav_msgs::OdometryConstPtr &msg);
-  void isFlyingCallback(const std_msgs::BoolConstPtr &msg);
-  void cmdCallback(const rosflight_msgs::CommandConstPtr &msg);
-  void statusCallback(const rosflight_msgs::StatusConstPtr &msg);
-  void baseVelCallback(const geometry_msgs::TwistStampedConstPtr &msg);
-  void useFeedForwardCallback(const std_msgs::BoolConstPtr &msg);
-  void isLandingCallback(const std_msgs::BoolConstPtr &msg);
-  void landedCallback(const std_msgs::BoolConstPtr &msg);
-
-  void computeControl(double dt);
-  void resetIntegrators();
-  void publishCommand();
   double saturate(double x, double max, double min);
+  double determineShortestDirectionPsi(double psi_c, double psi_hat);
+  void rotateVelocityCommandsToVehicle1Frame(double pndot_c, double pedot_c);
+
+  void calcXposYposYawLoops(double dt);
+  void calcXvelYvelAltLoops(double dt);
+  void calcXaccYaccAzLoops(double dt);
+
 };
-}
+} //namespace controller
 
 #endif

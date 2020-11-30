@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import rospy
@@ -6,7 +6,6 @@ import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose
 from rosflight_msgs.msg import GNSS
-from rosflight_msgs.msg import GNSSRaw
 from ublox.msg import RelPos
 from ublox.msg import PosVelEcef
 
@@ -61,6 +60,7 @@ class SimManager():
         self.publish_rover_virtual_relPos(msg.header)
         self.publish_base_virtual_PosVelEcef()
 
+    #This is not being used
     def roverGnssRawCallback(self, msg):
         self.rover_lla[0] = msg.lon
         self.rover_lla[1] = msg.lat

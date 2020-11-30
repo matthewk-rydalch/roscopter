@@ -18,7 +18,7 @@
   </include>
 
   <!-- Spawn Model in Gazebo -->
-  <include file="$(find roscopter_sim)/launch/spawn_mav.launch">
+  <include file="$(find roscopter_sim)/launch/spawn/spawn_mav.launch">
     <arg name="mav_name"            value="$(arg mav_name)" />
     <arg name="model"               value="$(find roscopter_sim)/xacro/$(arg mav_name).urdf.xacro" />
     <arg name="x"                   value="$(arg x)"/>
@@ -42,12 +42,14 @@
     <node pkg="rostopic" type="rostopic" name="status_pub" args="pub -r 1 status rosflight_msgs/Status '{armed: true, failsafe: false, rc_override: false, offboard: true, error_code: 0, num_errors: 0, loop_time_us: 1}'"/>
 
     <!-- PID Position Controller -->
-    <node name="controller" pkg="roscopter" type="controller" output="screen">
+    <node name="controller" pkg="roscopter" type="controller_node" output="screen">
       <!-- <remap from="estimate" to="ground_truth/odometry/NED"/> -->
       <remap from="estimate" to="odom"/>
+      <remap from="waypoint" to="high_level_command"/>
     </node>
 
     <!-- Waypoint Manager -->
+    <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
     <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
       <remap from="waypoint" to="high_level_command"/>
       <!-- <remap from="state" to="ground_truth/odometry/NED"/> -->

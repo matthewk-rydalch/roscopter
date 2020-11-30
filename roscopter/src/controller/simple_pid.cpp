@@ -33,9 +33,6 @@
 
 namespace controller
 {
-//
-// Basic initialization
-//
 SimplePID::SimplePID()
 {
   kp_ = 0.0;
@@ -50,9 +47,6 @@ SimplePID::SimplePID()
   min_ = -DBL_MAX;
 }
 
-//
-// Initialize the controller
-//
 SimplePID::SimplePID(double p, double i, double d, double max, double min, double tau) :
   kp_(p), ki_(i), kd_(d), max_(max), min_(min), tau_(tau)
 {
@@ -62,46 +56,48 @@ SimplePID::SimplePID(double p, double i, double d, double max, double min, doubl
   last_state_ = 0.0;
 }
 
-//
-// Compute the control;
-//
 double SimplePID::computePID(double desired, double current, double dt, double x_dot)
 {
-  double error = desired - current;
+    double error = desired - current;
+    if (dt < 0.00001 || std::abs(error) > 9999999)
+    {
+      return 0.0;
+    }
 
-  // Don't do stupid things (like divide by nearly zero, gigantic control jumps)
-  if (dt < 0.00001 || std::abs(error) > 9999999)
-  {
-    return 0.0;
-  }
+    if (dt > 1.0)
+    {
+      dt = 0.0;
+      differentiator_ = 0.0;
+    }
 
-  if (dt > 1.0)
-  {
-    // This means that this is a ''stale'' controller and needs to be reset.
-    // This would happen if we have been operating in a different mode for a while
-    // and will result in some enormous integrator.
-    // Or, it means we are disarmed and shouldn't integrate
-    // Setting dt for this loop will mean that the integrator and dirty derivative
-    // doesn't do anything this time but will keep it from exploding.
-    dt = 0.0;
-    differentiator_ = 0.0;
-  }
+    double p_term = error*kp_;
+    double i_term = 0.0;
+    double d_term = 0.0;
 
-  double p_term = error*kp_;
-  double i_term = 0.0;
-  double d_term = 0.0;
+    if (kd_ > 0.0)
+    {
+      d_term = getDerivativeTerm(current, dt, x_dot);
+    }
 
-  // // Check gains
-  // std::cerr << "kp = " << kp_ << "\n";
-  // std::cerr << "kd = " << kd_ << "\n";
-  // std::cerr << "ki = " << ki_ << "\n";
+    if (ki_ > 0.0)
+    {
+      i_term = getIntegralTerm(dt, error);
+    }
 
-  // Calculate Derivative Term
-  if (kd_ > 0.0)
-  {
+    last_error_ = error;
+    last_state_ = current;
+
+    double u = p_term + i_term - d_term;
+
+    return compute_anti_windup(u, p_term, i_term, d_term);
+}
+
+double SimplePID::getDerivativeTerm(double current, double dt, double x_dot)
+{
+    double d_term;
     if (std::isfinite(x_dot))
     {
-      d_term = kd_ * x_dot;
+      return kd_ * x_dot;
     }
     else if (dt > 0.0)
     {
@@ -110,52 +106,51 @@ double SimplePID::computePID(double desired, double current, double dt, double x
       // last_error_);
       differentiator_ =
           (2 * tau_ - dt) / (2 * tau_ + dt) * differentiator_ + 2 / (2 * tau_ + dt) * (current - last_state_);
-      d_term = kd_* differentiator_;
+      return kd_* differentiator_;
     }
-  }
-
-  // Calculate Integrator Term
-  if (ki_ > 0.0)
-  {
-    integrator_ += dt / 2 * (error + last_error_); // (trapezoidal rule)
-    i_term = ki_ * integrator_;
-  }
-
-  // Save off this state for next loop
-  last_error_ = error;
-  last_state_ = current;
-
-  // Sum three terms
-  double u = p_term + i_term - d_term;
-
-  // return u;
-
-  // Integrator anti-windup
-  double u_sat = saturate(u, min_, max_);
-  if (u != u_sat && std::fabs(i_term) > fabs(u - p_term + d_term))
-  {
-    // If we are at the saturation limits, then make sure the integrator doesn't get
-    // bigger if it won't do anything (except take longer to unwind).  Just set it to the
-    // largest value it could be to max out the control
-    integrator_ = (u_sat - p_term + d_term) / ki_;
-  }
-  return u_sat;
 }
 
+double SimplePID::getIntegralTerm(double dt, double error)
+{
+    integrator_ += dt / 2 * (error + last_error_); // (trapezoidal rule)
+    return ki_ * integrator_;
+}
 
-//
-// Late initialization or redo
-//
+double SimplePID::compute_anti_windup(double u, double p_term, double i_term, double d_term)
+{
+    double u_sat = saturate(u, min_, max_);
+    //TODO:: I switched this from "fabs(u... to fabs(u_sat..."  Need to make sure that is right.
+    if (u != u_sat && std::fabs(i_term) > fabs(u_sat - p_term + d_term))
+    {
+      integrator_ = (u_sat - p_term + d_term) / ki_;
+    }
+
+    return u_sat;
+}
+
 void SimplePID::setGains(double p, double i, double d, double tau, double max_u, double min_u)
 {
-  //! \todo Should we really be zeroing this while we are gain tuning?
-  kp_ = p;
-  ki_ = i;
-  kd_ = d;
-  tau_ = tau;
-  max_ = max_u;
-  min_ = min_u;
+    //! \todo Should we really be zeroing this while we are gain tuning?
+    kp_ = p;
+    ki_ = i;
+    kd_ = d;
+    tau_ = tau;
+    max_ = max_u;
+    min_ = min_u;
 }
 
+inline double SimplePID::saturate(double val, double &min, double &max)
+{
+  if (val > max)
+    val = max;
+  else if (val < min)
+    val = min;
+  return val;
+}
 
-}  // namespace relative_nav
+void SimplePID::clearIntegrator()
+{
+  integrator_ = 0.0;
+}
+
+}
