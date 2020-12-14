@@ -21,7 +21,7 @@
     <param name="local_host" value="$(arg rover_host)"/>
     <param name="local_port" value="16140"/>
     <param name="base_host" value="$(arg base_host)"/>
-    <param name="base_port" value="16145"/>
+    <param name="base_port" value="16140"/>
     <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
     <param name="rover_quantity" value="0"/>
     <param name="base_type" value="moving"/>
