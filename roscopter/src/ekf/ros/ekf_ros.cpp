@@ -48,12 +48,12 @@ namespace roscopter::ekf
 
   void EKF_ROS::initROS()
   {
-
+    std::cout << " in init ros!!!!!!!!!!!!!!11 \n ";
     std::string roscopter_path = ros::package::getPath("roscopter");
     std::string parameter_filename = nh_private_.param<std::string>("param_filename", roscopter_path + "/params/ekf.yaml");
 
     init(parameter_filename);
-
+    std::cout << "Publishers!!!!!!!!!!!!!!!!!!!!!!!!!!!111111 \n ";
     odometry_pub_ = nh_.advertise<nav_msgs::Odometry>("odom", 1);
     euler_rad_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("euler_radians", 1);
     euler_deg_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("euler_degrees", 1);
@@ -61,13 +61,14 @@ namespace roscopter::ekf
     is_flying_pub_ = nh_.advertise<std_msgs::Bool>("is_flying", 1);
     ref_lla_pub_ = nh_.advertise<rosflight_msgs::GNSS>("ref_lla", 1);
 
+    std::cout << "subscribers!!!!!!!! \n";
     imu_sub_ = nh_.subscribe("imu", 100, &EKF_ROS::imuCallback, this);
     baro_sub_ = nh_.subscribe("baro", 100, &EKF_ROS::baroCallback, this);
     pose_sub_ = nh_.subscribe("pose", 10, &EKF_ROS::poseCallback, this);
     odom_sub_ = nh_.subscribe("reference", 10, &EKF_ROS::odomCallback, this);
     gnss_sub_ = nh_.subscribe("gnss", 10, &EKF_ROS::gnssCallback, this);
     common_ref_lla_sub_ = nh_.subscribe("common_ref_lla", 10, &EKF_ROS::commonRefLlaCallback, this);
-
+    std::cout << "ublox!!!!!!!!!!!!!!!!!!!!!!111 \n";
 
   #ifdef UBLOX
     ublox_gnss_sub_ = nh_.subscribe("ublox_gnss", 10, &EKF_ROS::gnssCallbackUblox, this);
@@ -75,11 +76,13 @@ namespace roscopter::ekf
     base_relPos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("base_relPos", 1);
     std::cout << "UBLOX is defined \n";
   #endif
+    std::cout << "inertial sense!!!!!!!!!!!!!!!!!!!!!1111111111 \n";
   #ifdef INERTIAL_SENSE
     is_gnss_sub_ = nh_.subscribe("is_gnss", 10, &EKF_ROS::gnssCallbackInertialSense, this);
   #endif
-
+    std::cout << "ros initialized!!!!!!!!!!!!!!!!!!\n";
     ros_initialized_ = true;
+    std::cout << "finished ros initialized!!!!!!!!!!!!!!!!!!!!\n";
   }
 
   void EKF_ROS::init(const std::string &param_file)

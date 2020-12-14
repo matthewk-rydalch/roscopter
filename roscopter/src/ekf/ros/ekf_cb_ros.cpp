@@ -114,7 +114,8 @@ namespace roscopter::ekf
 
   void EKF_ROS::commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr &msg)
   {
-    Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
+	  std::cout<<"In common ref lla callback \n";
+	  Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
     ekf_.setRefLla(ref_lla);
   }
 
