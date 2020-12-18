@@ -4,17 +4,11 @@
 
   <arg name="drone_name"          default="ragnarok"/>
   <arg name="target_name"         default="boat_landing_platform"/>
-  <arg name="f4_serial_port"      default="/dev/ttyACM0"/>
   <arg name="rover_serial_port"   default="/dev/ttyACM1"/>
   <arg name="base_host"           default="192.168.0.143"/>
   <arg name="rover_host"          default="192.168.0.84"/>
 
-  <!-- FCU communication -->
-  <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
-    <param name="udp" value="false"/>
-    <param name="port" value="$(arg f4_serial_port)"/>
-  </node>
-  
+
   <!-- Load common parameters -->
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
