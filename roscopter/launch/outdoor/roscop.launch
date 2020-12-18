@@ -7,11 +7,12 @@
   <arg name="rover_serial_port"   default="/dev/ttyACM1"/>
   <arg name="base_host"           default="192.168.0.143"/>
   <arg name="rover_host"          default="192.168.0.84"/>
+  <arg name="controller_params"   default="$(find roscopter)/params/$(arg drone_name).yaml"/>
+  <arg name="waypoints_params"     default="$(find roscopter)/params/waypoints.yaml"/>
 
 
   <!-- Load common parameters -->
-  <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
-
+  <rosparam command="load" file="$(arg controller_params)"/>
   <!-- PID Position Controller -->
   <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
     <remap from="target_estimate" to="/boat/odom"/>
@@ -29,7 +30,7 @@
   </node>
 
   <!-- Waypoint Manager -->
-  <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
+  <rosparam command="load" file="$(arg waypoints_params)"/>
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
