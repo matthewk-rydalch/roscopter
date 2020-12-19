@@ -40,7 +40,7 @@ class WaypointManager():
     def odometryCallback(self, msg):
         current_position_neu = np.array([msg.pose.pose.position.x,
                                      msg.pose.pose.position.y,
-                                     -msg.pose.pose.position.z])
+                                     msg.pose.pose.position.z])
  
         if self.mission_state == 1:
             self.rendevous(current_position_neu)
