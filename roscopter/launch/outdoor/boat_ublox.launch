@@ -25,7 +25,6 @@
         <arg name="rover_host" default="192.168.0.84"/>
       </include>
     </group>
-    <include file="$(find inertial_sense)/launch/inertial_sense.launch"/>
   </group>
 
   <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/base --all"/>

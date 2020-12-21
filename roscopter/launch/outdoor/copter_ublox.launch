@@ -13,6 +13,9 @@
     <arg name="target_name"         value="boat_landing_platform"/>
   </include> 
 
+  <!--May need to fix this-->
+  <include file="$(find inertial_sense)/launch/inertial_sense.launch"/>
+
   <include file="$(find ublox)/launch/rover.launch">
     <arg name="rover_serial_port" default="/dev/ttyACM1"/>
     <arg name="base_host" default="192.168.0.143"/>

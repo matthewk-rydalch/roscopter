@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-
 <launch>
+  <arg name="imu_topic" default="imu"/>
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
-    <remap from="imu" to="imu"/>
+    <remap from="imu" to="$(arg imu_topic)"/>
     <remap from="baro" to="dummy_topic"/>
     <remap from="ublox_gnss" to="PosVelEcef"/>
     <remap from="ublox_relpos" to="compass/RelPos"/>
