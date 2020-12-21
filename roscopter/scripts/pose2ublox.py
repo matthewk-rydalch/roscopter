@@ -49,11 +49,11 @@ class Pose2Ublox():
         self.rover_vel_lpf = np.zeros(3)
         self.rover_prev_time = 0.0
         self.rover_relpos_lpf = np.zeros(3)
+        self.compass_quat = np.zeros(4)
         self.base_ned = np.zeros(3)
         self.base_ned_prev = np.zeros(3)
         self.base_ned_lpf = np.zeros(3)
         self.base_vel_lpf = np.zeros(3)
-        self.base2_quat = np.zeros(4)
         self.base_prev_time = 0.0
         self.rover_ned_noise = np.zeros(3)
         self.rover_vel_noise = np.zeros(3)
@@ -68,7 +68,7 @@ class Pose2Ublox():
         self.rover_virtual_relpos = np.zeros(3)
         self.base_virtual_pos_ecef = np.zeros(3)
         self.base_virtual_vel_ecef = np.zeros(3)
-        self.base2_heading = 0.0
+        self.compass_heading = 0.0
 
 
     def update_rover_virtual_PosVelEcef(self, dt):
@@ -131,12 +131,12 @@ class Pose2Ublox():
         self.base_vel_prev = base_vel
         self.base_vel_noise_prev = self.base_vel_noise
 
-    def update_base2_virtual_relPos(self):
+    def update_compass_virtual_relPos(self):
 
-        euler = self.quat2euler(self.base2_quat)
-        self.base2_heading = euler[2]
+        euler = self.quat2euler(self.compass_quat)
+        self.compass_heading = euler[2]
         if self.noise_on:
-            self.base2_heading = np.random.normal(self.base2_heading, self.compassing_heading_accuracy)
+            self.compass_heading = np.random.normal(self.compass_heading, self.compassing_heading_accuracy)
 
 
     def add_noise_3d(self, value, std_dev):
