@@ -81,6 +81,9 @@ add_executable(ekf_node src/ekf/ekf_node.cpp)
 target_link_libraries(ekf_node ekf_ros ${catkin_LIBRARIES})
 add_dependencies(ekf_node ${catkin_EXPORTED_TARGETS})
 
+add_executable(target_ekf_node src/ekf/target_ekf_node.cpp)
+target_link_libraries(target_ekf_node target_ekf_ros ${catkin_LIBRARIES})
+add_dependencies(target_ekf_node ${catkin_EXPORTED_TARGETS})
 
 add_executable(ekf_rosbag src/ekf/ros/ekf_rosbag.cpp)
 target_link_libraries(ekf_rosbag ekf_ros ${catkin_LIBRARIES})
@@ -152,6 +155,13 @@ add_library(ekf_ros
   )
 target_link_libraries(ekf_ros ekf ${catkin_LIBRARIES})
 add_dependencies(ekf_ros ${catkin_EXPORTED_TARGETS})
+
+add_library(target_ekf_ros
+  src/ekf/ros/target_ekf_ros.cpp
+  src/ekf/ros/target_ekf_cb_ros.cpp
+  )
+target_link_libraries(target_ekf_ros ekf ${catkin_LIBRARIES})
+add_dependencies(target_ekf_ros ${catkin_EXPORTED_TARGETS})
 
 add_library(ekf
   src/ekf/state.cpp

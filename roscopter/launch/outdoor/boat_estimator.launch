@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="imu_topic" default="imu"/>
-  <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
+  <node name="target_estimator" type="target_ekf_node" pkg="roscopter" output="screen">
     <remap from="imu" to="$(arg imu_topic)"/>
     <remap from="baro" to="dummy_topic"/>
     <!-- <remap from="reference" to="/truth/boat"/> -->
