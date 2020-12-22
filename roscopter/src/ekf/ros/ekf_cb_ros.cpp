@@ -190,7 +190,6 @@ namespace roscopter::ekf
   #ifdef UBLOX
   void EKF_ROS::gnssCallbackUblox(const ublox::PosVelEcefConstPtr &msg)
   {
-
     //only uses the data if gnss is fixed as 2D or 3D
     if (msg->fix == ublox::PosVelEcef::FIX_TYPE_2D
         || msg->fix == ublox::PosVelEcef::FIX_TYPE_3D)

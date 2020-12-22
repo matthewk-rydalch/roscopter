@@ -58,7 +58,7 @@ attitude_noise_stdev: 0.01 # Mocap # used in sensor model noise
 baro_pressure_noise_stdev: 2.0 # used in sensor model noise
 range_noise_stdev: 0.1 # used in sensor model noise
 
-manual_compassing_noise: false
+manual_compassing_noise: true
 rtk_compassing_noise_stdev: 0.1 #randomly selected for now
 
 # used in sensor model noise if set to true

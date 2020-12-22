@@ -4,6 +4,7 @@
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
     <remap from="imu" to="$(arg imu_topic)"/>
     <remap from="baro" to="dummy_topic"/>
+    <!-- <remap from="reference" to="/truth/boat"/> -->
     <remap from="ublox_gnss" to="PosVelEcef"/>
     <remap from="ublox_relpos" to="compass/RelPos"/>
     <remap from="common_ref_lla" to="/ref_lla"/>

@@ -181,6 +181,7 @@ namespace roscopter::ekf
     x().ref = ref_lla(2);
     ref_lat_radians_ = ref_lla(0);
     ref_lon_radians_ = ref_lla(1);
+    std::cout << "ref altitude = " << x().ref << std::endl;
 
     ref_lla_set_ = true;
   }
