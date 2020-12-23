@@ -2,7 +2,7 @@
 #include <ros/package.h>
 
 #include "ekf/state.h"
-#include "ekf/ekf_ros.h"
+#include "ekf/target_ekf_ros.h"
 #include "roscopter_utils/yaml.h"
 #include "roscopter_utils/gnss.h"
 
@@ -114,8 +114,12 @@ namespace roscopter::ekf
 
   void EKF_ROS::commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr &msg)
   {
+    std_msgs::Bool received_ref_lla;
+    received_ref_lla.data = true;
+    ack_received_ref_lla_pub_.publish(received_ref_lla);
     Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
     ekf_.setRefLla(ref_lla);
+    //TODO:: There may be some converting here that needed to be done.  See standard set ref_lla
   }
 
 
@@ -157,20 +161,6 @@ namespace roscopter::ekf
     Matrix6d Sigma_ecef;
     Sigma_ecef << R_e2n.transpose() * Sigma_diag_NED.head<3>().asDiagonal() * R_e2n, Matrix3d::Zero(),
                   Matrix3d::Zero(), R_e2n.transpose() *  Sigma_diag_NED.tail<3>().asDiagonal() * R_e2n;
-
-    if (!ekf_.refLlaSet())
-    {
-      // set ref lla to first gps position
-      Eigen::Vector3d ref_lla = ecef2lla(z.head<3>());
-      // Convert radians to degrees
-      ref_lla.head<2>() *= 180. / M_PI;
-      ekf_.setRefLla(ref_lla);
-      rosflight_msgs::GNSS common_ref_lla;
-      common_ref_lla.position[0] = ref_lla[0];
-      common_ref_lla.position[1] = ref_lla[1];
-      common_ref_lla.position[2] = ref_lla[2];
-      ref_lla_pub_.publish(common_ref_lla);
-    }
 
     if (start_time_.sec == 0)
       return;

@@ -117,7 +117,7 @@ protected:
   ros::Publisher euler_deg_pub_;
   ros::Publisher imu_bias_pub_;
   ros::Publisher is_flying_pub_;
-  ros::Publisher ref_lla_pub_;
+  ros::Publisher ack_received_ref_lla_pub_;
 
   #ifdef UBLOX
     ros::Subscriber ublox_gnss_sub_;

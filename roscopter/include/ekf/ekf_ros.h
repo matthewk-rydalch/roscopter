@@ -82,8 +82,7 @@ public:
   void mocapCallback(const ros::Time& time, const xform::Xformd &z);
   void compassingCallback(const ros::Time &time, const double &z);
   void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
-  void commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr& msg);
-
+  void ackReceivedRefLlaCallback(const std_msgs::Bool &msg);
 
   #ifdef UBLOX
     void gnssCallbackUblox(const ublox::PosVelEcefConstPtr& msg);
@@ -110,7 +109,7 @@ protected:
   ros::Subscriber odom_sub_;
   ros::Subscriber gnss_sub_;
   ros::Subscriber status_sub_;
-  ros::Subscriber common_ref_lla_sub_;
+  ros::Subscriber ack_received_ref_lla_sub_;
 
   ros::Publisher odometry_pub_;
   ros::Publisher euler_rad_pub_;
@@ -139,6 +138,8 @@ protected:
   geometry_msgs::TwistStamped base_vel_msg_;
   std::mutex ekf_mtx_;
 
+  rosflight_msgs::GNSS common_ref_lla_;
+
   bool imu_init_ = false;
   bool truth_init_ = false;
 
@@ -146,6 +147,7 @@ protected:
   bool use_pose_;
 
   bool ros_initialized_ = false;
+  bool received_ref_lla_ = false;
   
   bool is_flying_ = false;
   bool armed_ = false;

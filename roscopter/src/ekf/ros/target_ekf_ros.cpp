@@ -31,7 +31,7 @@
 #include <ros/package.h>
 
 #include "ekf/state.h"
-#include "ekf/ekf_ros.h"
+#include "ekf/target_ekf_ros.h"
 #include "roscopter_utils/yaml.h"
 #include "roscopter_utils/gnss.h"
 
@@ -59,7 +59,7 @@ namespace roscopter::ekf
     euler_deg_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("euler_degrees", 1);
     imu_bias_pub_ = nh_.advertise<sensor_msgs::Imu>("imu_bias", 1);
     is_flying_pub_ = nh_.advertise<std_msgs::Bool>("is_flying", 1);
-    ref_lla_pub_ = nh_.advertise<rosflight_msgs::GNSS>("ref_lla", 1);
+    ack_received_ref_lla_pub_ = nh_.advertise<std_msgs::Bool>("ack_received_ref_lla", 1);
 
     imu_sub_ = nh_.subscribe("imu", 100, &EKF_ROS::imuCallback, this);
     baro_sub_ = nh_.subscribe("baro", 100, &EKF_ROS::baroCallback, this);

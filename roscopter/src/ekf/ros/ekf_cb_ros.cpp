@@ -99,6 +99,11 @@ namespace roscopter::ekf
     ekf_.compassingUpdate(t, z, compassing_R_);
   }
 
+  void EKF_ROS::ackReceivedRefLlaCallback(const std_msgs::Bool &msg)
+  {
+    received_ref_lla_ = msg.data;
+  }
+
   void EKF_ROS::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
   {
 
@@ -111,13 +116,6 @@ namespace roscopter::ekf
       ekf_.setDisarmed();
     }
   }
-
-  void EKF_ROS::commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr &msg)
-  {
-    Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
-    ekf_.setRefLla(ref_lla);
-  }
-
 
   void EKF_ROS::gnssCallback(const rosflight_msgs::GNSSConstPtr &msg)
   {
@@ -165,12 +163,12 @@ namespace roscopter::ekf
       // Convert radians to degrees
       ref_lla.head<2>() *= 180. / M_PI;
       ekf_.setRefLla(ref_lla);
-      rosflight_msgs::GNSS common_ref_lla;
-      common_ref_lla.position[0] = ref_lla[0];
-      common_ref_lla.position[1] = ref_lla[1];
-      common_ref_lla.position[2] = ref_lla[2];
-      ref_lla_pub_.publish(common_ref_lla);
+      common_ref_lla_.position[0] = ref_lla[0];
+      common_ref_lla_.position[1] = ref_lla[1];
+      common_ref_lla_.position[2] = ref_lla[2];
     }
+    if (!received_ref_lla_)
+      ref_lla_pub_.publish(common_ref_lla_);
 
     if (start_time_.sec == 0)
       return;

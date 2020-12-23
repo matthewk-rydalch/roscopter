@@ -66,7 +66,7 @@ namespace roscopter::ekf
     pose_sub_ = nh_.subscribe("pose", 10, &EKF_ROS::poseCallback, this);
     odom_sub_ = nh_.subscribe("reference", 10, &EKF_ROS::odomCallback, this);
     gnss_sub_ = nh_.subscribe("gnss", 10, &EKF_ROS::gnssCallback, this);
-    common_ref_lla_sub_ = nh_.subscribe("common_ref_lla", 10, &EKF_ROS::commonRefLlaCallback, this);
+    ack_received_ref_lla_sub_ = nh_.subscribe("ack_received_ref_lla", 10, &EKF_ROS::ackReceivedRefLlaCallback, this);
 
 
   #ifdef UBLOX

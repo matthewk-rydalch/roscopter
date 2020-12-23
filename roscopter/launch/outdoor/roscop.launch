@@ -28,6 +28,7 @@
     <!-- <remap from="reference" to="/truth/NED"/> -->
     <remap from="ublox_gnss" to="/PosVelEcef"/>
     <remap from="ublox_relpos" to="/RelPos"/>
+    <remap from="ack_received_ref_lla" to="boat/ack_received_ref_lla"/>
   </node>
 
   <!-- Waypoint Manager -->
