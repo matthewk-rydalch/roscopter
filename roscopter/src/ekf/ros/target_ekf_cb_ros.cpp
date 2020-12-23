@@ -94,7 +94,7 @@ namespace roscopter::ekf
   {
     if (start_time_.sec == 0)
       return;
-
+      
     const double t = (time - start_time_).toSec();
     ekf_.compassingUpdate(t, z, compassing_R_);
   }
@@ -117,11 +117,10 @@ namespace roscopter::ekf
     std_msgs::Bool received_ref_lla;
     received_ref_lla.data = true;
     ack_received_ref_lla_pub_.publish(received_ref_lla);
+    initROS();
     Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
     ekf_.setRefLla(ref_lla);
-    //TODO:: There may be some converting here that needed to be done.  See standard set ref_lla
   }
-
 
   void EKF_ROS::gnssCallback(const rosflight_msgs::GNSSConstPtr &msg)
   {
@@ -161,6 +160,15 @@ namespace roscopter::ekf
     Matrix6d Sigma_ecef;
     Sigma_ecef << R_e2n.transpose() * Sigma_diag_NED.head<3>().asDiagonal() * R_e2n, Matrix3d::Zero(),
                   Matrix3d::Zero(), R_e2n.transpose() *  Sigma_diag_NED.tail<3>().asDiagonal() * R_e2n;
+    
+    if (!ekf_.refLlaSet())
+    {
+      // set ref lla to first gps position
+      Eigen::Vector3d ref_lla = ecef2lla(z.head<3>());
+      // Convert radians to degrees
+      ref_lla.head<2>() *= 180. / M_PI;
+      ekf_.setRefLla(ref_lla);
+    }
 
     if (start_time_.sec == 0)
       return;

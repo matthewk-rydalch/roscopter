@@ -185,6 +185,7 @@ namespace roscopter::ekf
     Matrix<double, 1, E::NDX> H;
     H.setZero();
     H(0, E::DQ+2) = 1.0;
+    std::cout << "use compassing = " << use_compassing_ << std::endl;
 
     if (use_compassing_)
       measUpdate(yaw_res, z.R, H);

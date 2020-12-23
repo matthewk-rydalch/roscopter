@@ -41,16 +41,18 @@ namespace roscopter::ekf
 {
   EKF_ROS::EKF_ROS() :
     nh_(), nh_private_("~")
-  {}
+  {
+    ack_received_ref_lla_pub_ = nh_.advertise<std_msgs::Bool>("ack_received_ref_lla", 1);
+    common_ref_lla_sub_ = nh_.subscribe("common_ref_lla", 10, &EKF_ROS::commonRefLlaCallback, this);
+  }
 
   EKF_ROS::~EKF_ROS()
   {}
 
   void EKF_ROS::initROS()
   {
-
     std::string roscopter_path = ros::package::getPath("roscopter");
-    std::string parameter_filename = nh_private_.param<std::string>("param_filename", roscopter_path + "/params/ekf.yaml");
+    std::string parameter_filename = nh_private_.param<std::string>("param_filename", roscopter_path + "/params/target_ekf.yaml");
 
     init(parameter_filename);
 
@@ -59,15 +61,12 @@ namespace roscopter::ekf
     euler_deg_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("euler_degrees", 1);
     imu_bias_pub_ = nh_.advertise<sensor_msgs::Imu>("imu_bias", 1);
     is_flying_pub_ = nh_.advertise<std_msgs::Bool>("is_flying", 1);
-    ack_received_ref_lla_pub_ = nh_.advertise<std_msgs::Bool>("ack_received_ref_lla", 1);
 
     imu_sub_ = nh_.subscribe("imu", 100, &EKF_ROS::imuCallback, this);
     baro_sub_ = nh_.subscribe("baro", 100, &EKF_ROS::baroCallback, this);
     pose_sub_ = nh_.subscribe("pose", 10, &EKF_ROS::poseCallback, this);
     odom_sub_ = nh_.subscribe("reference", 10, &EKF_ROS::odomCallback, this);
     gnss_sub_ = nh_.subscribe("gnss", 10, &EKF_ROS::gnssCallback, this);
-    common_ref_lla_sub_ = nh_.subscribe("common_ref_lla", 10, &EKF_ROS::commonRefLlaCallback, this);
-
 
   #ifdef UBLOX
     ublox_gnss_sub_ = nh_.subscribe("ublox_gnss", 10, &EKF_ROS::gnssCallbackUblox, this);
