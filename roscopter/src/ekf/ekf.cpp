@@ -18,7 +18,6 @@ namespace roscopter::ekf
 
   void EKF::load(const std::string &filename)
   {
-    std::cout << "in load function!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n";
     // Constant Parameters
     get_yaml_eigen("p_b2g", filename, p_b2g_);
     get_yaml_diag("Qx", filename, Qx_);
@@ -162,15 +161,16 @@ namespace roscopter::ekf
     x() += K * res;
     dxMat ImKH = I_BIG - K*H;
     P() = ImKH*P()*ImKH.T + K*R*K.T;
-
+    std::cout << "H = " << H << std::endl;
+    std::cout << "K = " << K << std::endl;
     CHECK_NAN(P());
     return true;
   }
 
   void EKF::setRefLla(Vector3d ref_lla)
   {
-    // if (ref_lla_set_)
-    //   return;
+    if (ref_lla_set_)
+      return;
 
     std::cout << "Set ref lla: " << ref_lla.transpose() << std::endl;
     ref_lla.head<2>() *= M_PI/180.0; // convert to rad

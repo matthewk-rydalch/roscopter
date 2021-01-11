@@ -97,7 +97,7 @@ namespace roscopter::ekf
     const Vector3d gps_pos_I = x().p + x().q.rota(p_b2g_);
     const Vector3d gps_vel_b = x().v + w.cross(p_b2g_);
     const Vector3d gps_vel_I = x().q.rota(gps_vel_b);
-    // Update ref_lla based on current estimate
+    // Update ref_lla based on current estimate ///is this actually updating the ref_lla?  I don't think it is.
     Vector3d ref_lla(ref_lat_radians_, ref_lon_radians_, x().ref);
     xform::Xformd x_e2n = x_ecef2ned(lla2ecef(ref_lla));
     x_e2I_.t() = x_e2n.t();
@@ -185,7 +185,6 @@ namespace roscopter::ekf
     Matrix<double, 1, E::NDX> H;
     H.setZero();
     H(0, E::DQ+2) = 1.0;
-    std::cout << "use compassing = " << use_compassing_ << std::endl;
 
     if (use_compassing_)
       measUpdate(yaw_res, z.R, H);
