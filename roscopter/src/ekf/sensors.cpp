@@ -123,7 +123,7 @@ namespace roscopter::ekf
     H.setZero();
     H.block<3,3>(0, E::DP) = R_I2e; // dpE/dpI
     H.block<3,3>(0, E::DQ) = -R_e2b * skew(p_b2g_);
-    H.block<3, 1>(0, E::DREF) = dpEdRefAlt;
+    // H.block<3, 1>(0, E::DREF) = dpEdRefAlt; //This updates the reference.  We don't want to do that.
     H.block<3,3>(3, E::DQ) = -R_e2b * skew(gps_vel_b); // dvE/dQI
     H.block<3,3>(3, E::DV) = R_e2b;
     H.block<3,3>(3, E::DBG) = R_e2b * skew(p_b2g_);

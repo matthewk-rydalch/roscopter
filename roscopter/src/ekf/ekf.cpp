@@ -56,7 +56,7 @@ namespace roscopter::ekf
       x_e2I_.q() = x_e2n.q() * q_n2I_; //??? not sure what this does.
 
       // initialize the estimated ref altitude state
-      x().ref = ref_lla(2);
+      // x().ref = ref_lla(2);
       ref_lat_radians_ = ref_lla(0);
       ref_lon_radians_ = ref_lla(1);
 
@@ -93,10 +93,10 @@ namespace roscopter::ekf
     x().ba.setZero();
     x().bg.setZero();
     x().bb = 0.;
-    if (ref_lla_set_)
-      x().ref = x().ref;
-    else
-      x().ref = 0.;
+    // if (ref_lla_set_)
+    //   x().ref = x().ref;
+    // else
+    //   x().ref = 0.;
     x().a = -gravity;
     x().w.setZero();
     is_flying_ = false;
@@ -161,29 +161,27 @@ namespace roscopter::ekf
     x() += K * res;
     dxMat ImKH = I_BIG - K*H;
     P() = ImKH*P()*ImKH.T + K*R*K.T;
-    std::cout << "H = " << H << std::endl;
-    std::cout << "K = " << K << std::endl;
     CHECK_NAN(P());
     return true;
   }
 
   void EKF::setRefLla(Vector3d ref_lla)
   {
-    if (ref_lla_set_)
-      return;
+    if (!ref_lla_set_)
+    {
+      std::cout << "Set ref lla: " << ref_lla.transpose() << std::endl;
+      ref_lla.head<2>() *= M_PI/180.0; // convert to rad
+      xform::Xformd x_e2n = x_ecef2ned(lla2ecef(ref_lla));
+      x_e2I_.t() = x_e2n.t();
+      x_e2I_.q() = x_e2n.q() * q_n2I_;
 
-    std::cout << "Set ref lla: " << ref_lla.transpose() << std::endl;
-    ref_lla.head<2>() *= M_PI/180.0; // convert to rad
-    xform::Xformd x_e2n = x_ecef2ned(lla2ecef(ref_lla));
-    x_e2I_.t() = x_e2n.t();
-    x_e2I_.q() = x_e2n.q() * q_n2I_;
+      // initialize the estimated ref altitude state
+      x().ref = ref_lla(2);
+      ref_lat_radians_ = ref_lla(0);
+      ref_lon_radians_ = ref_lla(1);
 
-    // initialize the estimated ref altitude state
-    x().ref = ref_lla(2);
-    ref_lat_radians_ = ref_lla(0);
-    ref_lon_radians_ = ref_lla(1);
-
-    ref_lla_set_ = true;
+      ref_lla_set_ = true;
+    }
   }
 
   void EKF::setGroundTempPressure(const double& temp, const double& press)

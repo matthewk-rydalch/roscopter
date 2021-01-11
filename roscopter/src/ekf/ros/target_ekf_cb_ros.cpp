@@ -161,14 +161,14 @@ namespace roscopter::ekf
     Sigma_ecef << R_e2n.transpose() * Sigma_diag_NED.head<3>().asDiagonal() * R_e2n, Matrix3d::Zero(),
                   Matrix3d::Zero(), R_e2n.transpose() *  Sigma_diag_NED.tail<3>().asDiagonal() * R_e2n;
     
-    if (!ekf_.refLlaSet())
-    {
-      // set ref lla to first gps position
-      Eigen::Vector3d ref_lla = ecef2lla(z.head<3>());
-      // Convert radians to degrees
-      ref_lla.head<2>() *= 180. / M_PI;
-      ekf_.setRefLla(ref_lla);
-    }
+    // if (!ekf_.refLlaSet())
+    // {
+    //   // set ref lla to first gps position
+    //   Eigen::Vector3d ref_lla = ecef2lla(z.head<3>());
+    //   // Convert radians to degrees
+    //   ref_lla.head<2>() *= 180. / M_PI;
+    //   ekf_.setRefLla(ref_lla);
+    // }
 
     if (start_time_.sec == 0)
       return;
