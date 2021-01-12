@@ -56,12 +56,12 @@ void Ff_Cntrl::computeFeedForwardControl(double dt)
       xc_.phi = saturate(xc_.phi, max_.roll, -max_.roll);
       xc_.theta = saturate(xc_.theta, max_.pitch, -max_.pitch);
       xc_.r = saturate(xc_.r, max_.yaw_rate, -max_.yaw_rate);
-      if (-xhat_.pd < min_altitude_)
-      {
-        xc_.phi = 0.;
-        xc_.theta = 0.;
-        xc_.r = 0.;
-      }
+      // if (-xhat_.pd < min_altitude_)
+      // {
+      //   xc_.phi = 0.;
+      //   xc_.theta = 0.;
+      //   xc_.r = 0.;
+      // }
     }
   }
 }
