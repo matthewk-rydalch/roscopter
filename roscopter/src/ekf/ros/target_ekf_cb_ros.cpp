@@ -217,6 +217,8 @@ namespace roscopter::ekf
       compassing_R_ = accHeading * accHeading;
     }
     double z = wrap(msg->relPosHeading, M_PI);
+    if (z > 3.0 || z < -3.0)
+      std::cout << "Target heading near 180 deg.  May have wrapping issues with the estimator. \n";
     
 
     //make some of these variables scoped to this function only.
