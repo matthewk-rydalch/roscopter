@@ -216,9 +216,20 @@ void Ff_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 
 void Ff_Cntrl_Ros::targetEstimateCallback(const nav_msgs::OdometryConstPtr &msg)
 {
+  control.target_hat_.pn = msg->pose.pose.position.x;
+  control.target_hat_.pe = msg->pose.pose.position.y;
+  control.target_hat_.pd = msg->pose.pose.position.z;
+
+  tf::Quaternion tf_quat;
+  tf::quaternionMsgToTF(msg->pose.pose.orientation, tf_quat);
+  tf::Matrix3x3(tf_quat).getRPY(control.target_hat_.phi, control.target_hat_.theta, control.target_hat_.psi);
+
   control.target_hat_.u = msg->twist.twist.linear.x;
   control.target_hat_.v = msg->twist.twist.linear.y;
   control.target_hat_.w = msg->twist.twist.linear.z;
+  control.target_hat_.p = msg->twist.twist.angular.x;
+  control.target_hat_.q = msg->twist.twist.angular.y;
+  control.target_hat_.r = msg->twist.twist.angular.z;
 }
 
 void Ff_Cntrl_Ros::useFeedForwardCallback(const std_msgs::BoolConstPtr &msg)

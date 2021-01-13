@@ -104,7 +104,7 @@ target_link_libraries(rtk_compassing_test ekf_ros ${catkin_LIBRARIES} ${GTEST_LI
 #   tests/feed_forward/feed_forward_test.cpp
 #   include/tests/feed_forward_test.h
 #   )
-# target_link_libraries(ff_test controller ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+# target_link_libraries(ff_test controller ff_cntrl ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
 
 add_library(controller_ros
