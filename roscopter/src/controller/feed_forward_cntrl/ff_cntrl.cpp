@@ -114,7 +114,7 @@ Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
 {
   Eigen::Matrix3d Rphi = Ff_Cntrl::Rroll(target_hat_.phi);
   Eigen::Matrix3d Rth = Ff_Cntrl::Rpitch(target_hat_.theta);
-  Eigen::Matrix3d Rpsi = Ff_Cntrl::Ryaw(target_hat_.psi + xhat_.psi); //I think this is wrong.
+  Eigen::Matrix3d Rpsi = Ff_Cntrl::Ryaw(target_hat_.psi - xhat_.psi);
 
   Eigen::Vector3d base_velocity_body_frame(target_hat_.u, target_hat_.v, target_hat_.w);
   Eigen::Vector3d base_velocity_rover_v1_frame(Rpsi*Rth*Rphi*base_velocity_body_frame);

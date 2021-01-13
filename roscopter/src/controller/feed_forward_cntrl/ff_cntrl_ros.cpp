@@ -79,7 +79,7 @@ void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
     publishCommand();
     std_msgs::Float32 integrator;
     bool get_x_not_y{false};
-    integrator.data = control.getIntegrator(false);
+    integrator.data = control.getIntegrator(false); //should have input of get_x_not_y, but that isn't working.
     if (integrator.data != 0.0)
     {
       integrator_pub_.publish(integrator);
