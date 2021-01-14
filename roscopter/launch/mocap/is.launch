@@ -1,5 +1,4 @@
 <launch>
-  <group ns="boat">
     <rosparam subst_value="True">
       inertial_sense: { port: "/dev/ttyUSB0",
                             baud: 921600,

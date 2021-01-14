@@ -12,10 +12,10 @@
     <!--not actually flying, but need to publish this to make the estimator run-->
     <node pkg="rostopic" type="rostopic" name="is_flying_pub" args="pub is_flying std_msgs/Bool true"/>
     <include file="$(find roscopter)/launch/outdoor/boat_estimator.launch">
-      <remap from="ublox_gnss" to="$(arg ublox_gnss)"/>
-      <remap from="ublox_relpos" to="$(arg ublox_relpos)"/>
-      <remap from="common_ref_lla" to="$(arg common_ref_lla)"/>
+      <arg name="ublox_gnss" value="$(arg ublox_gnss)"/>
+      <arg name="ublox_relpos" value="$(arg ublox_relpos)"/>
+      <arg name="common_ref_lla" value="$(arg common_ref_lla)"/>
     </include>
-    <include file="$(find roscopter)/launch/is.launch"/>
+    <include file="$(find roscopter)/launch/mocap/is.launch"/>
   </group>
 </launch>
