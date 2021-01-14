@@ -1,5 +1,5 @@
 <launch>
-    <arg name="drone_name"            defualt="ragnarok"/>
+    <arg name="drone_name"            default="ragnarok"/>
     <arg name="target_name"         default="boat_landing_platform"/>
     <group ns="m2u">
         <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>

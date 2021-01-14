@@ -122,7 +122,7 @@ class Mocap2UbloxROS():
         self.base_virtual_PosVelEcef_pub_.publish(self.base_PosVelEcef)
 
     
-    def publish_base2_virtual_relPos(self):
+    def publish_compass_virtual_relPos(self):
 
         self.compass_relPos.relPosHeading = self.m2u.compass_heading
         self.compass_relPos.accHeading = self.accHeading

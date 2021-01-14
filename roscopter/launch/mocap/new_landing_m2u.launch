@@ -5,8 +5,8 @@
   <arg name="drone_name"            value="ragnarok"/>
   <arg name="target_name"         value="boat_landing_platform"/>
   <arg name="f4_serial_port" default="/dev/ttyACM0"/>
-  <arg name="ublox_gnss"          default="/m2u/rover_PosVelEcef"/>
-  <arg name="ublox_relpos"        default="/m2u/rover_relpos"/>
+  <arg name="ublox_gnss"          default="/m2u/PosVelEcef"/>
+  <arg name="ublox_relpos"        default="/m2u/RelPos"/>
   <arg name="base_odom"           default="/boat/odom"/>
 
   <include file="$(find roscopter)/launch/mocap/rosflight.launch">
