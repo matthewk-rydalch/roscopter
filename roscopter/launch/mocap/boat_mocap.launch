@@ -4,8 +4,8 @@
 
   <arg name="target_name"         value="boat_landing_platform"/>
   <arg name="is_serial_port" default="/dev/ttyUSB0"/>
-  <arg name="ublox_gnss" value="PosVelEcef"/>
-  <arg name="ublox_relpos" value="compass/RelPos"/>
+  <arg name="ublox_gnss" value="/m2u/boat/PosVelEcef"/>
+  <arg name="ublox_relpos" value="/m2u/boat/compass/RelPos"/>
   <arg name="common_ref_lla" value="/ref_lla"/>
 
   <group ns="boat">
