@@ -1,0 +1,11 @@
+<launch>
+    <arg name="drone_name"            defualt="ragnarok"/>
+    <arg name="target_name"         default="boat_landing_platform"/>
+    <group ns="m2u">
+        <rosparam command="load" file="$(find roscopter)/params/mocap2ublox.yaml"/>
+        <node name="mocap2ublox" pkg="roscopter" type="mocap2ublox_ros.py" output="screen">
+            <remap from="rover_mocap" to="/$(arg drone_name)_ned"/>
+            <remap from="base_mocap" to="/$(arg target_name)_ned"/>
+        </node>
+    </group>
+</launch>

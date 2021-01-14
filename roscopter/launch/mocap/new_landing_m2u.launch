@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="drone_name"            value="ragnarok"/>
+  <arg name="target_name"         value="boat_landing_platform"/>
+  <arg name="f4_serial_port" default="/dev/ttyACM0"/>
+  <arg name="ublox_gnss"          default="/m2u/rover_PosVelEcef"/>
+  <arg name="ublox_relpos"        default="/m2u/rover_relpos"/>
+  <arg name="base_odom"           default="/boat/odom"/>
+
+  <include file="$(find roscopter)/launch/mocap/rosflight.launch">
+    <arg name="f4_serial_port" value="$(arg f4_serial_port)"/>
+  </include>
+  
+  <include file="$(find roscopter)/launch/mocap/m2u.launch"/>
+  
+  <include file="$(find roscopter)/launch/outdoor/roscop.launch">
+    <arg name="ublox_gnss"          value="$(arg ublox_gnss"/>
+    <arg name="ublox_relpos"        value="$(arg ublox_relpos"/>
+    <arg name="base_odom"           value="$(arg base_odom"/>
+  </include>
+  
+   <!-- Motion Capture Node-->
+  <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
+
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/landing_m2u --all"/>
+
+</launch>

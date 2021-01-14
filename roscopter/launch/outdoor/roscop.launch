@@ -4,12 +4,11 @@
 
   <arg name="drone_name"          default="ragnarok"/>
   <arg name="target_name"         default="boat_landing_platform"/>
-  <arg name="rover_serial_port"   default="/dev/ttyACM1"/>
-  <arg name="base_host"           default="192.168.0.143"/>
-  <arg name="rover_host"          default="192.168.0.84"/>
   <arg name="controller_params"   default="$(find roscopter)/params/$(arg drone_name).yaml"/>
   <arg name="waypoints_params"     default="$(find roscopter)/params/waypoints.yaml"/>
-
+  <arg name="ublox_gnss"          default="/PosVelEcef"/>
+  <arg name="ublox_relpos"        default="/RelPos"/>
+  <arg name="base_odom"           default="/boat/odom"/>
 
   <!-- Load common parameters -->
   <rosparam command="load" file="$(arg controller_params)"/>
@@ -26,8 +25,8 @@
     <remap from="imu" to="/imu/data"/>
     <!-- <remap from="baro" to="/baro"/> -->
     <!-- <remap from="reference" to="/truth/NED"/> -->
-    <remap from="ublox_gnss" to="/PosVelEcef"/>
-    <remap from="ublox_relpos" to="/RelPos"/>
+    <remap from="ublox_gnss" to="$(arg ublox_gnss)"/>
+    <remap from="ublox_relpos" to="$(arg ublox_relpos)"/>
     <remap from="ack_received_ref_lla" to="boat/ack_received_ref_lla"/>
   </node>
 
@@ -36,7 +35,7 @@
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
     <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
-    <remap from="base_odom" to="/boat/odom"/>
+    <remap from="base_odom" to="$(arg base_odom)"/>
   </node>
 
 </launch>

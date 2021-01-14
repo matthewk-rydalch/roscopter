@@ -1,0 +1,9 @@
+<launch>
+  <arg name="f4_serial_port" default="/dev/ttyACM0"/>
+  
+  <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
+    <param name="udp" value="false"/>
+    <param name="port" value="$(arg f4_serial_port)"/>
+  </node>
+  
+</launch>
