@@ -16,6 +16,6 @@
       <arg name="ublox_relpos" value="$(arg ublox_relpos)"/>
       <arg name="common_ref_lla" value="$(arg common_ref_lla)"/>
     </include>
-    <include file="$(find roscopter)/launch/mocap/is.launch"/>
+    <include file="$(find roscopter)/launch/include/is.launch"/>
   </group>
 </launch>
