@@ -3,35 +3,38 @@
 <launch>
 
   <arg name="base_serial_port"    value="/dev/ttyACM0"/>
-  <arg name="base_host"           value="192.168.0.143"/>
+  <arg name="base_host"           value="192.168.1.118"/>
   <arg name="base_port"           value="16140"/>
   <arg name="compass_serial_port" value="/dev/ttyACM1"/>
   <arg name="compass_host"        value="$(arg base_host)"/>
   <arg name="compass_port"        value="16145"/>
-  <arg name="rover_host"          value="192.168.0.84"/>
+  <arg name="rover_host"          value="192.168.1.4"/>
   <arg name="rover_port"           value="16140"/>
   <arg name="ublox_gnss"          value="/base/PosVelEcef"/>
   <arg name="ublox_relpos"        value="/compass/base/RelPos"/>
   <arg name="base_odom"           value="/boat/odom"/>
   <arg name="common_ref_lla" value="/ref_lla"/>
 
-  <include file="$(find ublox)/launch/base.launch">
-    <arg name="base_serial_port"  value="$(arg base_serial_port)"/>
-    <arg name="base_host"         value="$(arg base_host)"/>
-    <!--arg name="base_port"         value="$(arg base_port)"/-->
-    <arg name="rover_host"        value="$(arg rover_host)"/>
-    <!--arg name="rover_port"        value="$(arg rover_port)"/-->
-  </include>
-  <group ns="compass">
-    <include file="$(find ublox)/launch/OneComp.launch"/>
-      <arg name="base_serial_port"    value="$(arg base_serial_port)"/>
-      <arg name="base_host"           value="localhost"/>
-      <!--arg name="base_port"           value="$(arg base_port)"/-->
-      <arg name="rover_serial_port"   value="$(arg compass_serial_port)"/>
-      <arg name="rover_host"          value="localhost"/>
-      <!--arg name="rover_port"          value="$(arg compass_port)"/-->
+  <!-- <include file="$(find ublox)/launch/mult_rov_base.launch">
+    <arg name="base_serial_port"    default="$(arg base_serial_port)"/>
+    <arg name="base_host"           default="$(arg base_host)"/>
+    <arg name="base_port1"          default="$(arg base_port)"/>
+    <arg name="rover1_host"         default="$(arg rover_host)"/>
+    <arg name="rover1_port"         default="$(arg rover_port)"/>
+    <arg name="base_port2"          default="$(arg base_host)"/>
+    <arg name="rover2_host"         default="$(arg compass_host)"/>
+    <arg name="rover2_port"         default="$(arg compass_port)"/>
+  </include> -->
+  <!-- <group ns="compass">
+    <include file="$(find ublox)/launch/OneComp.launch">
+      <arg name="base_serial_port"    default="$(arg base_serial_port)"/>
+      <arg name="base_host"           default="$(arg base_host)"/>
+      <arg name="base_port"           default="$(arg base_port)"/>
+      <arg name="rover_serial_port"   default="$(arg compass_serial_port)"/>
+      <arg name="rover_host"          default="$(arg compass_host)"/>
+      <arg name="rover_port"          default="$(arg compass_port)"/>
     </include>
-  </group>
+  </group> -->
 
   <group ns="boat">
     <include file="$(find roscopter)/launch/include/boat_estimator.launch">
