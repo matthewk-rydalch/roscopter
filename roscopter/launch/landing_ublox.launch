@@ -6,7 +6,7 @@
   <arg name="base_host"           value="192.168.0.143"/>
   <arg name="rover_host"          value="192.168.0.84"/>
   <arg name="ublox_gnss"          value="/rover/PosVelEcef"/>
-  <arg name="ublox_relpos"        value="/base/RelPos"/>
+  <arg name="ublox_relpos"        value="/boat/RelPos"/>
   <arg name="base_odom"           value="/boat/odom"/>
 
   <include file="$(find roscopter)/launch/include/rosflight.launch">
