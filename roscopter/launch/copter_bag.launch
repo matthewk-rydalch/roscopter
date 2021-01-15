@@ -1,3 +1,4 @@
+<!-- !!!!!!!!!!!!!!!!!!!!!!!! Needs to be finished !!!!!!!!!!!!!!!!!!!-->
 <?xml version="1.0"?>
 
 <launch>
@@ -25,13 +26,14 @@
 
   <!-- Estimator -->
   <!-- Be sure to remap to /PosVelEcef after velocity issue is figured out in ublox -->
-  <group ns="boat">
+  <include file="$(find roscopter)/launch/include/boat_estimator.launch"/> <!-- this may or may not replace all of the stuff commented out.-->
+  <!-- <group ns="boat">
     <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
       <remap from="imu" to="imu"/>
       <remap from="ublox_gnss" to="PosVelEcef"/>
       <remap from="ublox_relpos" to="compass/RelPos"/>
     </node>
-  </group>
+  </group> -->
 
   <!-- Waypoint Manager -->
   <!-- <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>

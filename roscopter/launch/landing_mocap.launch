@@ -1,7 +1,10 @@
+<!-- !!!!!!!!!!!!!!!!!!!!!!!! Needs to be finished !!!!!!!!!!!!!!!!!!!-->
+
 <?xml version="1.0"?>
 
 <launch>
   <arg name="drone_name"            value="ragnarok"/>
+  <arg name="target_name"         value="boat_landing_platform"/>
 
   <!-- FCU communication -->
   <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
@@ -9,14 +12,23 @@
     <param name="port" value="/dev/ttyACM0"/>
   </node>
 
-  <!-- Motion Capture Node-->
   <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
+
+  <!-- Convert mocap pose data of boat to Odom data. i.e. add velocity-->
+  <node name="mocap_odom" pkg="roscopter" type="mocap_odom.py" output="screen">
+    <!-- Inputs -->
+    <remap from="pose" to="$(arg target_name)_ned"/>
+    <!-- Outputs -->
+    <remap from="mocap_odom" to="$(arg target_name)_odom"/>
+  </node>
 
   <!-- Load common parameters -->
   <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
 
   <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="controller_node">
+  <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
+    <!--platform virtual odom comes from base_landing.launch-->
+    <remap from="target_estimate" to="/$(arg target_name)_odom"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
@@ -25,18 +37,18 @@
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
     <remap from="imu" to="/imu/data"/>
     <remap from="pose" to="/$(arg drone_name)_ned"/>
-
+    <!--Can't estimate heading here.  w/o relpos.  Maybe need to write a node to do this?-->
   </node>
 
   <!-- Waypoint Manager -->
   <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
   <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
+    <remap from="waypoint" to="high_level_command"/>
     <remap from="state" to="odom"/>
+    <remap from="base_odom" to="/$(arg target_name)_odom"/>
   </node>
 
-  <node name="hlc_cont_ned" pkg="roscopter" type="hlc_continuous_ned.py" output="screen"/>
-  <node name="performance_tracker" pkg="roscopter" type="performance_ros.py" output="screen"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/landing_mocap --all"/>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/tune --all"/>
 
 </launch>

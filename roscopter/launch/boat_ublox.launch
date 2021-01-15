@@ -1,3 +1,4 @@
+<!-- !!!!!!!!!!!!!!!!!!!!!!!! Needs to be finished !!!!!!!!!!!!!!!!!!!-->
 <?xml version="1.0"?>
 
 <launch>
@@ -11,7 +12,7 @@
   <arg name="rover_host" default="192.168.0.84"/>
 
   <group ns="boat">
-    <include file="$(find roscopter)/launch/outdoor/boat_estimator.launch"/>
+    <include file="$(find roscopter)/launch/include/boat_estimator.launch"/>
     <include file="$(find ublox)/launch/base.launch">
       <arg name="base_serial_port" default="/dev/ttyACM1"/>
       <arg name="base_host" default="192.168.0.143"/>
@@ -26,7 +27,4 @@
       </include>
     </group>
   </group>
-
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/base --all"/>
-
 </launch>

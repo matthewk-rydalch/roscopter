@@ -9,16 +9,16 @@
   <arg name="ublox_relpos"        default="/m2u/RelPos"/>
   <arg name="base_odom"           default="/boat/odom"/>
 
-  <include file="$(find roscopter)/launch/mocap/rosflight.launch">
+  <include file="$(find roscopter)/launch/include/rosflight.launch">
     <arg name="f4_serial_port" value="$(arg f4_serial_port)"/>
   </include>
   
-  <include file="$(find roscopter)/launch/mocap/m2u.launch">
+  <include file="$(find roscopter)/launch/include/m2u.launch">
     <arg name="drone_name"  value="$(arg drone_name)"/>
     <arg name="target_name" value="$(arg target_name)"/>
   </include>
 
-  <include file="$(find roscopter)/launch/outdoor/roscop.launch">
+  <include file="$(find roscopter)/launch/include/roscop.launch">
     <arg name="ublox_gnss"          value="$(arg ublox_gnss)"/>
     <arg name="ublox_relpos"        value="$(arg ublox_relpos)"/>
     <arg name="base_odom"           value="$(arg base_odom)"/>
