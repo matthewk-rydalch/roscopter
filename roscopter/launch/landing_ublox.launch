@@ -5,15 +5,15 @@
   <arg name="rover_serial_port"   value="/dev/ttyACM1"/>
   <arg name="base_host"           value="192.168.0.143"/>
   <arg name="rover_host"          value="192.168.0.84"/>
-  <arg name="ublox_gnss"          value="/PosVelEcef"/>
-  <arg name="ublox_relpos"        value="/RelPos"/>
+  <arg name="ublox_gnss"          value="/rover/PosVelEcef"/>
+  <arg name="ublox_relpos"        value="/base/RelPos"/>
   <arg name="base_odom"           value="/boat/odom"/>
 
   <include file="$(find roscopter)/launch/include/rosflight.launch">
     <arg name="f4_serial_port" value="$(arg f4_serial_port)"/>
   </include>
   
-  <include file="$(find roscopter)/launch/roscop.launch">
+  <include file="$(find roscopter)/launch/include/roscop.launch">
     <arg name="ublox_gnss"          value="$(arg ublox_gnss)"/>
     <arg name="ublox_relpos"        value="$(arg ublox_relpos)"/>
     <arg name="base_odom"           value="$(arg base_odom)"/>
