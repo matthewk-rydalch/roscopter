@@ -1,30 +1,45 @@
-<!-- !!!!!!!!!!!!!!!!!!!!!!!! Needs to be finished !!!!!!!!!!!!!!!!!!!-->
 <?xml version="1.0"?>
 
 <launch>
 
-  <!--A lot needs to be changed in this.  It is conceptual right now.-->
-  <arg name="target_name"         value="boat_landing_platform"/>
-  <arg name="is_serial_port" default="/dev/ttyUSB0"/>
-  <arg name="base_serial_port" default="/dev/ttyACM0"/>
-  <arg name="compass_serial_port" default="/dev/ttyACM1"/>
-  <arg name="base_host" default="192.168.0.143"/>
-  <arg name="rover_host" default="192.168.0.84"/>
+  <arg name="base_serial_port"    value="/dev/ttyACM0"/>
+  <arg name="base_host"           value="192.168.0.143"/>
+  <arg name="base_port"           value="16140"/>
+  <arg name="compass_serial_port" value="$(arg base_serial_port)"/>
+  <arg name="compass_host"        value="$(arg base_host)"/>
+  <arg name="compass_port"        value="16145"/>
+  <arg name="rover_host"          value="192.168.0.84"/>
+  <arg name="rover_port"           value="16140"/>
+  <arg name="ublox_gnss"          value="/boat/PosVelEcef"/>
+  <arg name="ublox_relpos"        value="/boat/compass/RelPos"/>
+  <arg name="base_odom"           value="/boat/odom"/>
+  <arg name="common_ref_lla" value="/ref_lla"/>
 
   <group ns="boat">
-    <include file="$(find roscopter)/launch/include/boat_estimator.launch"/>
     <include file="$(find ublox)/launch/base.launch">
-      <arg name="base_serial_port" default="/dev/ttyACM1"/>
-      <arg name="base_host" default="192.168.0.143"/>
-      <arg name="rover_host" default="192.168.0.84"/>
+      <arg name="base_serial_port"  value="$(arg base_serial_port)"/>
+      <arg name="base_host"         value="$(arg base_host)"/>
+      <arg name="base_port"         value="$(arg base_port)"/>
+      <arg name="rover_host"        value="$(arg rover_host)"/>
+      <arg name="rover_port"        value="$(arg rover_port)"/>
     </include>
     <group ns="compass">
       <include file="$(find ublox)/launch/oneComp.launch"/>
-        <arg name="base_serial_port" default="/dev/ttyACM1"/>
-        <arg name="rover_serial_port" default="/dev/ttyACM0"/>
-        <arg name="base_host" default="192.168.0.143"/>
-        <arg name="rover_host" default="192.168.0.84"/>
+        <arg name="base_serial_port"    value="$(arg base_serial_port)"/>
+        <arg name="base_host"           value="$(arg base_host)"/>
+        <arg name="base_port"           value="$(arg base_port)"/>
+        <arg name="rover_serial_port"   value="$(arg compass_serial_port)"/>
+        <arg name="rover_host"          value="$(arg compass_host)"/>
+        <arg name="rover_port"          value="$(arg compass_port)"/>
       </include>
     </group>
+
+    <include file="$(find roscopter)/launch/include/boat_estimator.launch">
+      <arg name="ublox_gnss" value="$(arg ublox_gnss)"/>
+      <arg name="ublox_relpos" value="$(arg ublox_relpos)"/>
+      <arg name="common_ref_lla" value="$(arg common_ref_lla)"/>
+    </include>
+
+    <include file="$(find roscopter)/launch/include/is.launch"/>
   </group>
 </launch>
