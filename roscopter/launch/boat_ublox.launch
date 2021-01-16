@@ -3,16 +3,17 @@
 <launch>
 
   <arg name="base_serial_port"    value="/dev/ttyACM0"/>
-  <arg name="base_host"           value="192.168.1.118"/>
+  <arg name="base_host"           value="192.168.0.143"/>
   <arg name="base_port"           value="16140"/>
   <arg name="compass_serial_port" value="/dev/ttyACM1"/>
   <arg name="compass_host"        value="$(arg base_host)"/>
   <arg name="compass_port"        value="16145"/>
-  <arg name="rover_host"          value="192.168.1.4"/>
+  <arg name="rover_host"          value="192.168.0.84"/>
   <arg name="rover_port"           value="16140"/>
   <arg name="ublox_gnss"          value="/boat/base/PosVelEcef"/>
   <arg name="ublox_relpos"        value="/boat/compass/RelPos"/>
   <arg name="base_odom"           value="/boat/odom"/>
+  <arg name="imu_topic"           value="/boat/imu"/>
   <arg name="common_ref_lla" value="/ref_lla"/>
 
   <group ns="boat">
@@ -46,6 +47,7 @@
     </group>
 
     <include file="$(find roscopter)/launch/include/boat_estimator.launch">
+      <arg name="imu_topic"   value="$(arg imu_topic)"/>
       <arg name="ublox_gnss" value="$(arg ublox_gnss)"/>
       <arg name="ublox_relpos" value="$(arg ublox_relpos)"/>
       <arg name="common_ref_lla" value="$(arg common_ref_lla)"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="f4_serial_port"      value="/dev/ttyACM0"/>
-  <arg name="rover_serial_port"   value="/dev/ttyACM1"/>
+  <arg name="f4_serial_port"      value="/dev/ttyACM1"/>
+  <arg name="rover_serial_port"   value="/dev/ttyACM0"/>
   <arg name="base_host"           value="192.168.0.143"/>
   <arg name="rover_host"          value="192.168.0.84"/>
   <arg name="ublox_gnss"          value="/rover/PosVelEcef"/>
