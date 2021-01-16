@@ -14,7 +14,7 @@
   <rosparam command="load" file="$(arg controller_params)"/>
   <!-- PID Position Controller -->
   <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
-    <remap from="target_estimate" to="$(arg boat_odom)"/>
+    <remap from="target_estimate" to="$(arg base_odom)"/>
     <remap from="estimate" to="odom"/>
     <remap from="waypoint" to="high_level_command"/>
   </node>
