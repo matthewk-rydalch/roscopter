@@ -1,47 +1,33 @@
-<!-- !!!!!!!!!!!!!!!!!!!!!!!! Needs to be finished !!!!!!!!!!!!!!!!!!!-->
 <?xml version="1.0"?>
 
 <launch>
 
-  <arg name="drone_name"            value="ragnarok"/>
-  <arg name="target_name"         value="boat_landing_platform"/>
-  <arg name="bag"                 value="../data/trimmed_base6.bag"/>
-  
-  <!-- play rosbag -->
-  <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(arg bag)"/>
+  <arg name="bag_filename"        value="slim3"/>
+  <arg name="bag_file_path"       value="../data/ragnarok_tests/estimator_data_0118/"/>
+  <arg name="ublox_gnss"          value="/rover/PosVelEcef"/>
+  <arg name="ublox_relpos"        value="/boat/RelPos"/>
+  <arg name="base_odom"           value="/boat/odom"/>
+  <arg name="boat_ublox_gnss"     value="/boat/PosVelEcef"/>
+  <arg name="boat_ublox_relpos"   value="/boat/compass/RelPos"/>
+  <arg name="imu_topic"           value="/boat/imu"/>
+  <arg name="common_ref_lla"      value="/ref_lla"/>
 
+  <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(arg bag_file_path)$(arg bag_filename).bag"/>
 
-  <!-- virtual velocity, use only until ublox velocity issue is figured out -->
-  <!-- <node name="virtual_velocity" pkg="roscopter" type="virtual_velocity.py" output="screen"/> -->
+  <include file="$(find roscopter)/launch/include/roscop.launch">
+    <arg name="ublox_gnss"          value="$(arg ublox_gnss)"/>
+    <arg name="ublox_relpos"        value="$(arg ublox_relpos)"/>
+    <arg name="base_odom"           value="$(arg base_odom)"/>
+  </include> 
 
-  <!-- Load common parameters -->
-  <!-- <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/> -->
+  <group ns="boat">
+    <include file="$(find roscopter)/launch/include/boat_estimator.launch">
+      <arg name="imu_topic"   value="$(arg imu_topic)"/>
+      <arg name="ublox_gnss" value="$(arg boat_ublox_gnss)"/>
+      <arg name="ublox_relpos" value="$(arg boat_ublox_relpos)"/>
+      <arg name="common_ref_lla" value="$(arg common_ref_lla)"/>
+    </include>
+  </group>
 
-  <!-- PID Position Controller -->
-  <!-- <node name="controller" pkg="roscopter" type="controller">
-    <remap from="target_estimate" to="boat/odom"/>
-    <remap from="estimate" to="odom"/>
-    <remap from="waypoint" to="high_level_command"/>
-  </node> -->
-
-  <!-- Estimator -->
-  <!-- Be sure to remap to /PosVelEcef after velocity issue is figured out in ublox -->
-  <include file="$(find roscopter)/launch/include/boat_estimator.launch"/> <!-- this may or may not replace all of the stuff commented out.-->
-  <!-- <group ns="boat">
-    <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
-      <remap from="imu" to="imu"/>
-      <remap from="ublox_gnss" to="PosVelEcef"/>
-      <remap from="ublox_relpos" to="compass/RelPos"/>
-    </node>
-  </group> -->
-
-  <!-- Waypoint Manager -->
-  <!-- <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
-  <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
-    <remap from="waypoint" to="high_level_command"/>
-    <remap from="state" to="odom"/>
-    <remap from="base_odom" to="boat/odom"/>
-  </node> -->
-
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/debug.bag --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/$(arg bag_filename).bag --all"/>
 </launch>
