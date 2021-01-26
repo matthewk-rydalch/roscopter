@@ -7,5 +7,5 @@ void hello_there()
 
 void propagate()
 {
-
+    std::cout << "propagate" << std::endl;
 }
