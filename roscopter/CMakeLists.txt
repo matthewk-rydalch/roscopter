@@ -108,12 +108,10 @@ if (BUILD_ROSCOPTER_TESTS)
    target_link_libraries(ff_test controller ff_cntrl ${catkin_LIBRARIES} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
    add_executable(ekf_test
-   tests/ekf/ekf_test.cpp
-   include/tests/ekf_test.h
-   src/ekf/ekf_functions.cpp
-   include/ekf/ekf_functions.h
+   tests/ekf/ekf_load.cpp
+   include/tests/ekf/ekf_load.h
    )
-   target_link_libraries(ekf_test ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+   target_link_libraries(ekf_test ekf ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 endif (BUILD_ROSCOPTER_TESTS)
 
 add_library(controller_ros
