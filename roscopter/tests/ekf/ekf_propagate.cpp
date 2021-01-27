@@ -61,81 +61,104 @@ State EkfPropagateTest::initialize_test_zero_input()
     return expectedState;
 }
 
-TEST_F(EkfPropagateTest, TestZeroInputTime)
+void EkfPropagateTest::test17x17Matrix(dxMat expected,dxMat actual)
+{
+    double tolerance{0.001};
+    for (int i{0}; i<17; i++)
+    {
+        for (int j{0}; j<17; j++)
+        {
+            EXPECT_NEAR(expected(i,j),actual(i,j),tolerance);
+        }
+    }
+}
+void EkfPropagateTest::test17x6Matrix(dxuMat expected,dxuMat actual)
+{
+    double tolerance{0.001};
+    for (int i{0}; i<17; i++)
+    {
+        for (int j{0}; j<6; j++)
+        {
+            EXPECT_NEAR(expected(i,j),actual(i,j),tolerance);
+        }
+    }
+}
+
+TEST_F(EkfPropagateTest, StatePropZeroInputTime)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     EXPECT_NEAR(expectedState.t,ekf_.x().t,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputX)
+TEST_F(EkfPropagateTest, StatePropZeroInputX)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.x.t(),ekf_.x().x.t(),tolerance);
     test_quaternion(expectedState.x.q(),ekf_.x().x.q(),tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputP)
+TEST_F(EkfPropagateTest, StatePropZeroInputP)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.p,ekf_.x().p,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputQ)
+TEST_F(EkfPropagateTest, StatePropZeroInputQ)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_quaternion(expectedState.q,ekf_.x().q,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputV)
+TEST_F(EkfPropagateTest, StatePropZeroInputV)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.v,ekf_.x().v,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputBa)
+TEST_F(EkfPropagateTest, StatePropZeroInputBa)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.ba,ekf_.x().ba,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputBg)
+TEST_F(EkfPropagateTest, StatePropZeroInputBg)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.bg,ekf_.x().bg,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputBb)
+TEST_F(EkfPropagateTest, StatePropZeroInputBb)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     EXPECT_NEAR(expectedState.bb,ekf_.x().bb,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputRef)
+TEST_F(EkfPropagateTest, StatePropZeroInputRef)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     EXPECT_NEAR(expectedState.ref,ekf_.x().ref,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputA)
+TEST_F(EkfPropagateTest, StatePropZeroInputA)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.a,ekf_.x().a,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputW)
+TEST_F(EkfPropagateTest, StatePropZeroInputW)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_3d(expectedState.w,ekf_.x().w,tolerance);
 }
-TEST_F(EkfPropagateTest, TestZeroInputImu)
+TEST_F(EkfPropagateTest, StatePropZeroInputImu)
 {
     State expectedState = initialize_test_zero_input();
     double tolerance{0.001};
     test_vector_6d(expectedState.imu,ekf_.x().imu,tolerance);
 }
 
-TEST_F(EkfPropagateTest, testWAccelAndVel)
+TEST_F(EkfPropagateTest, StatePropWAccelAndVel)
 {
     double t{0.1};
     ekf_.x().v << 2.0,-1.0,1.0;
@@ -150,7 +173,7 @@ TEST_F(EkfPropagateTest, testWAccelAndVel)
     test_state(expectedState,ekf_.x());
 }
 
-TEST_F(EkfPropagateTest, testWOmega)
+TEST_F(EkfPropagateTest, StatePropWOmega)
 {
     double t{0.1};
     Vector6d imu;
@@ -171,5 +194,33 @@ TEST_F(EkfPropagateTest, testWOmega)
     test_state(expectedState,ekf_.x());
 }
 
+TEST_F(EkfPropagateTest, covariancePropZerosTestAAndB)
+{
+    double t{0.1};
+    Vector6d imu;
+    imu << 0.0,0.0,0.0,0.0,0.0,0.0;
+    Matrix6d R;
+    R = I_6x6_;
+
+    ekf_.propagate(t,imu,R);
+
+    test17x17Matrix(expectedAGivenNoInputs_,ekf_.A_);
+    test17x6Matrix(expectedBGivenNoInputs_,ekf_.B_);
+}
+
+TEST_F(EkfPropagateTest, covariancePropZerosTestP)
+{
+    double t{0.1};
+    Vector6d imu;
+    imu << 0.0,0.0,0.0,0.0,0.0,0.0;
+    Matrix6d R;
+    R = I_6x6_;
+
+    ekf_.propagate(t,imu,R);
+
+    dxMat expectedP;
+    expectedP = ekf_.A_*initialP_*ekf_.A_.transpose()+ekf_.B_*R*ekf_.B_.transpose()+ekf_.Qx_*0.01;
+    test17x17Matrix(expectedP,ekf_.P());
+}
 
 } //namespace
