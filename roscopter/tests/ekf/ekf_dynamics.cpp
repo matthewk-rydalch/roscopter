@@ -24,7 +24,7 @@ void EkfDynamicsTest::test_matrix_17d(dxMat expected,dxMat actual)
     } 
 }
 
-void EkfDynamicsTest::test_matrix_17x6d(dxMat expected,dxMat actual)
+void EkfDynamicsTest::test_matrix_17x6d(dxuMat expected,dxuMat actual)
 {
     double tolerance{0.001};
     for(int i{0};i<17;i++)
@@ -206,7 +206,7 @@ TEST_F(EkfDynamicsTest,testVGivenUQAndV)
     test_eigen_vectors_3d(expectedDxV,ekf_.dx_.v);
 }
 
-TEST_F(EkfDynamicsTest,testJacobianCalcA)
+TEST_F(EkfDynamicsTest,testJacobianCalcAZeros)
 {
     Vector6d u;
     u << 0.0,0.0,0.0,0.0,0.0,0.0;
@@ -230,15 +230,81 @@ TEST_F(EkfDynamicsTest,testJacobianCalcA)
     test_matrix_17d(expectedA,ekf_.A_);
 }
 
-TEST_F(EkfDynamicsTest,testJacobianCalcB)
+TEST_F(EkfDynamicsTest,testJacobianAGivenRVAndOmega)
+{
+    Vector6d u;
+    u << 0.0,0.0,0.0,1.0,-1.0,2.0;
+    ekf_.x().v << -1.0,1.0,-2.0;
+    ekf_.x().x.arr() << 0.0,0.0,0.0,0.8923991,0.0990458,0.2391176,0.3696438; //euler angles 0,30,45 deg
+    // ekf_.x().x.arr() << 0.0,0.0,0.0,0.7071,0.0,0.,0.7071; //euler angles 0,0,45 deg
+    // ekf_.x().x.arr() << 0.0,0.0,0.0,0.9659258,0.0,0.258819,0.0; //euler angles 0,30,0 deg
+
+    ekf_.dynamics(ekf_.x(),u,ekf_.dx_,true);
+
+    Eigen::Matrix3d R;
+    R << 0.6124,0.7071,-0.3536,
+         -0.6124,0.7071,0.3536,
+         0.5000,0.0,0.8660;
+    Eigen::Matrix3d skewV;
+    skewV << 0.0,2.0,1.0,
+             -2.0,0.0,1.0,
+             -1.0,-1.0,0.0;
+    Eigen::Matrix3d skewOmega;
+    skewOmega << 0.0,-2.0,-1.0,
+                 2.0,0.0,-1.0,
+                 1.0,1.0,0.0;
+    Eigen::Matrix3d skewGravityRotated;
+    skewGravityRotated << 0.0,-8.4928,0.0,
+                          8.4928,0.0,4.9033,
+                          0.0,-4.9033,0.0; 
+    dxMat expectedA;
+    expectedA = matrixZeros17x17_;
+    expectedA.block<3,3>(0,3) = -R.transpose()*skewV;
+    expectedA.block<3,3>(0,6) = R.transpose();
+    expectedA.block<3,3>(3,3) = -skewOmega;
+    expectedA.block<3,3>(3,12) = -I_3x3;
+    expectedA.block<3,3>(6,6) = -skewOmega;
+    expectedA.block<3,3>(6,3) = skewGravityRotated; // Possible Issue.
+    expectedA.block<3,3>(6,9) = -I_3x3;
+    expectedA.block<3,3>(6,12) = -skewV;
+
+    test_matrix_17d(expectedA,ekf_.A_);
+}
+
+TEST_F(EkfDynamicsTest,testJacobianCalcBZeros)
 {
     Vector6d u;
     u << 0.0,0.0,0.0,0.0,0.0,0.0;
 
     ekf_.dynamics(ekf_.x(),u,ekf_.dx_,true);
-    dxMat expectedB;
+
+    dxuMat expectedB;
     expectedB = matrixZeros17x6_;
+    expectedB.block<3,3>(3,3) = I_3x3;
+    expectedB.block<3,3>(6,0) = I_3x3;
 
     test_matrix_17x6d(expectedB,ekf_.B_);
 }
+
+TEST_F(EkfDynamicsTest,testJacobianCalcBGivenV)
+{
+    Vector6d u;
+    u << 0.0,0.0,0.0,0.0,0.0,0.0;
+    ekf_.x().v << -1.0,1.0,-2.0;
+
+    ekf_.dynamics(ekf_.x(),u,ekf_.dx_,true);
+
+    Eigen::Matrix3d skewV;
+    skewV << 0.0,2.0,1.0,
+             -2.0,0.0,1.0,
+             -1.0,-1.0,0.0;
+    dxuMat expectedB;
+    expectedB = matrixZeros17x6_;
+    expectedB.block<3,3>(3,3) = I_3x3;
+    expectedB.block<3,3>(6,0) = I_3x3;
+    expectedB.block<3,3>(6,3) = skewV;
+
+    test_matrix_17x6d(expectedB,ekf_.B_);
+}
+
 }

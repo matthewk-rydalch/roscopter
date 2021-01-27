@@ -12,7 +12,7 @@ public:
 
     double time_{0.0};
     dxMat matrixZeros17x17_;
-    dxMat matrixZeros17x6_;
+    dxuMat matrixZeros17x6_;
 
 protected:
     void SetUp() override
@@ -64,6 +64,6 @@ protected:
 
     void test_eigen_vectors_3d(Eigen::Vector3d expected, Eigen::Vector3d actual);
     void test_matrix_17d(dxMat expected,dxMat actual);
-    void test_matrix_17x6d(dxMat expected,dxMat actual);
+    void test_matrix_17x6d(dxuMat expected,dxuMat actual);
 };
 }

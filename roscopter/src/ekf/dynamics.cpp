@@ -43,6 +43,9 @@ void EKF::dynamics(const State &x, const Vector6d& u, ErrorState &dx, bool calc_
 
         A_.block<3,3>(DX::DV, DX::DV) = -skew(omega);
         A_.block<3,3>(DX::DV, DX::DQ) = skew(x.q.rotp(gravity));
+        // std::cout << "quaternion = " << x.q << std::endl;
+        // std::cout << "Gravity rotated = " << x.q.rotp(gravity) << std::endl;
+        // std::cout << "A_ block = " << A_.block<3,3>(DX::DV, DX::DQ) << std::endl;
         A_.block<3,3>(DX::DV, DX::DBA) = -I_3x3;
         A_.block<3,3>(DX::DV, DX::DBG) = -skew(x.v);
         B_.block<3,3>(DX::DV, U::A) = I_3x3;
