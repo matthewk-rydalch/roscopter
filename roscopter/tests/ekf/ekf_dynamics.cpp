@@ -12,6 +12,31 @@ void EkfDynamicsTest::test_eigen_vectors_3d(Eigen::Vector3d expected, Eigen::Vec
     } 
 }
 
+void EkfDynamicsTest::test_matrix_17d(dxMat expected,dxMat actual)
+{
+    double tolerance{0.001};
+    for(int i{0};i<17;i++)
+    {
+        for(int j{0};j<17;j++)
+        {
+            EXPECT_NEAR(expected(i,j),actual(i,j),tolerance);
+        }
+    } 
+}
+
+void EkfDynamicsTest::test_matrix_17x6d(dxMat expected,dxMat actual)
+{
+    double tolerance{0.001};
+    for(int i{0};i<17;i++)
+    {
+        for(int j{0};j<6;j++)
+        {
+            EXPECT_NEAR(expected(i,j),actual(i,j),tolerance);
+        }
+    } 
+}
+
+
 TEST_F(EkfDynamicsTest,testZeroCase)
 {
     Vector6d u;
@@ -61,47 +86,6 @@ TEST_F(EkfDynamicsTest,testZerosWImuInputs)
     test_eigen_vectors_3d(expectedDxBa,ekf_.dx_.ba);
     test_eigen_vectors_3d(expectedDxBg,ekf_.dx_.bg);
 }
-
-void EkfDynamicsNonZeroTest::initialize()
-{
-        ekf_.x().t = 30.2;
-        // last four values of x are a quaternion that equals 10, 0, -45 deg in euler angles.
-        ekf_.x().x.arr() << 1.0,2.0,-3.0,-0.2477,0.8374,0.4672,0.1382;
-        ekf_.x().v << -1.0,0.2,-0.4;
-        ekf_.x().ba << 0.0,0.52,-1.1;
-        ekf_.x().bg << 0.01,-0.2,-0.72;
-        ekf_.x().bb = 0.2;
-        ekf_.x().ref = 4000.0;
-        ekf_.x().a << 0.0,0.0,-9.80665;
-        ekf_.x().w << -1.0,0.0,0.3;
-        ekf_.is_flying_ = false;
-        ekf_.armed_ = false;
-}
-
-// TEST_F(EkfDynamicsNonZeroTest,testFromNonZeroInitialization)
-// {
-//     Vector6d u;
-//     u << 1.0,2.0,-1.2,-0.2,1.0,3.0;
-
-//     ekf_.dynamics(ekf_.x(),u,ekf_.dx_,false);
-
-//     Eigen::Vector3d expectedDxP;
-//     expectedDxP << 0.0,0.0,0.0;
-//     Eigen::Vector3d expectedDxQ;
-//     expectedDxQ << -0.2,1.0,3.0;
-//     Eigen::Vector3d expectedDxV;
-//     expectedDxV << 1.0,2.0,8.60665;
-//     Eigen::Vector3d expectedDxBa;
-//     expectedDxBa << 0.0,0.0,0.0;
-//     Eigen::Vector3d expectedDxBg;
-//     expectedDxBg << 0.0,0.0,0.0;
-
-//     test_eigen_vectors_3d(expectedDxP,ekf_.dx_.p);
-    // test_eigen_vectors_3d(expectedDxQ,ekf_.dx_.q);
-    // test_eigen_vectors_3d(expectedDxV,ekf_.dx_.v);
-//     test_eigen_vectors_3d(expectedDxBa,ekf_.dx_.ba);
-//     test_eigen_vectors_3d(expectedDxBg,ekf_.dx_.bg);
-// }
 
 TEST_F(EkfDynamicsTest,testBiasCancelling)
 {
@@ -220,5 +204,41 @@ TEST_F(EkfDynamicsTest,testVGivenUQAndV)
     expectedDxV << -4.4672,-1.0328,9.4928;
 
     test_eigen_vectors_3d(expectedDxV,ekf_.dx_.v);
+}
+
+TEST_F(EkfDynamicsTest,testJacobianCalcA)
+{
+    Vector6d u;
+    u << 0.0,0.0,0.0,0.0,0.0,0.0;
+
+    ekf_.dynamics(ekf_.x(),u,ekf_.dx_,true);
+    Eigen::Matrix3d RTranspose;
+    RTranspose << 1.0,0.0,0.0,
+         0.0,1.0,0.0,
+         0.0,0.0,1.0;
+    Eigen::Matrix3d skewGravity;
+    skewGravity << 0.0,-9.80665,0.0,
+                   9.80665,0.0,0.0,
+                   0.0,0.0,0.0;
+    dxMat expectedA;
+    expectedA = matrixZeros17x17_;
+    expectedA.block<3,3>(0,6) = RTranspose;
+    expectedA.block<3,3>(3,12) = -I_3x3;
+    expectedA.block<3,3>(6,3) = skewGravity;
+    expectedA.block<3,3>(6,9) = -I_3x3;  
+
+    test_matrix_17d(expectedA,ekf_.A_);
+}
+
+TEST_F(EkfDynamicsTest,testJacobianCalcB)
+{
+    Vector6d u;
+    u << 0.0,0.0,0.0,0.0,0.0,0.0;
+
+    ekf_.dynamics(ekf_.x(),u,ekf_.dx_,true);
+    dxMat expectedB;
+    expectedB = matrixZeros17x6_;
+
+    test_matrix_17x6d(expectedB,ekf_.B_);
 }
 }
