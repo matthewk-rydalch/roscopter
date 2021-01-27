@@ -112,6 +112,8 @@ if (BUILD_ROSCOPTER_TESTS)
    include/tests/ekf/ekf_load.h
    tests/ekf/ekf_initialize.cpp
    include/tests/ekf/ekf_initialize.h
+   tests/ekf/ekf_dynamics.cpp
+   include/tests/ekf/ekf_dynamics.h
    )
    target_link_libraries(ekf_test ekf ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 endif (BUILD_ROSCOPTER_TESTS)
