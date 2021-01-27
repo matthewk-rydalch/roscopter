@@ -17,7 +17,7 @@ TEST_F(EkfInitialize,testAll)
     double expectedBb{0.0};
     double expectedRef{0.0};
     Eigen::Vector3d expectedA;
-    expectedA << 0.0,0.0,-9.80665;  //Possible issue.  Should this actually be positive?  NED?
+    expectedA << 0.0,0.0,-9.80665;  //This removes gravity, which is always felt by imu, even when stationary.
     Eigen::Vector3d expectedW;
     expectedW << 0.0,0.0,0.0;
     bool expectedIsFlyging{false};

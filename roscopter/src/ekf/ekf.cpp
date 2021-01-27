@@ -97,7 +97,7 @@ namespace roscopter::ekf
       x().ref = x().ref;
     else
       x().ref = 0.;
-    x().a = -gravity;
+    x().a = -gravity; //This removes gravity, which is always felt by imu, even when stationary.
     x().w.setZero();
     is_flying_ = false;
     armed_ = false;
