@@ -2,8 +2,8 @@
 
 <launch>
 
-  <arg name="bag_filename"        value="slim3"/>
-  <arg name="bag_file_path"       value="../data/ragnarok_tests/estimator_data_0118/"/>
+  <arg name="bag_filename"        value="filtered_alt_error"/>
+  <arg name="bag_file_path"       value="../data/ragnarok_tests/flights_0125/"/>
   <arg name="ublox_gnss"          value="/rover/PosVelEcef"/>
   <arg name="ublox_relpos"        value="/boat/RelPos"/>
   <arg name="base_odom"           value="/boat/odom"/>
@@ -29,5 +29,5 @@
     </include>
   </group>
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/$(arg bag_filename).bag --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/estimated_$(arg bag_filename).bag --all"/>
 </launch>
