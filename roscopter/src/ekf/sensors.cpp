@@ -81,17 +81,25 @@ namespace roscopter::ekf
 
     if (!ref_lla_set_)
       return;
-    gnssUpdate(meas::Gnss(t, z, R));
+
+    meas::Gnss gnssMeas = meas::Gnss(t, z, R);
+    Vector6d r = gnssUpdateGetResidual(gnssMeas.z);
+    Matrix<double, 6, 17> H = gnssUpdateGetH();
+
+    /// TODO: Saturate r
+    if (use_gnss_)
+      measUpdate(r, gnssMeas.R, H);
 
     if (enable_log_)
     {
       logs_[LOG_LLA]->log(t);
       logs_[LOG_LLA]->logVectors(ecef2lla((x_e2I_ * x().x).t()));
       logs_[LOG_LLA]->logVectors(ecef2lla(z.head<3>()));
+      logs_[LOG_GNSS_RES]->log(gnssMeas.t);
     }
   }
 
-  void EKF::gnssUpdate(const meas::Gnss &z)
+  Vector6d EKF::gnssUpdateGetResidual(Vector6d &z)
   {
     const Vector3d w = x().w - x().bg;
     const Vector3d gps_pos_I = x().p + x().q.rota(p_b2g_);
@@ -106,8 +114,18 @@ namespace roscopter::ekf
     Vector6d zhat;
     zhat << x_e2I_.transforma(gps_pos_I),
             x_e2I_.rota(gps_vel_I);
-    const Vector6d r = z.z - zhat; // residual
+    const Vector6d r = z - zhat; // residual
 
+    if (enable_log_)
+    {
+      logs_[LOG_GNSS_RES]->logVectors(r, z, zhat);
+    }
+
+    return r;
+  }
+
+  Matrix<double, 6, 17> EKF::gnssUpdateGetH()
+  {
     const Matrix3d R_I2e = x_e2I_.q().R().T;
     const Matrix3d R_b2I = x().q.R().T;
     const Matrix3d R_e2b = R_I2e * R_b2I;
@@ -128,15 +146,7 @@ namespace roscopter::ekf
     H.block<3,3>(3, E::DV) = R_e2b;
     H.block<3,3>(3, E::DBG) = R_e2b * skew(p_b2g_);
 
-    /// TODO: Saturate r
-    if (use_gnss_)
-      measUpdate(r, z.R, H);
-
-    if (enable_log_)
-    {
-      logs_[LOG_GNSS_RES]->log(z.t);
-      logs_[LOG_GNSS_RES]->logVectors(r, z.z, zhat);
-    }
+    return H;
   }
 
   void EKF::mocapUpdate(const double& t, const xform::Xformd& z_mocap, const Matrix6d& R)

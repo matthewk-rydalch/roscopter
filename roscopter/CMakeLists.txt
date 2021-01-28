@@ -118,6 +118,8 @@ if (BUILD_ROSCOPTER_TESTS)
       include/tests/ekf/ekf_propagate.h
       tests/ekf/ekf_update.cpp
       include/tests/ekf/ekf_update.h
+      tests/ekf/ekf_sensors.cpp
+      include/tests/ekf/ekf_sensors.h
    )
    target_link_libraries(ekf_test ekf ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 endif (BUILD_ROSCOPTER_TESTS)

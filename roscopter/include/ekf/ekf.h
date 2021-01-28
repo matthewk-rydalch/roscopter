@@ -86,7 +86,8 @@ public:
 
   void baroUpdate(const double& t, const double& z, const double& R,
                     const double& temp);
-  void gnssUpdate(const meas::Gnss &z);
+  Vector6d gnssUpdateGetResidual(Vector6d &z);
+  Eigen::Matrix<double, 6, 17> gnssUpdateGetH();
   void mocapUpdate(const double& t, const xform::Xformd& z, const Matrix6d& R);
   void compassingUpdate(const double& t, const double& z, const double& R);
   void zeroVelUpdate(double t);
