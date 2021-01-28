@@ -118,6 +118,8 @@ if (BUILD_ROSCOPTER_TESTS)
       include/tests/ekf/ekf_propagate.h
       tests/ekf/ekf_update.cpp
       include/tests/ekf/ekf_update.h
+      tests/ekf/ekf_ref_lla.cpp
+      include/tests/ekf/ekf_ref_lla.h
       tests/ekf/ekf_sensors.cpp
       include/tests/ekf/ekf_sensors.h
    )

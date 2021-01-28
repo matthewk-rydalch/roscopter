@@ -56,7 +56,7 @@ namespace roscopter::ekf
       x_e2I_.q() = x_e2n.q() * q_n2I_; //??? not sure what this does.
 
       // initialize the estimated ref altitude state
-      // x().ref = ref_lla(2);
+      x().ref = ref_lla(2);
       ref_lat_radians_ = ref_lla(0);
       ref_lon_radians_ = ref_lla(1);
 

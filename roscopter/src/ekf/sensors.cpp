@@ -83,8 +83,12 @@ namespace roscopter::ekf
       return;
 
     meas::Gnss gnssMeas = meas::Gnss(t, z, R);
-    Vector6d r = gnssUpdateGetResidual(gnssMeas.z);
-    Matrix<double, 6, 17> H = gnssUpdateGetH();
+    const Vector3d w = x().w - x().bg;
+    const Vector3d gps_pos_I = x().p + x().q.rota(p_b2g_);
+    const Vector3d gps_vel_b = x().v + w.cross(p_b2g_);
+    const Vector3d gps_vel_I = x().q.rota(gps_vel_b);
+    Vector6d r = gnssUpdateGetResidual(gnssMeas.z,gps_pos_I,gps_vel_I);
+    Matrix<double, 6, 17> H = gnssUpdateGetH(gps_vel_b);
 
     /// TODO: Saturate r
     if (use_gnss_)
@@ -99,13 +103,10 @@ namespace roscopter::ekf
     }
   }
 
-  Vector6d EKF::gnssUpdateGetResidual(Vector6d &z)
+  Vector6d EKF::gnssUpdateGetResidual(Vector6d &z,const Vector3d gps_pos_I,const Vector3d &gps_vel_I)
   {
-    const Vector3d w = x().w - x().bg;
-    const Vector3d gps_pos_I = x().p + x().q.rota(p_b2g_);
-    const Vector3d gps_vel_b = x().v + w.cross(p_b2g_);
-    const Vector3d gps_vel_I = x().q.rota(gps_vel_b);
     // Update ref_lla based on current estimate ///is this actually updating the ref_lla?  I don't think it is.
+    //Possible issue, do these ever change?  Is this necessary?  I think originally x().ref got updated.  How?
     Vector3d ref_lla(ref_lat_radians_, ref_lon_radians_, x().ref);
     xform::Xformd x_e2n = x_ecef2ned(lla2ecef(ref_lla));
     x_e2I_.t() = x_e2n.t();
@@ -124,7 +125,7 @@ namespace roscopter::ekf
     return r;
   }
 
-  Matrix<double, 6, 17> EKF::gnssUpdateGetH()
+  Matrix<double, 6, 17> EKF::gnssUpdateGetH(const Vector3d gps_vel_b)
   {
     const Matrix3d R_I2e = x_e2I_.q().R().T;
     const Matrix3d R_b2I = x().q.R().T;
@@ -141,6 +142,7 @@ namespace roscopter::ekf
     H.setZero();
     H.block<3,3>(0, E::DP) = R_I2e; // dpE/dpI
     H.block<3,3>(0, E::DQ) = -R_e2b * skew(p_b2g_);
+    //Possible issue.  I do not know why we would need to or how we would update the ref altitude
     // H.block<3, 1>(0, E::DREF) = dpEdRefAlt; //This updates the reference.  We don't want to do that.
     H.block<3,3>(3, E::DQ) = -R_e2b * skew(gps_vel_b); // dvE/dQI
     H.block<3,3>(3, E::DV) = R_e2b;
