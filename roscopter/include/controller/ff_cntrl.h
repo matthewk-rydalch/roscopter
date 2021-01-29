@@ -27,6 +27,7 @@ public:
     double Kff_y_;
     double Kff_u_;
     double Kff_v_;
+    double Kff_w_;
     double ramp_down_gain_;
     double conditional_integrator_threshold_;
 
