@@ -157,6 +157,7 @@ void Ff_Cntrl_Ros::reconfigure_callback(roscopter::ControllerConfig& config,
 
   control.Kff_x_ = config.Kff_x;
   control.Kff_y_ = config.Kff_y;
+  control.Kff_z_ = config.Kff_z;
   control.Kff_u_ = config.Kff_u;
   control.Kff_v_ = config.Kff_v;
   control.Kff_w_ = config.Kff_w;

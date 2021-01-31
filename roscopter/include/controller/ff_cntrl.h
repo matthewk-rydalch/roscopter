@@ -25,6 +25,7 @@ public:
 
     double Kff_x_;
     double Kff_y_;
+    double Kff_z_;
     double Kff_u_;
     double Kff_v_;
     double Kff_w_;

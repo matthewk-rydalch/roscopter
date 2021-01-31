@@ -74,7 +74,7 @@ void Ff_Cntrl::calcFfXposYposYawLoops(double dt)
     xc_.r = PID_psi_.computePID(xc_.psi, xhat_.psi, dt);
     rotateVelocityCommandsToVehicle1Frame(pndot_c, pedot_c);
 
-    if(use_feed_forward_) //Is this needed?  We don't enter the function unless this is true anyway.
+    if(use_feed_forward_) 
     {
       Eigen::Vector3d base_velocity_rover_v1_frame{getBoatVelocity()};
       xc_.x_dot += Kff_x_*base_velocity_rover_v1_frame[0];
@@ -100,18 +100,23 @@ void Ff_Cntrl::calcFfXvelYvelAltLoops(double dt)
     xc_.z_dot = PID_d_.computePID(xc_.pd, xhat_.pd, dt, pzdot);
     xc_.ax = PID_x_dot_.computePID(xc_.x_dot, pxdot, dt);
     xc_.ay = PID_y_dot_.computePID(xc_.y_dot, pydot, dt);
-    if(use_feed_forward_) //This may be causing some instability.
+    if(use_feed_forward_)
     {
       Eigen::Vector3d base_velocity_rover_v1_frame{getBoatVelocity()};
       xc_.ax += Kff_u_*base_velocity_rover_v1_frame[0];
       xc_.ay += Kff_v_*base_velocity_rover_v1_frame[1];
-      xc_.z_dot += Kff_w_*base_velocity_rover_v1_frame[2]; //Just added this in
+      xc_.z_dot += Kff_z_*base_velocity_rover_v1_frame[2]; //Just added this in
       // xc_.ax += Kff_u_*xc_.x_dot;
       // xc_.ay += Kff_v_*xc_.y_dot;
+      // Nested Loop for Altitude
+      xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
+      xc_.az += Kff_w_*base_velocity_rover_v1_frame[2];
     }
-
-    // Nested Loop for Altitude
-    xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
+    else
+    {
+      // Nested Loop for Altitude
+      xc_.az = PID_z_dot_.computePID(xc_.z_dot, pzdot, dt);
+    }
 }
 
 Eigen::Vector3d Ff_Cntrl::getBoatVelocity()
