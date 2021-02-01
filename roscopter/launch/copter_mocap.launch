@@ -15,5 +15,8 @@
 
   <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
 
+  <!-- if tuning -->
+  <node name="hlc_cont_ned" pkg="roscopter" type="waypoint_manager.py"/>
+
   <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/copter_mocap --all"/>
 </launch>
