@@ -46,6 +46,8 @@ protected:
   ros::Subscriber use_feed_forward_sub_;
   
   ros::Publisher command_pub_;
+  ros::Publisher roscop_pos_cmd_pub_;
+  ros::Publisher roscop_vel_cmd_pub_;
   ros::Publisher integrator_pub_;
 
   void init_controller();
@@ -59,10 +61,13 @@ protected:
   void addIntegratorCallback(const std_msgs::BoolConstPtr &msg);
 
   void publishCommand();
+  void publishRoscopCommands();
 
   double prev_time_;
 
   rosflight_msgs::Command command_;
+  rosflight_msgs::Command roscop_pos_cmd_;
+  rosflight_msgs::Command roscop_vel_cmd_;
 
   bool debug_Ff_Cntrl_Ros_{false};
   bool debug_init_controller_{false};
