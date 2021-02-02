@@ -6,10 +6,10 @@
   <arg name="target_name"         default="boat_landing_platform"/>
   <arg name="controller_params"   default="$(find roscopter)/params/$(arg drone_name).yaml"/>
   <arg name="waypoints_params"     default="$(find roscopter)/params/waypoints.yaml"/>
-  <arg name="reference"           default="/dummy_topic"/>
-  <arg name="ublox_gnss"          default="/dummy_topic"/>
-  <arg name="ublox_relpos"        default="/dummy_topic"/>
-  <arg name="base_odom"           default="/dummy_topic"/>
+  <arg name="drone_truth"           default="/no_drone_truth"/>
+  <arg name="ublox_gnss"          default="/no_ublox_gnss"/>
+  <arg name="ublox_relpos"        default="/no_ublox_relpos"/>
+  <arg name="base_odom"           default="/no_base_odom"/>
 
   <!-- Load common parameters -->
   <rosparam command="load" file="$(arg controller_params)"/>
@@ -25,7 +25,8 @@
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen"> 
     <remap from="imu" to="/imu/data"/>
     <!-- <remap from="baro" to="/baro"/> -->
-    <remap from="reference" to="$(arg rover_truth)"/>
+    <remap from="pose" to="$(arg drone_truth)"/>
+
     <remap from="ublox_gnss" to="$(arg ublox_gnss)"/>
     <remap from="ublox_relpos" to="$(arg ublox_relpos)"/>
     <remap from="ack_received_ref_lla" to="boat/ack_received_ref_lla"/>

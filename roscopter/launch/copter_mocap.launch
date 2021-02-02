@@ -2,7 +2,7 @@
 
 <launch>
   <arg name="drone_name"            value="ragnarok"/>
-  <arg name="f4_serial_port" default="/dev/ttyACM0"/>
+  <arg name="f4_serial_port" default="/dev/ttyACM1"/>
   <arg name="drone_truth"     value="/ragnarok_ned"/>
 
   <include file="$(find roscopter)/launch/include/rosflight.launch">
@@ -10,13 +10,13 @@
   </include>
 
   <include file="$(find roscopter)/launch/include/roscop.launch">
-    <arg name="reference" value="$(arg drone_truth)"/>
+    <arg name="drone_truth" value="$(arg drone_truth)"/>
   </include>
 
   <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
 
   <!-- if tuning -->
-  <node name="hlc_cont_ned" pkg="roscopter" type="waypoint_manager.py"/>
+  <node name="hlc_cont_ned" pkg="roscopter" type="hlc_continuous_ned.py"/>
 
   <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/copter_mocap --all"/>
 </launch>
