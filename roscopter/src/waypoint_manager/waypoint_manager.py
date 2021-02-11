@@ -41,6 +41,9 @@ class WaypointManager():
         current_position_neu = np.array([msg.pose.pose.position.x,
                                      msg.pose.pose.position.y,
                                      msg.pose.pose.position.z])
+        self.current_velocity = np.array([msg.twist.twist.linear.x,
+                                          msg.twist.twist.linear.y,
+                                          msg.twist.twist.linear.z])
  
         if self.mission_state == 1:
             self.rendevous(current_position_neu)
@@ -71,6 +74,9 @@ class WaypointManager():
         self.base_orient[1] = pitch
         self.base_orient[2] = yaw 
 
+        self.base_velocity = np.array([msg.twist.twist.linear.x,
+                                       msg.twist.twist.linear.y,
+                                       msg.twist.twist.linear.z])
 
     #this function works in ipython
     def get_euler_radians(self, qw, qx, qy, qz):                       
@@ -117,11 +123,12 @@ class WaypointManager():
 
     def descend(self, current_position):
         waypoint = self.plt_pos + np.array([0.0, 0.0, self.begin_landing_height])
-        error = np.linalg.norm(current_position - waypoint)
+        horizontal_error = np.linalg.norm(current_position[0:2] - waypoint[0:2])
+        vertical_error = current_position[2] - waypoint[2]
         self.publish_error(current_position, waypoint)
         self.new_waypoint(waypoint)
 
-        if error < self.landing_threshold and self.base_orient[0] < self.landing_orient_threshold and self.base_orient[1] < self.landing_orient_threshold:
+        if self.check_land_conditions(horizontal_error, vertical_error):
             self.mission_state = 3
             self.is_landing_pub_.publish(True)
             print('land state')
@@ -132,6 +139,22 @@ class WaypointManager():
         waypoint = self.plt_pos
         self.new_waypoint(waypoint)
         self.publish_error(current_position, waypoint)
+
+    def check_land_conditions(self, horizontal_error, vertical_error):
+        velHorizontalError = np.linalg.norm(self.current_velocity[0:2] - self.base_vel[0:2])
+        
+        if vertical_error < self.landing_vertical_threshold and \
+           horizontal_error < self.landing_horizontal_threshold and \
+           self.base_orient[0] < self.landing_orient_threshold and self.base_orient[1] < self.landing_orient_threshold and \
+           velHorizontalError < self.landing_velocity_horizontal_threshold:
+
+            print('vertical error = ', vertical_error)
+            print('horizontal error = ', horizontal_error)
+            print('base orientation = ', self.base_orient[0], self.base_orient[1])
+            print('velHorizontalError = ', velHorizontalError) 
+            return True
+        
+        return False
 
     def new_waypoint(self, waypoint):
 
@@ -177,17 +200,21 @@ class WaypointManager():
         self.auto_land = rospy.get_param('~auto_land', False)
         self.mission_threshold = rospy.get_param('~mission_threshold', 0.5)
         self.rendevous_threshold = rospy.get_param('~rendevous_threshold', 0.5)
-        self.landing_threshold = rospy.get_param('~landing_threshold', 0.2)
+        self.landing_vertical_threshold = rospy.get_param('~landing_vertical_threshold', 0.05)
+        self.landing_horizontal_threshold = rospy.get_param('~landing_horizontal_threshold', 0.1)
         landing_orient_threshold_deg = rospy.get_param('~landing_orient_threshold_deg', 10)
         self.landing_orient_threshold = landing_orient_threshold_deg*np.pi/180.0
+        self.landing_velocity_horizontal_threshold = rospy.get_param('~landing_velocity_horizontal_threshold', 0.5)
         self.begin_descent_height = rospy.get_param('~begin_descent_height', 2)
         self.begin_landing_height = rospy.get_param('~begin_landing_height', 0.2)
         self.antenna_offset = rospy.get_param('~antenna_offset', [0.36, -0.36, -0.12])
         print('waypoints = ', self.waypoint_list)
 
         #other variables and arrays
+        self.current_velocity = np.zeros(3)
         self.plt_pos = np.zeros(3)
         self.base_orient = np.zeros(3)
+        self.base_vel = np.zeros(3)
         self.current_waypoint_index = 0
         self.mission_state = 0 #0: mission
                                #1: rendevous

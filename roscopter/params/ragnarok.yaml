@@ -36,7 +36,7 @@ Kff_u: 0.2,
 Kff_v: 0.2,
 Kff_w: 0.2,
 ramp_down_gain: 0.90,
-conditional_integrator_threshold: 0.5,
+conditional_integrator_threshold: 0.05,
 
 tau: 0.05,
 
