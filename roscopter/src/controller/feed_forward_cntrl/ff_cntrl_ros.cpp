@@ -13,6 +13,8 @@ Ff_Cntrl_Ros::Ff_Cntrl_Ros() :
 
   command_pub_ = nh_.advertise<rosflight_msgs::Command>("command", 1);
   integrator_pub_ = nh_.advertise<std_msgs::Float32>("integrator", 1);
+  roscop_pos_cmd_pub_ = nh_.advertise<rosflight_msgs::Command>("roscop_pos_cmd", 1);
+  roscop_vel_cmd_pub_ = nh_.advertise<rosflight_msgs::Command>("roscop_vel_cmd", 1);
 
   state_sub_ = nh_.subscribe("estimate", 1, &Ff_Cntrl_Ros::stateCallback, this);
   is_flying_sub_ = nh_.subscribe("is_flying", 1, &Ff_Cntrl_Ros::isFlyingCallback, this);
@@ -77,6 +79,7 @@ void Ff_Cntrl_Ros::stateCallback(const nav_msgs::OdometryConstPtr &msg)
     ROS_WARN_ONCE("CONTROLLER ACTIVE");
     control.computeFeedForwardControl(dt);
     publishCommand();
+    publishRoscopCommands();
     std_msgs::Float32 integrator;
     bool get_x_not_y{false};
     integrator.data = control.getIntegrator(false); //should have input of get_x_not_y, but that isn't working.
@@ -255,4 +258,21 @@ void Ff_Cntrl_Ros::publishCommand()
   command_.y = control.xc_.theta;
   command_.z = control.xc_.r;
   command_pub_.publish(command_);
+}
+
+void Ff_Cntrl_Ros::publishRoscopCommands()
+{
+  roscop_pos_cmd_.header.stamp = ros::Time::now();
+  roscop_pos_cmd_.F = control.xc_.z_dot;
+  roscop_pos_cmd_.x = control.xc_.x_dot;
+  roscop_pos_cmd_.y = control.xc_.y_dot;
+  roscop_pos_cmd_.z = control.xc_.r;
+  roscop_pos_cmd_pub_.publish(roscop_pos_cmd_);
+
+  roscop_vel_cmd_.header.stamp = ros::Time::now();
+  roscop_vel_cmd_.F = control.xc_.az;
+  roscop_vel_cmd_.x = control.xc_.ax;
+  roscop_vel_cmd_.y = control.xc_.ay;
+  roscop_vel_cmd_.z = -99999.0;
+  roscop_vel_cmd_pub_.publish(roscop_vel_cmd_);
 }

@@ -5,10 +5,13 @@
   <arg name="drone_name"          default="ragnarok"/>
   <arg name="target_name"         default="boat_landing_platform"/>
   <arg name="controller_params"   default="$(find roscopter)/params/$(arg drone_name).yaml"/>
-  <arg name="waypoints_params"     default="$(find roscopter)/params/waypoints.yaml"/>
-  <arg name="ublox_gnss"          default="/PosVelEcef"/>
-  <arg name="ublox_relpos"        default="/RelPos"/>
-  <arg name="base_odom"           default="/boat/odom"/>
+  <arg name="waypoints_params"    default="$(find roscopter)/params/waypoints.yaml"/>
+  <arg name="mocap_truth"         default="/no_mocap_truth"/>
+  <arg name="sim_truth"           default="/no_sim_truth"/>
+  <arg name="sim_gps"             default="/no_sim_gps"/>
+  <arg name="ublox_gnss"          default="/no_ublox_gnss"/>
+  <arg name="ublox_relpos"        default="/no_ublox_relpos"/>
+  <arg name="base_odom"           default="/no_base_odom"/>
 
   <!-- Load common parameters -->
   <rosparam command="load" file="$(arg controller_params)"/>
@@ -24,7 +27,10 @@
   <node name="estimator" type="ekf_node" pkg="roscopter" output="screen"> 
     <remap from="imu" to="/imu/data"/>
     <!-- <remap from="baro" to="/baro"/> -->
-    <!-- <remap from="reference" to="/truth/NED"/> -->
+    <remap from="pose" to="$(arg mocap_truth)"/>
+    <remap from="reference" to="$(arg sim_truth)"/>
+    <remap from="gnss" to="$(arg sim_gps)"/>
+
     <remap from="ublox_gnss" to="$(arg ublox_gnss)"/>
     <remap from="ublox_relpos" to="$(arg ublox_relpos)"/>
     <remap from="ack_received_ref_lla" to="boat/ack_received_ref_lla"/>

@@ -1,41 +1,22 @@
-<!-- !!!!!!!!!!!!!!!!!!!!!!!! Needs to be finished !!!!!!!!!!!!!!!!!!!-->
-
 <?xml version="1.0"?>
 
 <launch>
   <arg name="drone_name"            value="ragnarok"/>
+  <arg name="f4_serial_port" default="/dev/ttyACM1"/>
+  <arg name="mocap_truth"     value="/ragnarok_ned"/>
 
+  <include file="$(find roscopter)/launch/include/rosflight.launch">
+    <arg name="f4_serial_port" value="$(arg f4_serial_port)"/>
+  </include>
 
-  <!-- FCU communication -->
-  <node name="rosflight_io" pkg="rosflight" type="rosflight_io" output="screen">
-    <param name="udp" value="false"/>
-    <param name="port" value="/dev/ttyACM0"/>
-  </node>
+  <include file="$(find roscopter)/launch/include/roscop.launch">
+    <arg name="mocap_truth" value="$(arg drone_truth)"/>
+  </include>
 
-  <!-- Motion Capture Node-->
   <node name="node" pkg="optitrack_vrpn" type="node" output="screen"/>
 
-  <!-- Load common parameters -->
-  <rosparam command="load" file="$(find roscopter)/params/$(arg drone_name).yaml"/>
+  <!-- if tuning -->
+  <node name="hlc_cont_ned" pkg="roscopter" type="hlc_continuous_ned.py"/>
 
-  <!-- PID Position Controller -->
-  <node name="controller" pkg="roscopter" type="ff_cntrl_node" output="screen">
-    <remap from="estimate" to="odom"/>
-    <remap from="waypoint" to="high_level_command"/>
-  </node>
-
-  <!-- Estimator -->
-  <node name="estimator" type="ekf_node" pkg="roscopter" output="screen">
-    <remap from="imu" to="/imu/data"/>
-    <remap from="pose" to="/$(arg drone_name)_ned"/>
-  </node>
-
-  <!-- Waypoint Manager -->
-  <rosparam command="load" file="$(find roscopter)/params/waypoints.yaml"/>
-  <node name="waypoint_manager" pkg="roscopter" type="waypoint_manager.py" output="screen">
-    <remap from="state" to="odom"/>
-  </node>
-
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/mocap.bag --all"/>
-
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/mocap_flight/copter_mocap --all"/>
 </launch>

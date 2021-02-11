@@ -25,5 +25,5 @@
     <arg name="rover_host"        value="$(arg rover_host)"/>
   </include> 
 
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o ../data/outdoor --all"/>
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-O ../data/outdoor/landing_ublox --all"/>
 </launch>

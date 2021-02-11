@@ -16,8 +16,8 @@ landing_horizontal_threshold: 0.1,
 landing_orient_threshold_deg: 10,
 landing_velocity_horizontal_threshold: 0.5,
 begin_descent_height: -2.0,
-begin_landing_height: -0.15,
+begin_landing_height: -0.10,
 # antenna_offset: [0.0, 0.0, 0.0], #mocap/gazebo
-antenna_offset: [0.64, -0.81, 0.06], #m2u
-# antenna_offset: [-0.82, 0.70, -0.11], #outdoor
+# antenna_offset: [0.64, -0.81, 0.06], #m2u
+antenna_offset: [0.7, -0.75, 0.06], #outdoor
 }
