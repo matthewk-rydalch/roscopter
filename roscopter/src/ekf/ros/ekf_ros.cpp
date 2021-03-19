@@ -169,16 +169,5 @@ namespace roscopter::ekf
     imu_bias_msg_.linear_acceleration_covariance[8] = imu_R_(2,2);
 
     imu_bias_pub_.publish(imu_bias_msg_);
-
-    // Only publish is_flying is true once
-    if (!is_flying_) 
-    {
-      is_flying_ = ekf_.isFlying();
-      if (is_flying_)
-      {
-        is_flying_msg_.data = is_flying_;
-        is_flying_pub_.publish(is_flying_msg_);
-      }
-    }
   }
 }

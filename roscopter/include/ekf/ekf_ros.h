@@ -75,15 +75,8 @@ public:
   void initROS();
 
   void imuCallback(const sensor_msgs::ImuConstPtr& msg);
-  void baroCallback(const rosflight_msgs::BarometerConstPtr& msg);
-  void poseCallback(const geometry_msgs::PoseStampedConstPtr &msg);
-  void odomCallback(const nav_msgs::OdometryConstPtr &msg);
   void gnssCallback(const rosflight_msgs::GNSSConstPtr& msg);
-  void mocapCallback(const ros::Time& time, const xform::Xformd &z);
   void compassingCallback(const ros::Time &time, const double &z);
-  void statusCallback(const rosflight_msgs::StatusConstPtr& msg);
-  void commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr& msg);
-
 
   #ifdef UBLOX
     void gnssCallbackUblox(const ublox::PosVelEcefConstPtr& msg);
@@ -105,19 +98,12 @@ protected:
   ros::NodeHandle nh_private_;
 
   ros::Subscriber imu_sub_;
-  ros::Subscriber baro_sub_;
-  ros::Subscriber pose_sub_;
-  ros::Subscriber odom_sub_;
   ros::Subscriber gnss_sub_;
-  ros::Subscriber status_sub_;
-  ros::Subscriber common_ref_lla_sub_;
 
   ros::Publisher odometry_pub_;
   ros::Publisher euler_rad_pub_;
   ros::Publisher euler_deg_pub_;
   ros::Publisher imu_bias_pub_;
-  ros::Publisher is_flying_pub_;
-  ros::Publisher ref_lla_pub_;
 
   #ifdef UBLOX
     ros::Subscriber ublox_gnss_sub_;
@@ -133,10 +119,6 @@ protected:
   sensor_msgs::Imu imu_bias_msg_;
   nav_msgs::Odometry odom_msg_;
   geometry_msgs::Vector3Stamped euler_msg_;
-  std_msgs::Bool is_flying_msg_;
-  geometry_msgs::PoseWithCovariance gps_ned_cov_msg_;
-  geometry_msgs::PoseWithCovariance gps_ecef_cov_msg_; 
-  geometry_msgs::TwistStamped base_vel_msg_;
   std::mutex ekf_mtx_;
 
   bool imu_init_ = false;
@@ -157,7 +139,6 @@ protected:
   Matrix6d imu_R_;
   Matrix6d mocap_R_;
   double compassing_R_;
-  double baro_R_;
 
   bool manual_compassing_noise_;
   double rtk_compassing_noise_stdev_;
