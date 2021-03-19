@@ -55,25 +55,6 @@ Imu::Imu(double _t, const Vector6d &_z, const Matrix6d &_R)
     type = IMU;
 }
 
-/////
-//called by baroCallback
-Baro::Baro(double _t, const double &_z, const double &_R, const double& _temp)
-{
-    t = _t;
-    z(0) = _z;
-    R(0) = _R;
-    temp = _temp;
-    type = RANGE;
-}
-
-Range::Range(double _t, const double &_z, const double &_R)
-{
-    t = _t;
-    z(0) = _z;
-    R(0) = _R;
-    type = RANGE;
-}
-
 Compass::Compass(double _t, const double &_z, const double &_R)
 {
     t = _t;
@@ -90,19 +71,5 @@ Gnss::Gnss(double _t, const Vector6d& _z, const Matrix6d& _R) :
     type = GNSS;
     z = _z;
     R = _R;
-}
-
-Mocap::Mocap(double _t, const xform::Xformd &_z, const Matrix6d &_R) :
-    z(_z),
-    R(_R)
-{
-    t = _t;
-    type = MOCAP;
-}
-
-ZeroVel::ZeroVel(double _t)
-{
-    t = _t;
-    type = ZERO_VEL;
 }
 }

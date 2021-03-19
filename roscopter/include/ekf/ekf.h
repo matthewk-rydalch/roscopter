@@ -84,14 +84,8 @@ public:
   void imuCallback(const double& t, const Vector6d& z, const Matrix6d& R);
   void gnssCallback(const double& t, const Vector6d& z, const Matrix6d& R);
 
-  void baroUpdate(const double& t, const double& z, const double& R,
-                    const double& temp);
   void gnssUpdate(const meas::Gnss &z);
-  void mocapUpdate(const double& t, const xform::Xformd& z, const Matrix6d& R);
   void compassingUpdate(const double& t, const double& z, const double& R);
-  void zeroVelUpdate(double t);
-
-  void setRefLla(Eigen::Vector3d ref_lla);
 
   void initLog();
   void logState();
@@ -165,9 +159,7 @@ public:
   bool use_zero_vel_;
   meas::MeasSet meas_;
   std::deque<meas::Imu, Eigen::aligned_allocator<meas::Imu>> imu_meas_buf_;
-  std::deque<meas::Mocap, Eigen::aligned_allocator<meas::Mocap>> mocap_meas_buf_;
   std::deque<meas::Gnss, Eigen::aligned_allocator<meas::Gnss>> gnss_meas_buf_;
-  std::deque<meas::ZeroVel, Eigen::aligned_allocator<meas::ZeroVel>> zv_meas_buf_;
 };
 
 }

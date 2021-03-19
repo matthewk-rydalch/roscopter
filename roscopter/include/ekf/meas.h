@@ -25,11 +25,7 @@ struct Base
         BASE,
         GNSS,
         IMU,
-        BARO,
-        RANGE,
         COMPASS,
-        MOCAP,
-        ZERO_VEL
     };
     double t;
     int type;
@@ -63,42 +59,12 @@ struct Imu : public Base
     Matrix6d R;
 };
 
-struct Baro : public Base
-{
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    Baro(double _t, const double& _z, const double& _R, const double& _temp);
-    Eigen::Matrix<double, 1, 1> z;
-    Eigen::Matrix<double, 1, 1> R;
-    double temp;
-};
-
-struct Range : public Base
-{
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    Range(double _t, const double& _z, const double& _R);
-    Eigen::Matrix<double, 1, 1> z;
-    Eigen::Matrix<double, 1, 1> R;
-};
-
 struct Compass : public Base
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Compass(double _t, const double& _z, const double& _R);
     Eigen::Matrix<double, 1, 1> z;
     Eigen::Matrix<double, 1, 1> R;
-};
-
-struct Mocap : public Base
-{
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    Mocap(double _t, const xform::Xformd& _z, const Matrix6d& _R);
-    xform::Xformd z;
-    Matrix6d R;
-};
-
-struct ZeroVel: public Base
-{
-    ZeroVel(double _t);
 };
 
 }
