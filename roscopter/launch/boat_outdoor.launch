@@ -53,8 +53,7 @@
         <param name="rover_port2" value="16150"/>
         <rosparam command="load" file="$(find ublox)/params/ublox.yaml"/>
         <param name="rover_quantity" value="2"/>
-	<param name="base_type" value="moving"/>
-	<param name="message_rate" value="5"/>
+        <param name="base_type" value="moving"/>
       </node>
 
       <group ns="compass">
