@@ -32,64 +32,6 @@ namespace roscopter::ekf
       publishEstimates(msg);
   }
 
-  void EKF_ROS::baroCallback(const rosflight_msgs::BarometerConstPtr& msg)
-  {
-
-    const double pressure_meas = msg->pressure;
-    const double temperature_meas = msg->temperature;
-
-    if (!ekf_.groundTempPressSet())
-    {
-      std::cout << "Set ground pressure and temp" << std::endl;
-      std::cout << "press: " << pressure_meas << std::endl;
-      ekf_.setGroundTempPressure(temperature_meas, pressure_meas);
-    }
-
-    if (start_time_.sec == 0)
-      return;
-
-    const double t = (msg->header.stamp - start_time_).toSec();
-    ekf_.baroUpdate(t, pressure_meas, baro_R_, temperature_meas);
-  }
-
-  void EKF_ROS::poseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
-  {
-    xform::Xformd z;
-    z.arr_ << msg->pose.position.x,
-            msg->pose.position.y,
-            msg->pose.position.z,
-            msg->pose.orientation.w,
-            msg->pose.orientation.x,
-            msg->pose.orientation.y,
-            msg->pose.orientation.z;
-
-    mocapCallback(msg->header.stamp, z);
-  }
-
-  void EKF_ROS::odomCallback(const nav_msgs::OdometryConstPtr &msg)
-  {
-    xform::Xformd z;
-    z.arr_ << msg->pose.pose.position.x,
-              msg->pose.pose.position.y,
-              msg->pose.pose.position.z,
-              msg->pose.pose.orientation.w,
-              msg->pose.pose.orientation.x,
-              msg->pose.pose.orientation.y,
-              msg->pose.pose.orientation.z;
-
-    mocapCallback(msg->header.stamp, z);
-  }
-
-  void EKF_ROS::mocapCallback(const ros::Time &time, const xform::Xformd &z)
-  {
-
-    if (start_time_.sec == 0)
-      return;
-
-    double t = (time - start_time_).toSec();
-    ekf_.mocapUpdate(t, z, mocap_R_);
-  }
-
   void EKF_ROS::compassingCallback(const ros::Time &time, const double &z)
   {
     if (start_time_.sec == 0)
@@ -98,26 +40,6 @@ namespace roscopter::ekf
     const double t = (time - start_time_).toSec();
     ekf_.compassingUpdate(t, z, compassing_R_);
   }
-
-  void EKF_ROS::statusCallback(const rosflight_msgs::StatusConstPtr &msg)
-  {
-
-    if (msg->armed)
-    {
-      ekf_.setArmed();
-    }
-    else
-    {
-      ekf_.setDisarmed();
-    }
-  }
-
-  void EKF_ROS::commonRefLlaCallback(const rosflight_msgs::GNSSConstPtr &msg)
-  {
-    Eigen::Vector3d ref_lla{msg->position[0],msg->position[1],msg->position[2]};
-    ekf_.setRefLla(ref_lla);
-  }
-
 
   void EKF_ROS::gnssCallback(const rosflight_msgs::GNSSConstPtr &msg)
   {
