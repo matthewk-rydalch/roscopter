@@ -140,7 +140,7 @@ class WaypointManager():
 
         self.new_waypoint(waypoint)
 
-        if error < self.threshold:
+        if error < self.landing_threshold:
             self.mission_state = 2 #switch to descent state
             print('descend state')
 
@@ -166,7 +166,8 @@ class WaypointManager():
 
         error = np.linalg.norm(current_position - waypoint)
         self.publish_error(current_position, waypoint)
-        if error < self.threshold:
+        alt_error = current_position[2]-waypoint[2]
+        if alt_error < landing_threshold:
             self.landed_pub_.publish(True)
             #TODO find a way to disarm after reaching the waypoint
 
